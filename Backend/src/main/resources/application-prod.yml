@@ -1,0 +1,29 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ecommercespareparts}
+    username: ${DATABASE_USERNAME:lasmer}
+    password: ${DATABASE_PASSWORD:lasmer}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Production server settings
+server:
+  port: ${SERVER_PORT:8080}
+
+# Logging for production
+logging:
+  level:
+    com.example.Backend: INFO
+    org.springframework.web: WARN
+    org.hibernate: WARN

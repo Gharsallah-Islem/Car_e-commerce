@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: car-ecommerce-db
+    environment:
+      POSTGRES_DB: ecommercespareparts
+      POSTGRES_USER: lasmer
+      POSTGRES_PASSWORD: lasmer
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - car-ecommerce-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lasmer -d ecommercespareparts"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: car-ecommerce-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommercespareparts
+      SPRING_DATASOURCE_USERNAME: lasmer
+      SPRING_DATASOURCE_PASSWORD: lasmer
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      AI_MODULE_URL: http://ai-module:5000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - car-ecommerce-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+    container_name: car-ecommerce-frontend
+    environment:
+      API_URL: http://backend:8080/api
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - car-ecommerce-network
+
+  # Python AI Module
+  ai-module:
+    build:
+      context: ./ai-module
+      dockerfile: Dockerfile
+    container_name: car-ecommerce-ai
+    environment:
+      FLASK_ENV: production
+      MODEL_PATH: /app/models
+    ports:
+      - "5000:5000"
+    volumes:
+      - ai_models:/app/models
+    networks:
+      - car-ecommerce-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (for caching and session management)
+  redis:
+    image: redis:7-alpine
+    container_name: car-ecommerce-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - car-ecommerce-network
+    command: redis-server --appendonly yes
+
+  # pgAdmin (optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: car-ecommerce-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@carecommerce.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - car-ecommerce-network
+    profiles:
+      - tools
+
+networks:
+  car-ecommerce-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  ai_models:
+    driver: local
