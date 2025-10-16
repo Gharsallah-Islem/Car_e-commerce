@@ -4,7 +4,7 @@ spring:
   
   datasource:
     url: jdbc:postgresql://localhost:5432/ecommercespareparts
-    username: lasmer
+    username: postgres
     password: lasmer
     driver-class-name: org.postgresql.Driver
   
