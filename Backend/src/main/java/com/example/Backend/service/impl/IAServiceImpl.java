@@ -51,9 +51,6 @@ public class IAServiceImpl implements IAService {
         // For now, create a simple recommendation based on vehicle compatibility
 
         for (Vehicle vehicle : userVehicles) {
-            String compatibility = String.format("{\"brand\":\"%s\",\"model\":\"%s\",\"year\":%d}",
-                    vehicle.getBrand(), vehicle.getModel(), vehicle.getYear());
-
             // Find compatible products - get top products for now
             List<Product> compatibleProducts = productRepository.findTopSellingProducts(PageRequest.of(0, 5))
                     .getContent();

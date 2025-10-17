@@ -38,7 +38,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         delivery.setOrder(order);
         delivery.setTrackingNumber(generateTrackingNumber());
         delivery.setStatus(Delivery.STATUS_PROCESSING);
-        delivery.setDeliveryAddress(deliveryDTO.getDeliveryAddress());
+        delivery.setAddress(deliveryDTO.getDeliveryAddress());
         delivery.setDeliveryNotes(deliveryDTO.getRecipientName() + " - " + deliveryDTO.getRecipientPhone());
         delivery.setDriverName(deliveryDTO.getCourierName());
         delivery.setCreatedAt(LocalDateTime.now());

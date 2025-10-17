@@ -39,8 +39,8 @@ public class Delivery implements Serializable {
     @Column(name = "status", nullable = false, length = 50)
     private String status; // PROCESSING, IN_TRANSIT, OUT_FOR_DELIVERY, DELIVERED, FAILED
 
-    @Column(name = "delivery_address", columnDefinition = "TEXT")
-    private String deliveryAddress;
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 
     @Column(name = "delivery_notes", columnDefinition = "TEXT")
     private String deliveryNotes;
@@ -56,6 +56,12 @@ public class Delivery implements Serializable {
 
     @Column(name = "driver_phone", length = 20)
     private String driverPhone;
+
+    @Column(name = "pickup_time")
+    private LocalDateTime pickupTime;
+
+    @Column(name = "current_location", columnDefinition = "TEXT")
+    private String currentLocation;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

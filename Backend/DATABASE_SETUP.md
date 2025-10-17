@@ -48,7 +48,7 @@ Based on your SQL script, the following tables have been created:
 6. **cart_items** - Cart line items
 7. **orders** - Customer orders
 8. **order_items** - Order line items
-9. **deliveries** - ONdelivery integration
+9. **deliveries** - Internal delivery tracking system (mock implementation)
 10. **reclamations** - Customer complaints
 11. **conversations** - Chat conversations
 12. **messages** - Chat messages

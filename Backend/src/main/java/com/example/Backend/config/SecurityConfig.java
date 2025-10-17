@@ -1,12 +1,10 @@
 package com.example.Backend.config;
 
-import com.example.Backend.security.CustomUserDetailsService;
 import com.example.Backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,19 +28,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder());
-        authProvider.setUserDetailsService(userDetailsService);
-        return authProvider;
     }
 
     @Bean
@@ -60,26 +50,36 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/brands/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        
+
+                        // Actuator endpoints (health check)
+                        .requestMatchers("/actuator/**").permitAll()
+
+                        // Swagger/OpenAPI documentation
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+
                         // Admin endpoints
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        
+
                         // User endpoints
                         .requestMatchers("/api/cart/**").hasRole("CLIENT")
                         .requestMatchers("/api/orders/**").hasRole("CLIENT")
                         .requestMatchers("/api/vehicles/**").hasRole("CLIENT")
-                        
+
                         // Support endpoints
                         .requestMatchers("/api/reclamations/**").authenticated()
                         .requestMatchers("/api/chat/**").authenticated()
-                        
+
                         // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                )
-                .authenticationProvider(authenticationProvider())
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
