@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { 
-  ChatMessage, 
-  Conversation, 
-  SendMessageRequest, 
-  Page 
+import {
+  ChatMessage,
+  Conversation,
+  SendMessageRequest,
+  Page
 } from '../models/chat.model';
 
 /**
@@ -20,7 +20,7 @@ import {
 export class ChatService {
   private readonly apiUrl = `${environment.apiUrl}/api/chat`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ==================== CONVERSATION MANAGEMENT ====================
 
