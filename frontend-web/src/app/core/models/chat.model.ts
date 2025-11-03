@@ -1,3 +1,6 @@
+// Chat models aligned with Backend API (Spring Boot)
+// Backend uses UUID (string) for all IDs
+
 export enum MessageType {
     TEXT = 'TEXT',
     IMAGE = 'IMAGE',
@@ -6,54 +9,83 @@ export enum MessageType {
     SYSTEM = 'SYSTEM'
 }
 
+export enum SenderType {
+    USER = 'USER',
+    SUPPORT = 'SUPPORT',
+    ADMIN = 'ADMIN'
+}
+
 export enum ChatStatus {
     ACTIVE = 'ACTIVE',
     CLOSED = 'CLOSED',
     PENDING = 'PENDING'
 }
 
+/**
+ * ChatMessage - matches backend Message entity
+ * Backend: c:\...\Backend\entity\Message.java
+ */
 export interface ChatMessage {
-    id?: number;
-    conversationId: number;
-    senderId: number;
-    senderName: string;
-    senderRole: 'CLIENT' | 'ADMIN';
+    id?: string;  // UUID from backend
+    conversationId: string;  // UUID
+    senderId: string;  // UUID
+    senderType: SenderType;  // USER | SUPPORT | ADMIN
     content: string;
-    type: MessageType;
-    fileUrl?: string;
-    timestamp: Date;
+    attachmentUrl?: string;  // For photos/videos/files
     isRead: boolean;
+    createdAt: Date;
 }
 
+/**
+ * Conversation - matches backend Conversation entity
+ * Backend: c:\...\Backend\entity\Conversation.java
+ */
 export interface Conversation {
-    id: number;
-    clientId: number;
-    clientName: string;
-    adminId?: number;
-    adminName?: string;
-    status: ChatStatus;
-    subject?: string;
+    id: string;  // UUID from backend
+    userId: string;  // UUID - owner of conversation
+    title?: string;
+    isActive: boolean;
+    messages?: ChatMessage[];  // Populated when needed
     lastMessage?: ChatMessage;
-    unreadCount: number;
     createdAt: Date;
     updatedAt: Date;
 }
 
+/**
+ * DTOs for API requests
+ */
 export interface SendMessageRequest {
-    conversationId?: number;
     content: string;
-    type: MessageType;
-    file?: File;
+    attachmentUrl?: string;
+}
+
+export interface MessageDTO {
+    content: string;
+    attachmentUrl?: string;
 }
 
 export interface CreateConversationRequest {
     subject?: string;
-    initialMessage: string;
 }
 
+/**
+ * Pagination response from Spring Data
+ */
+export interface Page<T> {
+    content: T[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;  // Current page number
+    first: boolean;
+    last: boolean;
+}
+
+/**
+ * Optional: For future WebSocket implementation
+ */
 export interface TypingIndicator {
-    conversationId: number;
-    userId: number;
-    userName: string;
+    conversationId: string;
+    userId: string;
     isTyping: boolean;
 }

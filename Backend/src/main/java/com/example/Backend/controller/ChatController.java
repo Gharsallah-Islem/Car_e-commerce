@@ -3,6 +3,7 @@ package com.example.Backend.controller;
 import com.example.Backend.dto.MessageDTO;
 import com.example.Backend.entity.Conversation;
 import com.example.Backend.entity.Message;
+import com.example.Backend.repository.ConversationRepository;
 import com.example.Backend.security.UserPrincipal;
 import com.example.Backend.service.ChatService;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class ChatController {
 
     private final ChatService chatService;
+    private final ConversationRepository conversationRepository;
 
     /**
      * Start or get conversation with support
@@ -272,23 +274,29 @@ public class ChatController {
     @GetMapping("/support/conversations")
     @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<Conversation>> getAllActiveConversations() {
-        // This would require a service method to get all active conversations
-        // For now, return method not implemented
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        List<Conversation> activeConversations = conversationRepository.findAllActiveConversations();
+        return ResponseEntity.ok(activeConversations);
     }
 
     /**
      * CLIENT: Start support conversation (shortcut endpoint)
      * POST /api/chat/support
+     * 
+     * Note: This creates a conversation for the current user to contact support.
+     * Since Conversation entity is designed for User-to-Support chat,
+     * we simply create/get conversation for the authenticated user.
      */
     @PostMapping("/support")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Conversation> startSupportConversation(
             @AuthenticationPrincipal UserPrincipal currentUser) {
 
-        // This would create conversation with a designated support user/bot
-        // For now, return method not implemented
-        // In production, this would call getOrCreateConversation with a support user ID
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        // Create or get existing conversation for this user
+        // The service will handle finding existing or creating new
+        Conversation conversation = chatService.getOrCreateConversation(
+                currentUser.getId(),
+                currentUser.getId());
+
+        return ResponseEntity.ok(conversation);
     }
 }
