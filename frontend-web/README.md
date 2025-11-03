@@ -1,67 +1,88 @@
-# Frontend Web Application (Angular)
+# AutoParts Store - Frontend
 
-## Overview
-Angular-based web application for the Car E-Commerce platform.
+Angular 18 frontend application for an auto parts e-commerce platform with AI-powered mechanic assistance.
+
+## Features
+
+- 🏠 **Home Page** - Hero section, featured products, categories
+- 🛍️ **Product Catalog** - Browse, search, filter auto parts
+- 🛒 **Shopping Cart** - Manage cart items, apply coupons
+- 💳 **Checkout** - Multi-step checkout with Stripe integration
+- 👤 **User Profile** - Manage profile, view orders, addresses
+- 🔐 **Authentication** - Login, register, OAuth2 (Google)
+- 🤖 **AI Mechanic** - Image-based part identification & chatbot
+- 👨‍💼 **Admin Dashboard** - Manage products, orders, users
+
+## Tech Stack
+
+- **Framework**: Angular 18.2.14 (Standalone Components)
+- **UI Library**: Angular Material 18.2.14
+- **State Management**: Angular Signals
+- **Forms**: Reactive Forms, FormsModule
+- **HTTP Client**: HttpClient with Interceptors
+- **Routing**: Angular Router with Guards
+- **Styling**: SCSS
 
 ## Prerequisites
-- Node.js 18+
-- Angular CLI
-- npm or yarn
 
-## Setup
+- Node.js 18+ and npm
+- Angular CLI 18.2.5+
+
+## Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
-ng serve
-
-# Build for production
-ng build --configuration production
 ```
+
+## Development Server
+
+```bash
+ng serve
+```
+
+Navigate to `http://localhost:4200/`
+
+## Build
+
+```bash
+ng build
+```
+
+Build artifacts will be stored in the `dist/` directory.
 
 ## Project Structure
 
 ```
 src/
-├── app/                # Application source
-├── assets/            # Static assets
-├── environments/      # Environment configurations
-└── styles.scss        # Global styles
+├── app/
+│   ├── core/           # Services, guards, interceptors, models
+│   ├── features/       # Feature modules (home, products, cart, etc.)
+│   ├── app.component.* # Root component with navbar & footer
+│   ├── app.config.ts   # App configuration
+│   └── app.routes.ts   # Route definitions
+├── assets/             # Static assets
+└── styles.scss         # Global styles
 ```
 
-## Features
-- Product catalog
-- Shopping cart
-- Order management
-- User authentication
-- Admin dashboard
-- Real-time chat
-- AI recommendations
+## Key Services
 
-## Development
+- **AuthService** - Authentication & user management
+- **ProductService** - Product CRUD operations
+- **CartService** - Shopping cart management
+- **OrderService** - Order processing
+- **NotificationService** - Toast notifications
+- **LoadingService** - Global loading state
 
-### Running Tests
-```bash
-# Unit tests
-npm test
+## Environment Configuration
 
-# E2E tests
-npm run e2e
-```
+Configure API endpoints in `src/environments/`:
+- `environment.ts` - Development
+- `environment.prod.ts` - Production
 
-### Code Style
-```bash
-# Lint
-npm run lint
+## API Integration
 
-# Format
-npm run format
-```
-
-## Documentation
-See [docs/frontend](../docs/frontend) for detailed documentation.
+Backend API base URL: `http://localhost:8080/api`
 
 ## License
+
 MIT

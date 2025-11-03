@@ -1,0 +1,295 @@
+<div class="ai-mechanic-container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="title-section">
+                <mat-icon>psychology</mat-icon>
+                <div>
+                    <h1>Assistant Mécanique IA</h1>
+                    <p>Identification de pièces et assistance technique</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="features-grid">
+        <mat-card class="feature-card">
+            <mat-icon>photo_camera</mat-icon>
+            <h3>Identification par image</h3>
+            <p>Prenez une photo de la pièce pour l'identifier automatiquement</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon>chat</mat-icon>
+            <h3>Assistant conversationnel</h3>
+            <p>Posez vos questions et obtenez des réponses instantanées</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon>search</mat-icon>
+            <h3>Recherche intelligente</h3>
+            <p>Trouvez rapidement les pièces compatibles avec votre véhicule</p>
+        </mat-card>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
+
+        <!-- Image Identification Tab -->
+        <mat-tab label="Identification par image">
+            <div class="tab-content">
+                <mat-card class="identification-card">
+
+                    @if (!uploadedImage()) {
+                    <!-- Upload Area -->
+                    <div class="upload-area" (click)="triggerFileInput()">
+                        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
+                            style="display: none;" />
+
+                        <div class="upload-content">
+                            <mat-icon>cloud_upload</mat-icon>
+                            <h2>Télécharger une image</h2>
+                            <p>Cliquez pour sélectionner ou glissez-déposez une image de la pièce</p>
+                            <p class="upload-hint">
+                                <mat-icon>info</mat-icon>
+                                Formats acceptés : JPG, PNG, WEBP (max 5 MB)
+                            </p>
+                            <button mat-raised-button color="primary">
+                                <mat-icon>add_photo_alternate</mat-icon>
+                                Choisir une image
+                            </button>
+                        </div>
+                    </div>
+                    } @else {
+                    <!-- Image Preview & Results -->
+                    <div class="identification-content">
+
+                        <!-- Uploaded Image -->
+                        <div class="image-section">
+                            <div class="image-header">
+                                <h3>
+                                    <mat-icon>image</mat-icon>
+                                    Image téléchargée
+                                </h3>
+                                <button mat-icon-button (click)="clearImage()" matTooltip="Supprimer l'image">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+
+                            <div class="image-preview">
+                                <img [src]="uploadedImage()" alt="Uploaded part image" />
+                            </div>
+
+                            @if (identificationLoading()) {
+                            <div class="analysis-overlay">
+                                <mat-spinner diameter="60"></mat-spinner>
+                                <p>Analyse de l'image en cours...</p>
+                                <p class="analysis-detail">Intelligence artificielle en action</p>
+                            </div>
+                            }
+                        </div>
+
+                        <!-- Identification Results -->
+                        @if (identificationResult() && !identificationLoading()) {
+                        <div class="results-section">
+                            <div class="results-header">
+                                <h3>
+                                    <mat-icon>check_circle</mat-icon>
+                                    Résultat de l'identification
+                                </h3>
+                                <mat-chip [color]="identificationResult()!.confidence > 90 ? 'primary' : 'accent'">
+                                    <mat-icon>trending_up</mat-icon>
+                                    {{ identificationResult()!.confidence }}% de confiance
+                                </mat-chip>
+                            </div>
+
+                            <mat-divider></mat-divider>
+
+                            <div class="result-details">
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>label</mat-icon>
+                                        Nom de la pièce
+                                    </span>
+                                    <span class="value">{{ identificationResult()!.partName }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>tag</mat-icon>
+                                        Référence
+                                    </span>
+                                    <span class="value">{{ identificationResult()!.partNumber }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>category</mat-icon>
+                                        Catégorie
+                                    </span>
+                                    <span class="value">{{ identificationResult()!.category }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>verified</mat-icon>
+                                        Marque
+                                    </span>
+                                    <span class="value">{{ identificationResult()!.brand }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>payments</mat-icon>
+                                        Prix
+                                    </span>
+                                    <span class="value price">{{ identificationResult()!.price | number:'1.2-2' }}
+                                        MAD</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="label">
+                                        <mat-icon>inventory</mat-icon>
+                                        Stock
+                                    </span>
+                                    <span class="value stock">{{ identificationResult()!.stock }} unités</span>
+                                </div>
+                            </div>
+
+                            <mat-divider></mat-divider>
+
+                            <div class="compatibility-section">
+                                <h4>
+                                    <mat-icon>build</mat-icon>
+                                    Compatibilité
+                                </h4>
+                                <div class="compatibility-chips">
+                                    @for (vehicle of identificationResult()!.compatibility; track vehicle) {
+                                    <mat-chip>
+                                        <mat-icon>directions_car</mat-icon>
+                                        {{ vehicle }}
+                                    </mat-chip>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="actions">
+                                <button mat-raised-button color="primary" (click)="addToCart()">
+                                    <mat-icon>shopping_cart</mat-icon>
+                                    Ajouter au panier
+                                </button>
+                                <button mat-stroked-button color="primary" (click)="viewProductDetails()">
+                                    <mat-icon>visibility</mat-icon>
+                                    Voir les détails
+                                </button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </mat-card>
+            </div>
+        </mat-tab>
+
+        <!-- Chatbot Tab -->
+        <mat-tab label="Assistant conversationnel">
+            <div class="tab-content">
+
+                <!-- Chat Interface -->
+                <mat-card class="chat-card">
+
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" #chatContainer>
+                        @for (message of chatMessages(); track message.id) {
+                        <div class="message-wrapper" [class.user-message]="message.sender === 'user'"
+                            [class.ai-message]="message.sender === 'ai'">
+                            <div class="message-bubble">
+                                <div class="message-header">
+                                    <mat-icon>{{ message.sender === 'user' ? 'person' : 'smart_toy' }}</mat-icon>
+                                    <span class="sender-name">{{ message.sender === 'user' ? 'Vous' : 'Assistant IA'
+                                        }}</span>
+                                    <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
+                                </div>
+                                <div class="message-text">{{ message.text }}</div>
+
+                                @if (message.relatedProducts && message.relatedProducts.length > 0) {
+                                <div class="related-products">
+                                    <p class="products-title">
+                                        <mat-icon>shopping_bag</mat-icon>
+                                        Produits recommandés
+                                    </p>
+                                    <div class="products-grid">
+                                        @for (product of message.relatedProducts; track product.id) {
+                                        <div class="product-card" (click)="viewProduct(product.id)">
+                                            <div class="product-image">
+                                                <mat-icon>image</mat-icon>
+                                            </div>
+                                            <div class="product-info">
+                                                <p class="product-name">{{ product.name }}</p>
+                                                <p class="product-price">{{ product.price | number:'1.2-2' }} MAD</p>
+                                            </div>
+                                            <mat-icon class="arrow">arrow_forward</mat-icon>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        @if (chatLoading()) {
+                        <div class="message-wrapper ai-message">
+                            <div class="message-bubble typing">
+                                <div class="message-header">
+                                    <mat-icon>smart_toy</mat-icon>
+                                    <span class="sender-name">Assistant IA</span>
+                                </div>
+                                <div class="typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Suggested Questions -->
+                    @if (chatMessages().length <= 1) { <div class="suggested-questions">
+                        <p class="suggestions-title">
+                            <mat-icon>help_outline</mat-icon>
+                            Questions fréquentes
+                        </p>
+                        <div class="questions-chips">
+                            @for (question of suggestedQuestions; track question) {
+                            <mat-chip (click)="sendSuggestedQuestion(question)">
+                                {{ question }}
+                            </mat-chip>
+                            }
+                        </div>
+            </div>
+            }
+
+            <mat-divider></mat-divider>
+
+            <!-- Chat Input -->
+            <div class="chat-input">
+                <mat-form-field class="message-field">
+                    <mat-label>Posez votre question...</mat-label>
+                    <input matInput [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" [disabled]="chatLoading()"
+                        placeholder="Ex: Comment changer mes plaquettes de frein ?" />
+                    <mat-icon matPrefix>edit</mat-icon>
+                </mat-form-field>
+                <button mat-fab color="primary" (click)="sendMessage()"
+                    [disabled]="!userMessage().trim() || chatLoading()" matTooltip="Envoyer le message">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+            </mat-card>
+</div>
+</mat-tab>
+
+</mat-tab-group>
+</div>

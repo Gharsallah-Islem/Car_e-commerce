@@ -50,6 +50,39 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // Generate token from email (for OAuth2)
+    public String generateToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .subject(email)
+                .claim("email", email)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key)
+                .compact();
+    }
+
+    // Generate refresh token
+    public String generateRefreshToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + (jwtExpirationMs * 7)); // 7x longer than access token
+
+        return Jwts.builder()
+                .subject(email)
+                .claim("email", email)
+                .claim("type", "refresh")
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key)
+                .compact();
+    }
+
+    public long getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
     public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key)

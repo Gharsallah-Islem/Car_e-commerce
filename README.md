@@ -1,24 +1,23 @@
-# 🚗 Car E-Commerce Platform
+# 🚗 AutoParts Store - Car E-Commerce Platform
 
-A comprehensive e-commerce platform for selling car spare parts with AI integration, featuring web, mobile, and AI modules.
+A comprehensive e-commerce platform for auto parts with AI-powered mechanic assistance, OAuth2 authentication, and Stripe payment integration.
 
 ## 📋 Project Overview
 
 This platform provides a complete solution for car spare parts e-commerce with:
-- 🤖 AI-powered recommendations
-- 📸 Image-based part recognition
-- 💬 Real-time chat support
-- 🚚 Delivery tracking (ONdelivery integration)
-- 📱 Cross-platform support (Web & Mobile)
+- 🛍️ Full-featured product catalog and shopping cart
+- 🤖 AI-powered mechanic assistant with image recognition
+- � Stripe payment integration
+- � OAuth2 authentication (Google)
+- 👨‍💼 Admin dashboard for product/order management
+- 📱 Responsive web design
 
 ## 🏗️ Project Structure
 
 ```
 Car_e-commerce/
-├── backend/                 # Spring Boot REST API
-├── frontend-web/           # Angular Web Application
-├── mobile-app/             # Kotlin Mobile Application
-├── ai-module/              # Python AI/ML Services
+├── Backend/                # Spring Boot 3.5.6 REST API
+├── frontend-web/           # Angular 18 Web Application
 ├── docs/                   # Project Documentation
 ├── .github/                # GitHub Actions & Templates
 └── docker/                 # Docker Compose & Configurations
@@ -29,25 +28,17 @@ Car_e-commerce/
 ### Backend
 - **Framework**: Spring Boot 3.5.6
 - **Language**: Java 21
-- **Database**: PostgreSQL
-- **Security**: JWT, Spring Security
+- **Database**: PostgreSQL (JPA/Hibernate)
+- **Security**: JWT, Spring Security, OAuth2
+- **Payment**: Stripe API
 - **API Documentation**: Swagger/OpenAPI
 
 ### Frontend (Web)
-- **Framework**: Angular
-- **Language**: TypeScript
-- **UI Library**: TBD (Angular Material / PrimeNG)
-
-### Mobile
-- **Language**: Kotlin
-- **Platform**: Android
-- **Architecture**: MVVM
-
-### AI Module
-- **Language**: Python
-- **Frameworks**: TensorFlow/PyTorch, Flask/FastAPI
-- **Features**: 
-  - Image recognition for spare parts
+- **Framework**: Angular 18.2.14
+- **Language**: TypeScript (Strict Mode)
+- **UI Library**: Angular Material 18.2.14
+- **State Management**: Angular Signals
+- **Styling**: SCSS
   - Recommendation system
   - Chatbot integration
 

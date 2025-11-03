@@ -1,0 +1,181 @@
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+.header-content {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 24px;
+
+    .logo-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #667eea;
+        margin-bottom: 16px;
+    }
+
+    mat-card-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    mat-card-subtitle {
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+mat-card-content {
+    padding: 0 16px 16px;
+}
+
+form {
+    margin-top: 24px;
+}
+
+.name-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+
+    .half-width {
+        flex: 1;
+    }
+}
+
+mat-form-field {
+    margin-bottom: 16px;
+}
+
+.terms-checkbox {
+    margin-bottom: 24px;
+
+    mat-checkbox {
+        font-size: 14px;
+    }
+
+    .link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .terms-error {
+        color: #f44336;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+}
+
+.submit-btn {
+    height: 48px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    position: relative;
+
+    .spinner {
+        margin: 0 auto;
+    }
+}
+
+.divider-container {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+
+    .divider-text {
+        padding: 0 16px;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    mat-divider {
+        flex: 1;
+    }
+}
+
+.google-btn {
+    height: 48px;
+    font-size: 16px;
+    margin-bottom: 24px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: #667eea;
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+
+    .google-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+    }
+}
+
+.login-link {
+    text-align: center;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+
+    .link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        margin-left: 8px;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .register-container {
+        padding: 16px;
+    }
+
+    .register-card {
+        padding: 16px;
+    }
+
+    .header-content {
+        mat-card-title {
+            font-size: 24px;
+        }
+
+        mat-card-subtitle {
+            font-size: 14px;
+        }
+    }
+
+    .name-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}

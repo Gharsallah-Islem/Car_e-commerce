@@ -53,9 +53,10 @@ public class OrderController {
     /**
      * Get current user's orders
      * GET /api/orders/my-orders?page=0&size=10
+     * GET /api/orders/user/me?page=0&size=10 (alias)
      * Security: CLIENT role required
      */
-    @GetMapping("/my-orders")
+    @GetMapping({ "/my-orders", "/user/me" })
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Page<Order>> getMyOrders(
             @AuthenticationPrincipal UserPrincipal currentUser,

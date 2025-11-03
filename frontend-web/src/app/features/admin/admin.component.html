@@ -1,0 +1,532 @@
+<div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="title-section">
+                <mat-icon>admin_panel_settings</mat-icon>
+                <div>
+                    <h1>Tableau de bord Admin</h1>
+                    <p>Gestion de la boutique AutoShop</p>
+                </div>
+            </div>
+            <button mat-stroked-button routerLink="/">
+                <mat-icon>home</mat-icon>
+                Retour au site
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="stats-grid">
+        <mat-card class="stat-card">
+            <div class="stat-icon revenue">
+                <mat-icon>payments</mat-icon>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats().totalRevenue | number:'1.2-2' }} MAD</h3>
+                <p>Revenu total</p>
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <div class="stat-icon orders">
+                <mat-icon>shopping_bag</mat-icon>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats().totalOrders }}</h3>
+                <p>Commandes</p>
+                @if (stats().pendingOrders > 0) {
+                <span class="badge">{{ stats().pendingOrders }} en attente</span>
+                }
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <div class="stat-icon products">
+                <mat-icon>inventory_2</mat-icon>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats().totalProducts }}</h3>
+                <p>Produits</p>
+                @if (stats().lowStockProducts > 0) {
+                <span class="badge warn">{{ stats().lowStockProducts }} stock faible</span>
+                }
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <div class="stat-icon users">
+                <mat-icon>people</mat-icon>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats().totalUsers }}</h3>
+                <p>Utilisateurs</p>
+            </div>
+        </mat-card>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
+
+        <!-- Products Tab -->
+        <mat-tab label="Produits">
+            <div class="tab-content">
+
+                <!-- Product Form Card -->
+                <mat-card class="form-card">
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>{{ editingProduct() ? 'edit' : 'add_circle' }}</mat-icon>
+                            {{ editingProduct() ? 'Modifier le produit' : 'Ajouter un produit' }}
+                        </h2>
+                        @if (editingProduct()) {
+                        <button mat-button (click)="cancelProductEdit()">
+                            <mat-icon>close</mat-icon>
+                            Annuler
+                        </button>
+                        }
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <form [formGroup]="productForm" class="product-form">
+                        <div class="form-row">
+                            <mat-form-field class="half-width">
+                                <mat-label>Nom du produit</mat-label>
+                                <input matInput formControlName="name" />
+                                <mat-icon matPrefix>label</mat-icon>
+                                @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched)
+                                {
+                                <mat-error>Le nom est requis</mat-error>
+                                }
+                                @if (productForm.get('name')?.hasError('minlength')) {
+                                <mat-error>Minimum 3 caractères</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field class="half-width">
+                                <mat-label>Marque</mat-label>
+                                <mat-select formControlName="brand">
+                                    @for (brand of brands; track brand) {
+                                    <mat-option [value]="brand">{{ brand }}</mat-option>
+                                    }
+                                </mat-select>
+                                <mat-icon matPrefix>verified</mat-icon>
+                                @if (productForm.get('brand')?.hasError('required') &&
+                                productForm.get('brand')?.touched) {
+                                <mat-error>La marque est requise</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Description</mat-label>
+                            <textarea matInput formControlName="description" rows="3"></textarea>
+                            <mat-icon matPrefix>description</mat-icon>
+                            @if (productForm.get('description')?.hasError('required') &&
+                            productForm.get('description')?.touched) {
+                            <mat-error>La description est requise</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <div class="form-row">
+                            <mat-form-field class="half-width">
+                                <mat-label>Catégorie</mat-label>
+                                <mat-select formControlName="category">
+                                    @for (category of categories; track category) {
+                                    <mat-option [value]="category">{{ category }}</mat-option>
+                                    }
+                                </mat-select>
+                                <mat-icon matPrefix>category</mat-icon>
+                                @if (productForm.get('category')?.hasError('required') &&
+                                productForm.get('category')?.touched) {
+                                <mat-error>La catégorie est requise</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field class="half-width">
+                                <mat-label>URL de l'image</mat-label>
+                                <input matInput formControlName="imageUrl" />
+                                <mat-icon matPrefix>image</mat-icon>
+                                @if (productForm.get('imageUrl')?.hasError('required') &&
+                                productForm.get('imageUrl')?.touched) {
+                                <mat-error>L'URL de l'image est requise</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field class="third-width">
+                                <mat-label>Prix (MAD)</mat-label>
+                                <input matInput type="number" formControlName="price" />
+                                <mat-icon matPrefix>attach_money</mat-icon>
+                                @if (productForm.get('price')?.hasError('required') &&
+                                productForm.get('price')?.touched) {
+                                <mat-error>Le prix est requis</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field class="third-width">
+                                <mat-label>Prix remisé (MAD)</mat-label>
+                                <input matInput type="number" formControlName="discountPrice" />
+                                <mat-icon matPrefix>local_offer</mat-icon>
+                            </mat-form-field>
+
+                            <mat-form-field class="third-width">
+                                <mat-label>Stock</mat-label>
+                                <input matInput type="number" formControlName="stock" />
+                                <mat-icon matPrefix>inventory</mat-icon>
+                                @if (productForm.get('stock')?.hasError('required') &&
+                                productForm.get('stock')?.touched) {
+                                <mat-error>Le stock est requis</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Spécifications (JSON)</mat-label>
+                            <textarea matInput formControlName="specifications" rows="2"
+                                placeholder='{"material": "Céramique", "garantie": "2 ans"}'></textarea>
+                            <mat-icon matPrefix>settings</mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Compatibilité (séparés par des virgules)</mat-label>
+                            <input matInput formControlName="compatibility"
+                                placeholder="Peugeot 208, Renault Clio, ..." />
+                            <mat-icon matPrefix>build</mat-icon>
+                        </mat-form-field>
+
+                        <div class="form-actions">
+                            <button mat-raised-button color="primary" (click)="saveProduct()"
+                                [disabled]="productForm.invalid || loading()">
+                                @if (loading()) {
+                                <mat-spinner diameter="20"></mat-spinner>
+                                } @else {
+                                <mat-icon>{{ editingProduct() ? 'save' : 'add' }}</mat-icon>
+                                }
+                                {{ editingProduct() ? 'Mettre à jour' : 'Ajouter le produit' }}
+                            </button>
+                        </div>
+                    </form>
+                </mat-card>
+
+                <!-- Products Table -->
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>inventory_2</mat-icon>
+                            Liste des produits ({{ products().length }})
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <div class="table-container">
+                        <table mat-table [dataSource]="products()" matSort (matSortChange)="handleSort($event)">
+
+                            <!-- Image Column -->
+                            <ng-container matColumnDef="image">
+                                <th mat-header-cell *matHeaderCellDef>Image</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <div class="product-image">
+                                        <mat-icon>image</mat-icon>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Name Column -->
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <strong>{{ product.name }}</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Category Column -->
+                            <ng-container matColumnDef="category">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Catégorie</th>
+                                <td mat-cell *matCellDef="let product">
+                                    {{ product.category.name }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Brand Column -->
+                            <ng-container matColumnDef="brand">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Marque</th>
+                                <td mat-cell *matCellDef="let product">
+                                    {{ product.brand.name }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Price Column -->
+                            <ng-container matColumnDef="price">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Prix</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <div class="price-cell">
+                                        @if (product.discount && product.discount > 0) {
+                                        <span class="original-price">{{ product.price | number:'1.2-2' }}</span>
+                                        <span class="discount-price">{{ product.price * (1 - product.discount / 100) |
+                                            number:'1.2-2' }} MAD</span>
+                                        } @else {
+                                        <span class="current-price">{{ product.price | number:'1.2-2' }} MAD</span>
+                                        }
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Stock Column -->
+                            <ng-container matColumnDef="stock">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <strong
+                                        [class]="'stock-' + (product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : 'ok')">
+                                        {{ product.stock }}
+                                    </strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <mat-chip [color]="getStockColor(product.stock)">
+                                        {{ getStockStatus(product.stock) }}
+                                    </mat-chip>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let product">
+                                    <button mat-icon-button color="primary" (click)="openProductForm(product)"
+                                        matTooltip="Modifier">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                    <button mat-icon-button color="warn" (click)="deleteProduct(product.id)"
+                                        matTooltip="Supprimer">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: productColumns;"></tr>
+                        </table>
+
+                        <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
+                            (page)="handlePageEvent($event)">
+                        </mat-paginator>
+                    </div>
+                </mat-card>
+            </div>
+        </mat-tab>
+
+        <!-- Orders Tab -->
+        <mat-tab label="Commandes">
+            <div class="tab-content">
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>receipt_long</mat-icon>
+                            Gestion des commandes ({{ orders().length }})
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <div class="table-container">
+                        <table mat-table [dataSource]="orders()" matSort (matSortChange)="handleSort($event)">
+
+                            <!-- Order Number Column -->
+                            <ng-container matColumnDef="orderNumber">
+                                <th mat-header-cell *matHeaderCellDef>Numéro</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <strong>{{ order.orderNumber }}</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Customer Column -->
+                            <ng-container matColumnDef="customer">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <div class="customer-info">
+                                        <strong>{{ order.customerName }}</strong>
+                                        <span class="customer-email">{{ order.customerEmail }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Date Column -->
+                            <ng-container matColumnDef="date">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                                <td mat-cell *matCellDef="let order">
+                                    {{ order.date | date:'dd/MM/yyyy HH:mm' }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <mat-form-field class="status-select">
+                                        <mat-select [value]="order.status"
+                                            (selectionChange)="updateOrderStatus(order.id, $event.value)">
+                                            <mat-option value="pending">En attente</mat-option>
+                                            <mat-option value="processing">En préparation</mat-option>
+                                            <mat-option value="shipped">Expédiée</mat-option>
+                                            <mat-option value="delivered">Livrée</mat-option>
+                                            <mat-option value="cancelled">Annulée</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </td>
+                            </ng-container>
+
+                            <!-- Items Column -->
+                            <ng-container matColumnDef="items">
+                                <th mat-header-cell *matHeaderCellDef>Articles</th>
+                                <td mat-cell *matCellDef="let order">
+                                    {{ order.itemCount }} article(s)
+                                </td>
+                            </ng-container>
+
+                            <!-- Total Column -->
+                            <ng-container matColumnDef="total">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <strong class="total-amount">{{ order.total | number:'1.2-2' }} MAD</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <button mat-icon-button color="primary" (click)="viewOrderDetails(order.id)"
+                                        matTooltip="Voir les détails">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: orderColumns;"></tr>
+                        </table>
+
+                        <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
+                            (page)="handlePageEvent($event)">
+                        </mat-paginator>
+                    </div>
+                </mat-card>
+            </div>
+        </mat-tab>
+
+        <!-- Users Tab -->
+        <mat-tab label="Utilisateurs">
+            <div class="tab-content">
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>people</mat-icon>
+                            Gestion des utilisateurs ({{ users().length }})
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <div class="table-container">
+                        <table mat-table [dataSource]="users()" matSort (matSortChange)="handleSort($event)">
+
+                            <!-- ID Column -->
+                            <ng-container matColumnDef="id">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                                <td mat-cell *matCellDef="let user">
+                                    #{{ user.id }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Name Column -->
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+                                <td mat-cell *matCellDef="let user">
+                                    <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Email Column -->
+                            <ng-container matColumnDef="email">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                                <td mat-cell *matCellDef="let user">
+                                    {{ user.email }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Role Column -->
+                            <ng-container matColumnDef="role">
+                                <th mat-header-cell *matHeaderCellDef>Rôle</th>
+                                <td mat-cell *matCellDef="let user">
+                                    <mat-form-field class="role-select">
+                                        <mat-select [value]="user.role"
+                                            (selectionChange)="changeUserRole(user.id, $event.value)">
+                                            <mat-option value="CLIENT">Client</mat-option>
+                                            <mat-option value="ADMIN">Admin</mat-option>
+                                            <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </td>
+                            </ng-container>
+
+                            <!-- Provider Column -->
+                            <ng-container matColumnDef="provider">
+                                <th mat-header-cell *matHeaderCellDef>Connexion</th>
+                                <td mat-cell *matCellDef="let user">
+                                    @if (user.provider === 'GOOGLE') {
+                                    <mat-chip color="primary">
+                                        <mat-icon>g_translate</mat-icon>
+                                        Google
+                                    </mat-chip>
+                                    } @else {
+                                    <mat-chip>
+                                        <mat-icon>email</mat-icon>
+                                        Local
+                                    </mat-chip>
+                                    }
+                                </td>
+                            </ng-container>
+
+                            <!-- Enabled Column -->
+                            <ng-container matColumnDef="enabled">
+                                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                                <td mat-cell *matCellDef="let user">
+                                    <mat-slide-toggle [checked]="user.enabled" (change)="toggleUserStatus(user.id)"
+                                        color="primary">
+                                        {{ user.enabled ? 'Actif' : 'Désactivé' }}
+                                    </mat-slide-toggle>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let user">
+                                    <button mat-icon-button color="primary" matTooltip="Voir le profil">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
+                        </table>
+
+                        <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
+                            (page)="handlePageEvent($event)">
+                        </mat-paginator>
+                    </div>
+                </mat-card>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+</div>

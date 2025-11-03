@@ -1,0 +1,156 @@
+<!-- Global Loading Spinner -->
+<div class="loading-overlay" *ngIf="loadingService.isLoading()">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+
+<!-- Header / Navbar -->
+<mat-toolbar color="primary" class="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="logo" routerLink="/">
+      <mat-icon>drive_eta</mat-icon>
+      <span>AutoParts Store</span>
+    </div>
+
+    <!-- Search Bar (Desktop) -->
+    <div class="search-bar desktop-only">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Rechercher des pièces auto..." [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()">
+      </mat-form-field>
+      <button mat-raised-button color="accent" (click)="onSearch()">
+        Rechercher
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+      <button mat-button routerLink="/">
+        <mat-icon>home</mat-icon>
+        Accueil
+      </button>
+      <button mat-button routerLink="/products">
+        <mat-icon>inventory_2</mat-icon>
+        Produits
+      </button>
+      <button mat-button routerLink="/ai-mechanic">
+        <mat-icon>psychology</mat-icon>
+        IA Mécanique
+      </button>
+    </div>
+
+    <!-- User Actions -->
+    <div class="user-actions">
+      <button mat-icon-button routerLink="/cart">
+        <mat-icon [matBadge]="cartItemCount()" matBadgeColor="warn" [matBadgeHidden]="cartItemCount() === 0"
+          aria-hidden="false">
+          shopping_cart
+        </mat-icon>
+      </button>
+
+      @if (isLoggedIn()) {
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+        <mat-icon>account_circle</mat-icon>
+        <span class="desktop-only">{{ userName() }}</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item routerLink="/profile">
+          <mat-icon>person</mat-icon>
+          Mon profil
+        </button>
+        <button mat-menu-item routerLink="/orders">
+          <mat-icon>receipt_long</mat-icon>
+          Mes commandes
+        </button>
+        @if (authService.currentUser()?.role === 'ADMIN' || authService.currentUser()?.role === 'SUPER_ADMIN') {
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/admin">
+          <mat-icon>admin_panel_settings</mat-icon>
+          Administration
+        </button>
+        }
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          Déconnexion
+        </button>
+      </mat-menu>
+      } @else {
+      <button mat-button routerLink="/auth/login">
+        <mat-icon>login</mat-icon>
+        <span class="desktop-only">Connexion</span>
+      </button>
+      <button mat-raised-button color="accent" routerLink="/auth/register">
+        S'inscrire
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Mobile Search Bar -->
+  <div class="search-bar mobile-only">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Rechercher..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+    </mat-form-field>
+  </div>
+</mat-toolbar>
+
+<!-- Main Content -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>AutoParts Store</h3>
+      <p>Votre partenaire de confiance pour toutes vos pièces automobiles</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a routerLink="/products">Produits</a></li>
+        <li><a routerLink="/brands">Marques</a></li>
+        <li><a routerLink="/ai-mechanic">IA Mécanique</a></li>
+        <li><a routerLink="/about">À propos</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Service Client</h4>
+      <ul>
+        <li><a routerLink="/contact">Contact</a></li>
+        <li><a routerLink="/faq">FAQ</a></li>
+        <li><a routerLink="/shipping">Livraison</a></li>
+        <li><a routerLink="/returns">Retours</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Mon Compte</h4>
+      <ul>
+        @if (isLoggedIn()) {
+        <li><a routerLink="/profile">Mon profil</a></li>
+        <li><a routerLink="/orders">Mes commandes</a></li>
+        <li><a routerLink="/cart">Mon panier</a></li>
+        } @else {
+        <li><a routerLink="/auth/login">Connexion</a></li>
+        <li><a routerLink="/auth/register">Inscription</a></li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2025 AutoParts Store. Tous droits réservés.</p>
+    <div class="footer-links">
+      <a routerLink="/privacy">Confidentialité</a>
+      <a routerLink="/terms">Conditions d'utilisation</a>
+    </div>
+  </div>
+</footer>

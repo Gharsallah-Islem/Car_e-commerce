@@ -1,5 +1,6 @@
 package com.example.Backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,7 @@ public class UserDTO {
     private String email;
 
     @NotBlank(message = "Full name is required")
+    @JsonAlias("name") // Accept both "fullName" and "name"
     private String fullName;
 
     private String phoneNumber;

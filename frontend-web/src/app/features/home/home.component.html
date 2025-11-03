@@ -1,0 +1,123 @@
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Trouvez les pièces automobiles qu'il vous faut</h1>
+        <p class="hero-subtitle">
+            Plus de 10,000 pièces de qualité pour toutes les marques et modèles
+        </p>
+        <div class="hero-actions">
+            <button mat-raised-button color="primary" size="large" (click)="scrollToSection('products')">
+                Découvrir nos produits
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+            <button mat-stroked-button color="primary" size="large" routerLink="/ai-mechanic">
+                <mat-icon>psychology</mat-icon>
+                Diagnostic IA
+            </button>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="https://placehold.co/600x400/f3e5f5/9c27b0?text=Car+Parts" alt="Auto Parts">
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="feature-card">
+        <mat-icon color="primary">local_shipping</mat-icon>
+        <h3>Livraison Rapide</h3>
+        <p>Livraison en 24-48h partout en Tunisie</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">verified</mat-icon>
+        <h3>Qualité Garantie</h3>
+        <p>Pièces certifiées et garanties 2 ans</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">support_agent</mat-icon>
+        <h3>Support 24/7</h3>
+        <p>Assistance technique disponible</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">psychology</mat-icon>
+        <h3>IA Mécanique</h3>
+        <p>Diagnostic intelligent par IA</p>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section id="products" class="products-section">
+    <div class="section-header">
+        <h2>Produits Populaires</h2>
+        <button mat-button color="primary" routerLink="/products">
+            Voir tout
+            <mat-icon>arrow_forward</mat-icon>
+        </button>
+    </div>
+
+    <div class="products-grid">
+        @for (product of featuredProducts(); track product.id) {
+        <mat-card class="product-card">
+            <img mat-card-image [src]="product.imageUrl" [alt]="product.name">
+            <mat-card-content>
+                <h3>{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+                <div class="product-footer">
+                    <span class="price">{{ product.price }}€</span>
+                    @if (product.stock > 0) {
+                    <span class="stock in-stock">
+                        <mat-icon>check_circle</mat-icon>
+                        En stock
+                    </span>
+                    } @else {
+                    <span class="stock out-of-stock">
+                        <mat-icon>cancel</mat-icon>
+                        Rupture
+                    </span>
+                    }
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button mat-button color="primary" [routerLink]="['/products', product.id]">
+                    Détails
+                </button>
+                <button mat-raised-button color="accent" [disabled]="product.stock === 0">
+                    <mat-icon>add_shopping_cart</mat-icon>
+                    Ajouter
+                </button>
+            </mat-card-actions>
+        </mat-card>
+        }
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section id="categories" class="categories-section">
+    <div class="section-header">
+        <h2>Catégories Principales</h2>
+    </div>
+
+    <div class="categories-grid">
+        @for (category of categories(); track category.id) {
+        <mat-card class="category-card" [routerLink]="['/products']" [queryParams]="{category: category.id}">
+            <mat-card-content>
+                <mat-icon color="primary">category</mat-icon>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Besoin d'aide pour trouver la bonne pièce ?</h2>
+        <p>Notre assistant IA peut vous aider à diagnostiquer les problèmes de votre véhicule</p>
+        <button mat-raised-button color="accent" size="large" routerLink="/ai-mechanic">
+            <mat-icon>psychology</mat-icon>
+            Essayer le diagnostic IA
+        </button>
+    </div>
+</section>

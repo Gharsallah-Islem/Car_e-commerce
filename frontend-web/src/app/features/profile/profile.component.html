@@ -1,0 +1,466 @@
+<div class="profile-container">
+    <!-- Header -->
+    <div class="profile-header">
+        <div class="header-content">
+            <div class="avatar-section">
+                <div class="avatar">
+                    <mat-icon>account_circle</mat-icon>
+                </div>
+                <div class="user-info">
+                    <h1>{{ fullName() }}</h1>
+                    <p>{{ currentUser()?.email }}</p>
+                </div>
+            </div>
+            <button mat-stroked-button color="warn" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                Déconnexion
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <mat-card class="stat-card">
+            <mat-icon>shopping_bag</mat-icon>
+            <div class="stat-content">
+                <h3>{{ orderStats().total }}</h3>
+                <p>Commandes totales</p>
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-icon>local_shipping</mat-icon>
+            <div class="stat-content">
+                <h3>{{ orderStats().pending }}</h3>
+                <p>En cours</p>
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-content">
+                <h3>{{ orderStats().delivered }}</h3>
+                <p>Livrées</p>
+            </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-icon>payments</mat-icon>
+            <div class="stat-content">
+                <h3>{{ orderStats().totalSpent | number:'1.2-2' }} MAD</h3>
+                <p>Total dépensé</p>
+            </div>
+        </mat-card>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
+
+        <!-- Profile Info Tab -->
+        <mat-tab label="Informations personnelles">
+            <div class="tab-content">
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>person</mat-icon>
+                            Mes informations
+                        </h2>
+                        @if (!editingProfile()) {
+                        <button mat-button color="primary" (click)="toggleEditProfile()">
+                            <mat-icon>edit</mat-icon>
+                            Modifier
+                        </button>
+                        }
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    @if (!editingProfile()) {
+                    <!-- View Mode -->
+                    <div class="profile-view">
+                        <div class="info-row">
+                            <span class="label">
+                                <mat-icon>person</mat-icon>
+                                Prénom
+                            </span>
+                            <span class="value">{{ currentUser()?.firstName }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="label">
+                                <mat-icon>person_outline</mat-icon>
+                                Nom
+                            </span>
+                            <span class="value">{{ currentUser()?.lastName }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="label">
+                                <mat-icon>email</mat-icon>
+                                Email
+                            </span>
+                            <span class="value">{{ currentUser()?.email }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="label">
+                                <mat-icon>phone</mat-icon>
+                                Téléphone
+                            </span>
+                            <span class="value">{{ currentUser()?.phoneNumber || 'Non renseigné' }}</span>
+                        </div>
+
+                        @if (currentUser()?.provider === 'GOOGLE') {
+                        <div class="info-row">
+                            <span class="label">
+                                <mat-icon>login</mat-icon>
+                                Connexion
+                            </span>
+                            <span class="value">
+                                <mat-chip color="primary">
+                                    <mat-icon>g_translate</mat-icon>
+                                    Google
+                                </mat-chip>
+                            </span>
+                        </div>
+                        }
+                    </div>
+                    } @else {
+                    <!-- Edit Mode -->
+                    <form [formGroup]="profileForm" class="profile-form">
+                        <div class="form-row">
+                            <mat-form-field class="half-width">
+                                <mat-label>Prénom</mat-label>
+                                <input matInput formControlName="firstName" />
+                                <mat-icon matPrefix>person</mat-icon>
+                                @if (profileForm.get('firstName')?.hasError('required') &&
+                                profileForm.get('firstName')?.touched) {
+                                <mat-error>Le prénom est requis</mat-error>
+                                }
+                                @if (profileForm.get('firstName')?.hasError('minlength')) {
+                                <mat-error>Minimum 2 caractères</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field class="half-width">
+                                <mat-label>Nom</mat-label>
+                                <input matInput formControlName="lastName" />
+                                <mat-icon matPrefix>person_outline</mat-icon>
+                                @if (profileForm.get('lastName')?.hasError('required') &&
+                                profileForm.get('lastName')?.touched) {
+                                <mat-error>Le nom est requis</mat-error>
+                                }
+                                @if (profileForm.get('lastName')?.hasError('minlength')) {
+                                <mat-error>Minimum 2 caractères</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Email</mat-label>
+                            <input matInput type="email" formControlName="email" />
+                            <mat-icon matPrefix>email</mat-icon>
+                            @if (profileForm.get('email')?.disabled) {
+                            <mat-hint>Email Google non modifiable</mat-hint>
+                            }
+                            @if (profileForm.get('email')?.hasError('required') && profileForm.get('email')?.touched) {
+                            <mat-error>L'email est requis</mat-error>
+                            }
+                            @if (profileForm.get('email')?.hasError('email')) {
+                            <mat-error>Email invalide</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Téléphone</mat-label>
+                            <input matInput formControlName="phoneNumber" placeholder="0612345678" />
+                            <mat-icon matPrefix>phone</mat-icon>
+                            @if (profileForm.get('phoneNumber')?.hasError('pattern')) {
+                            <mat-error>Format: 10 chiffres</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <div class="form-actions">
+                            <button mat-button (click)="toggleEditProfile()" type="button">
+                                Annuler
+                            </button>
+                            <button mat-raised-button color="primary" (click)="saveProfile()"
+                                [disabled]="profileForm.invalid || loading()">
+                                @if (loading()) {
+                                <mat-spinner diameter="20"></mat-spinner>
+                                }
+                                Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                    }
+                </mat-card>
+
+                <!-- Password Change Card -->
+                @if (currentUser()?.provider !== 'GOOGLE') {
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>lock</mat-icon>
+                            Modifier le mot de passe
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <form [formGroup]="passwordForm" class="password-form">
+                        <mat-form-field class="full-width">
+                            <mat-label>Mot de passe actuel</mat-label>
+                            <input matInput type="password" formControlName="currentPassword" />
+                            <mat-icon matPrefix>lock_open</mat-icon>
+                            @if (passwordForm.get('currentPassword')?.hasError('required') &&
+                            passwordForm.get('currentPassword')?.touched) {
+                            <mat-error>Le mot de passe actuel est requis</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Nouveau mot de passe</mat-label>
+                            <input matInput type="password" formControlName="newPassword" />
+                            <mat-icon matPrefix>lock</mat-icon>
+                            @if (passwordForm.get('newPassword')?.hasError('required') &&
+                            passwordForm.get('newPassword')?.touched) {
+                            <mat-error>Le nouveau mot de passe est requis</mat-error>
+                            }
+                            @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+                            <mat-error>Minimum 6 caractères</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Confirmer le mot de passe</mat-label>
+                            <input matInput type="password" formControlName="confirmPassword" />
+                            <mat-icon matPrefix>lock_outline</mat-icon>
+                            @if (passwordForm.hasError('passwordMismatch') &&
+                            passwordForm.get('confirmPassword')?.touched) {
+                            <mat-error>Les mots de passe ne correspondent pas</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <div class="form-actions">
+                            <button mat-raised-button color="primary" (click)="changePassword()"
+                                [disabled]="passwordForm.invalid || loading()">
+                                @if (loading()) {
+                                <mat-spinner diameter="20"></mat-spinner>
+                                }
+                                Changer le mot de passe
+                            </button>
+                        </div>
+                    </form>
+                </mat-card>
+                }
+            </div>
+        </mat-tab>
+
+        <!-- Orders Tab -->
+        <mat-tab label="Mes commandes">
+            <div class="tab-content">
+                <mat-card>
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>receipt_long</mat-icon>
+                            Historique des commandes
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    @if (orders().length > 0) {
+                    <div class="table-container">
+                        <table mat-table [dataSource]="orders()" class="orders-table">
+
+                            <!-- Order Number Column -->
+                            <ng-container matColumnDef="orderNumber">
+                                <th mat-header-cell *matHeaderCellDef>Numéro</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <strong>{{ order.orderNumber }}</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Date Column -->
+                            <ng-container matColumnDef="date">
+                                <th mat-header-cell *matHeaderCellDef>Date</th>
+                                <td mat-cell *matCellDef="let order">
+                                    {{ order.date | date:'dd/MM/yyyy' }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <mat-chip [color]="getStatusColor(order.status)">
+                                        {{ getStatusLabel(order.status) }}
+                                    </mat-chip>
+                                </td>
+                            </ng-container>
+
+                            <!-- Items Column -->
+                            <ng-container matColumnDef="items">
+                                <th mat-header-cell *matHeaderCellDef>Articles</th>
+                                <td mat-cell *matCellDef="let order">
+                                    {{ order.itemCount }} article(s)
+                                </td>
+                            </ng-container>
+
+                            <!-- Total Column -->
+                            <ng-container matColumnDef="total">
+                                <th mat-header-cell *matHeaderCellDef>Total</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <strong class="total-amount">{{ order.total | number:'1.2-2' }} MAD</strong>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let order">
+                                    <button mat-icon-button color="primary" (click)="viewOrderDetails(order.id)"
+                                        matTooltip="Voir les détails">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: orderColumns;"></tr>
+                        </table>
+                    </div>
+                    } @else {
+                    <div class="empty-state">
+                        <mat-icon>shopping_bag</mat-icon>
+                        <h3>Aucune commande</h3>
+                        <p>Vous n'avez pas encore passé de commande</p>
+                        <button mat-raised-button color="primary" routerLink="/products">
+                            Découvrir nos produits
+                        </button>
+                    </div>
+                    }
+                </mat-card>
+            </div>
+        </mat-tab>
+
+        <!-- Addresses Tab -->
+        <mat-tab label="Mes adresses">
+            <div class="tab-content">
+
+                <!-- Existing Addresses -->
+                <div class="addresses-grid">
+                    @for (address of addresses(); track address.id) {
+                    <mat-card class="address-card">
+                        <div class="address-header">
+                            <mat-icon>location_on</mat-icon>
+                            <div class="address-actions">
+                                <button mat-icon-button (click)="editAddress(address)" matTooltip="Modifier">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="deleteAddress(address.id!)"
+                                    matTooltip="Supprimer">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="address-content">
+                            <p><strong>{{ address.street }}</strong></p>
+                            <p>{{ address.city }}, {{ address.postalCode }}</p>
+                            <p>{{ address.country }}</p>
+                        </div>
+                    </mat-card>
+                    }
+                </div>
+
+                @if (addresses().length === 0) {
+                <mat-card class="empty-state">
+                    <mat-icon>location_off</mat-icon>
+                    <h3>Aucune adresse enregistrée</h3>
+                    <p>Ajoutez une adresse pour faciliter vos prochaines commandes</p>
+                </mat-card>
+                }
+
+                <!-- Add/Edit Address Form -->
+                <mat-card class="address-form-card">
+                    <div class="card-header">
+                        <h2>
+                            <mat-icon>{{ editingAddress() ? 'edit_location' : 'add_location' }}</mat-icon>
+                            {{ editingAddress() ? 'Modifier l\'adresse' : 'Ajouter une adresse' }}
+                        </h2>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <form [formGroup]="addressForm" class="address-form">
+                        <mat-form-field class="full-width">
+                            <mat-label>Rue et numéro</mat-label>
+                            <input matInput formControlName="street" />
+                            <mat-icon matPrefix>home</mat-icon>
+                            @if (addressForm.get('street')?.hasError('required') && addressForm.get('street')?.touched)
+                            {
+                            <mat-error>L'adresse est requise</mat-error>
+                            }
+                            @if (addressForm.get('street')?.hasError('minlength')) {
+                            <mat-error>Minimum 5 caractères</mat-error>
+                            }
+                        </mat-form-field>
+
+                        <div class="form-row">
+                            <mat-form-field class="half-width">
+                                <mat-label>Ville</mat-label>
+                                <input matInput formControlName="city" />
+                                <mat-icon matPrefix>location_city</mat-icon>
+                                @if (addressForm.get('city')?.hasError('required') && addressForm.get('city')?.touched)
+                                {
+                                <mat-error>La ville est requise</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field class="half-width">
+                                <mat-label>Code postal</mat-label>
+                                <input matInput formControlName="postalCode" placeholder="20000" />
+                                <mat-icon matPrefix>markunread_mailbox</mat-icon>
+                                @if (addressForm.get('postalCode')?.hasError('required') &&
+                                addressForm.get('postalCode')?.touched) {
+                                <mat-error>Le code postal est requis</mat-error>
+                                }
+                                @if (addressForm.get('postalCode')?.hasError('pattern')) {
+                                <mat-error>Format: 5 chiffres</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="full-width">
+                            <mat-label>Pays</mat-label>
+                            <input matInput formControlName="country" readonly />
+                            <mat-icon matPrefix>flag</mat-icon>
+                        </mat-form-field>
+
+                        <div class="form-actions">
+                            @if (editingAddress()) {
+                            <button mat-button (click)="cancelAddressEdit()" type="button">
+                                Annuler
+                            </button>
+                            <button mat-raised-button color="primary" (click)="updateAddress()"
+                                [disabled]="addressForm.invalid">
+                                <mat-icon>save</mat-icon>
+                                Mettre à jour
+                            </button>
+                            } @else {
+                            <button mat-raised-button color="primary" (click)="addAddress()"
+                                [disabled]="addressForm.invalid">
+                                <mat-icon>add</mat-icon>
+                                Ajouter l'adresse
+                            </button>
+                            }
+                        </div>
+                    </form>
+                </mat-card>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+</div>
