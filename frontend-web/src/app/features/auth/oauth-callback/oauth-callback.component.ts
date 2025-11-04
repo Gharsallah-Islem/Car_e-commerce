@@ -50,26 +50,12 @@ export class OauthCallbackComponent implements OnInit {
             }
 
             if (token) {
-                // Token received, need to get user data
-                // The backend should also include user data in the redirect
-                const userString = params['user'];
+                console.log('OAuth token received:', token);
 
-                if (userString) {
-                    try {
-                        const user: User = JSON.parse(decodeURIComponent(userString));
-                        this.authService.handleOAuthCallback(token, user);
-                    } catch (e) {
-                        console.error('Failed to parse user data:', e);
-                        this.errorMessage = 'Invalid user data received';
-                        setTimeout(() => {
-                            this.router.navigate(['/auth/login']);
-                        }, 3000);
-                    }
-                } else {
-                    // If user data not in params, fetch it using the token
-                    this.authService.handleOAuthCallback(token, {} as User);
-                    // The AuthService will fetch user data via /api/auth/me
-                }
+                // Store the token first
+                this.authService.handleOAuthCallback(token);
+
+                // The AuthService will automatically fetch user data and redirect
             } else {
                 this.errorMessage = 'No authentication token received';
                 setTimeout(() => {
@@ -85,20 +71,12 @@ export class OauthCallbackComponent implements OnInit {
                 const token = params.get('token');
 
                 if (token) {
-                    const userString = params.get('user');
+                    console.log('OAuth token received from fragment:', token);
 
-                    if (userString) {
-                        try {
-                            const user: User = JSON.parse(decodeURIComponent(userString));
-                            this.authService.handleOAuthCallback(token, user);
-                        } catch (e) {
-                            console.error('Failed to parse user data:', e);
-                            this.errorMessage = 'Invalid user data received';
-                            setTimeout(() => {
-                                this.router.navigate(['/auth/login']);
-                            }, 3000);
-                        }
-                    }
+                    // Store the token first
+                    this.authService.handleOAuthCallback(token);
+
+                    // The AuthService will automatically fetch user data and redirect
                 }
             }
         });

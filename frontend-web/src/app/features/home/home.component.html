@@ -1,123 +1,324 @@
-<!-- Hero Section -->
-<section class="hero">
-    <div class="hero-content">
-        <h1 class="hero-title">Trouvez les pièces automobiles qu'il vous faut</h1>
-        <p class="hero-subtitle">
-            Plus de 10,000 pièces de qualité pour toutes les marques et modèles
-        </p>
-        <div class="hero-actions">
-            <button mat-raised-button color="primary" size="large" (click)="scrollToSection('products')">
-                Découvrir nos produits
-                <mat-icon>arrow_forward</mat-icon>
-            </button>
-            <button mat-stroked-button color="primary" size="large" routerLink="/ai-mechanic">
-                <mat-icon>psychology</mat-icon>
-                Diagnostic IA
-            </button>
+<!-- Hero Section with Parallax -->
+<section class="hero-section parallax">
+    <div class="hero-overlay"></div>
+    <div class="hero-content-wrapper">
+        <div class="hero-content fade-in">
+            <div class="hero-badge">
+                <mat-icon>verified</mat-icon>
+                <span>Pièces Automobiles Certifiées</span>
+            </div>
+            <h1 class="hero-title">
+                Trouvez les <span class="gradient-text">Pièces Parfaites</span><br>
+                pour Votre Véhicule
+            </h1>
+            <p class="hero-subtitle">
+                Plus de 10,000 pièces de qualité premium pour toutes marques et modèles.
+                Livraison rapide, garantie 2 ans, support expert 24/7.
+            </p>
+            <div class="hero-actions">
+                <button mat-raised-button color="primary" class="cta-button primary"
+                    (click)="scrollToSection('products')">
+                    <span>Explorer les Produits</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+                <button mat-raised-button class="cta-button secondary" routerLink="/ai-mechanic">
+                    <mat-icon>psychology</mat-icon>
+                    <span>Diagnostic IA</span>
+                </button>
+            </div>
+            <div class="hero-stats">
+                @for (stat of stats; track stat.label) {
+                <div class="stat-item">
+                    <div class="stat-value">{{ stat.value }}</div>
+                    <div class="stat-label">{{ stat.label }}</div>
+                </div>
+                }
+            </div>
+        </div>
+        <div class="hero-visual fade-in">
+            <div class="floating-card card-1">
+                <mat-icon>build</mat-icon>
+                <span>Qualité Garantie</span>
+            </div>
+            <div class="floating-card card-2">
+                <mat-icon>local_shipping</mat-icon>
+                <span>Livraison 24-48h</span>
+            </div>
+            <div class="floating-card card-3">
+                <mat-icon>verified_user</mat-icon>
+                <span>Paiement Sécurisé</span>
+            </div>
+            <div class="hero-image-container">
+                <div class="glow-effect"></div>
+                <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop"
+                    alt="Auto Parts" class="hero-image">
+            </div>
         </div>
     </div>
-    <div class="hero-image">
-        <img src="https://placehold.co/600x400/f3e5f5/9c27b0?text=Car+Parts" alt="Auto Parts">
+    <div class="scroll-indicator">
+        <div class="mouse"></div>
+        <span>Faire défiler</span>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="features">
-    <div class="feature-card">
-        <mat-icon color="primary">local_shipping</mat-icon>
-        <h3>Livraison Rapide</h3>
-        <p>Livraison en 24-48h partout en Tunisie</p>
-    </div>
-    <div class="feature-card">
-        <mat-icon color="primary">verified</mat-icon>
-        <h3>Qualité Garantie</h3>
-        <p>Pièces certifiées et garanties 2 ans</p>
-    </div>
-    <div class="feature-card">
-        <mat-icon color="primary">support_agent</mat-icon>
-        <h3>Support 24/7</h3>
-        <p>Assistance technique disponible</p>
-    </div>
-    <div class="feature-card">
-        <mat-icon color="primary">psychology</mat-icon>
-        <h3>IA Mécanique</h3>
-        <p>Diagnostic intelligent par IA</p>
+<!-- Features Section with Icons -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card slide-up">
+                <div class="feature-icon">
+                    <mat-icon>rocket_launch</mat-icon>
+                </div>
+                <h3>Livraison Express</h3>
+                <p>Livraison en 24-48h partout en Tunisie avec suivi en temps réel</p>
+            </div>
+            <div class="feature-card slide-up">
+                <div class="feature-icon">
+                    <mat-icon>workspace_premium</mat-icon>
+                </div>
+                <h3>Qualité Premium</h3>
+                <p>Pièces certifiées OEM et garanties 2 ans minimum</p>
+            </div>
+            <div class="feature-card slide-up">
+                <div class="feature-icon">
+                    <mat-icon>support_agent</mat-icon>
+                </div>
+                <h3>Support Expert</h3>
+                <p>Assistance technique disponible 24/7 par téléphone et chat</p>
+            </div>
+            <div class="feature-card slide-up">
+                <div class="feature-icon">
+                    <mat-icon>psychology</mat-icon>
+                </div>
+                <h3>IA Diagnostic</h3>
+                <p>Diagnostic intelligent et recommandations personnalisées par IA</p>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Featured Products Section -->
 <section id="products" class="products-section">
-    <div class="section-header">
-        <h2>Produits Populaires</h2>
-        <button mat-button color="primary" routerLink="/products">
-            Voir tout
-            <mat-icon>arrow_forward</mat-icon>
-        </button>
-    </div>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="section-title-wrapper">
+                <span class="section-badge">Populaires</span>
+                <h2 class="section-title">
+                    Nos Produits <span class="gradient-text">Phares</span>
+                </h2>
+                <p class="section-subtitle">Découvrez notre sélection des pièces les plus demandées</p>
+            </div>
+            <button mat-raised-button color="primary" class="view-all-btn" routerLink="/products">
+                <span>Voir Tout</span>
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
 
-    <div class="products-grid">
-        @for (product of featuredProducts(); track product.id) {
-        <mat-card class="product-card">
-            <img mat-card-image [src]="product.imageUrl" [alt]="product.name">
-            <mat-card-content>
-                <h3>{{ product.name }}</h3>
-                <p class="product-description">{{ product.description }}</p>
-                <div class="product-footer">
-                    <span class="price">{{ product.price }}€</span>
-                    @if (product.stock > 0) {
-                    <span class="stock in-stock">
-                        <mat-icon>check_circle</mat-icon>
-                        En stock
-                    </span>
-                    } @else {
-                    <span class="stock out-of-stock">
-                        <mat-icon>cancel</mat-icon>
-                        Rupture
-                    </span>
-                    }
+        @if (isLoadingProducts()) {
+        <div class="loading-state">
+            <mat-spinner diameter="60"></mat-spinner>
+            <p>Chargement des produits...</p>
+        </div>
+        } @else if (featuredProducts().length === 0) {
+        <div class="empty-state fade-in">
+            <mat-icon>inventory_2</mat-icon>
+            <h3>Aucun produit disponible</h3>
+            <p>Revenez bientôt pour découvrir nos nouveautés</p>
+        </div>
+        } @else {
+        <div class="products-grid">
+            @for (product of featuredProducts(); track product.id) {
+            <mat-card class="product-card scale-in" matRipple>
+                <div class="product-image-wrapper">
+                    @if (product.stock === 0) {
+                    <div class="badge out-of-stock">Rupture de stock</div>
+                    } @else if (product.stock < 10) { <div class="badge low-stock">Stock limité
                 </div>
-            </mat-card-content>
-            <mat-card-actions>
-                <button mat-button color="primary" [routerLink]="['/products', product.id]">
-                    Détails
-                </button>
-                <button mat-raised-button color="accent" [disabled]="product.stock === 0">
-                    <mat-icon>add_shopping_cart</mat-icon>
-                    Ajouter
-                </button>
-            </mat-card-actions>
+                } @else {
+                <div class="badge new">Nouveau</div>
+                }
+                <img mat-card-image
+                    [src]="product.imageUrl || 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop'"
+                    [alt]="product.name" class="product-image">
+                <div class="product-overlay">
+                    <button mat-fab color="primary" [routerLink]="['/products', product.id]">
+                        <mat-icon>visibility</mat-icon>
+                    </button>
+                </div>
+        </div>
+        <mat-card-content>
+            <div class="product-category">{{ product.category || 'Pièces Auto' }}</div>
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-description">{{ product.description | slice:0:80 }}{{ product.description &&
+                product.description.length > 80 ? '...' : '' }}</p>
+            <div class="product-meta">
+                <div class="product-brand">
+                    <mat-icon>verified</mat-icon>
+                    <span>{{ product.brand || 'Certifié' }}</span>
+                </div>
+                @if (product.stock > 0) {
+                <div class="product-stock in-stock">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>En stock</span>
+                </div>
+                } @else {
+                <div class="product-stock out-of-stock">
+                    <mat-icon>error</mat-icon>
+                    <span>Rupture</span>
+                </div>
+                }
+            </div>
+        </mat-card-content>
+        <mat-card-actions class="product-actions">
+            <div class="price-tag">
+                <span class="price">{{ product.price | number:'1.2-2' }}</span>
+                <span class="currency">TND</span>
+            </div>
+            <button mat-raised-button color="accent" [disabled]="product.stock === 0" (click)="addToCart(product)">
+                <mat-icon>add_shopping_cart</mat-icon>
+                <span>Ajouter</span>
+            </button>
+        </mat-card-actions>
         </mat-card>
         }
+    </div>
+    }
     </div>
 </section>
 
 <!-- Categories Section -->
 <section id="categories" class="categories-section">
-    <div class="section-header">
-        <h2>Catégories Principales</h2>
-    </div>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="section-title-wrapper">
+                <span class="section-badge">Catégories</span>
+                <h2 class="section-title">
+                    Explorez par <span class="gradient-text">Catégorie</span>
+                </h2>
+                <p class="section-subtitle">Trouvez rapidement ce dont vous avez besoin</p>
+            </div>
+        </div>
 
-    <div class="categories-grid">
-        @for (category of categories(); track category.id) {
-        <mat-card class="category-card" [routerLink]="['/products']" [queryParams]="{category: category.id}">
-            <mat-card-content>
-                <mat-icon color="primary">category</mat-icon>
+        @if (isLoadingCategories()) {
+        <div class="loading-state">
+            <mat-spinner diameter="60"></mat-spinner>
+            <p>Chargement des catégories...</p>
+        </div>
+        } @else if (categories().length === 0) {
+        <div class="empty-state fade-in">
+            <mat-icon>category</mat-icon>
+            <h3>Aucune catégorie disponible</h3>
+            <p>Les catégories seront bientôt disponibles</p>
+        </div>
+        } @else {
+        <div class="categories-grid">
+            @for (category of categories(); track category.id) {
+            <div class="category-card scale-in" matRipple [routerLink]="['/products']"
+                [queryParams]="{categoryId: category.id}">
+                <div class="category-icon">
+                    <mat-icon>category</mat-icon>
+                </div>
                 <h3>{{ category.name }}</h3>
                 <p>{{ category.description }}</p>
-            </mat-card-content>
-        </mat-card>
+                <div class="category-arrow">
+                    <mat-icon>arrow_forward</mat-icon>
+                </div>
+            </div>
+            }
+        </div>
         }
     </div>
 </section>
 
-<!-- Call to Action Section -->
+<!-- Why Choose Us Section -->
+<section class="why-choose-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <h2 class="section-title">
+                Pourquoi Nous <span class="gradient-text">Choisir</span>
+            </h2>
+            <p class="section-subtitle">L'excellence automobile à votre service</p>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-item slide-up">
+                <div class="benefit-number">01</div>
+                <h3>Expertise Technique</h3>
+                <p>Plus de 10 ans d'expérience dans l'industrie automobile avec une équipe d'experts certifiés</p>
+            </div>
+            <div class="benefit-item slide-up">
+                <div class="benefit-number">02</div>
+                <h3>Prix Compétitifs</h3>
+                <p>Meilleurs prix du marché avec des offres spéciales et promotions régulières</p>
+            </div>
+            <div class="benefit-item slide-up">
+                <div class="benefit-number">03</div>
+                <h3>Large Inventaire</h3>
+                <p>Stock permanent de plus de 10,000 références pour toutes les marques</p>
+            </div>
+            <div class="benefit-item slide-up">
+                <div class="benefit-number">04</div>
+                <h3>Garantie Étendue</h3>
+                <p>Toutes nos pièces sont couvertes par une garantie minimum de 2 ans</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
 <section class="cta-section">
-    <div class="cta-content">
-        <h2>Besoin d'aide pour trouver la bonne pièce ?</h2>
-        <p>Notre assistant IA peut vous aider à diagnostiquer les problèmes de votre véhicule</p>
-        <button mat-raised-button color="accent" size="large" routerLink="/ai-mechanic">
-            <mat-icon>psychology</mat-icon>
-            Essayer le diagnostic IA
-        </button>
+    <div class="cta-overlay"></div>
+    <div class="container">
+        <div class="cta-content fade-in">
+            <mat-icon class="cta-icon">psychology</mat-icon>
+            <h2>Besoin d'Aide pour Diagnostiquer un Problème ?</h2>
+            <p>Notre assistant IA utilise l'intelligence artificielle avancée pour analyser les symptômes de votre
+                véhicule et recommander les pièces appropriées en quelques secondes.</p>
+            <div class="cta-features">
+                <div class="cta-feature">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Diagnostic précis</span>
+                </div>
+                <div class="cta-feature">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Recommandations personnalisées</span>
+                </div>
+                <div class="cta-feature">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Gratuit et instantané</span>
+                </div>
+            </div>
+            <button mat-raised-button color="accent" class="cta-button" routerLink="/ai-mechanic">
+                <mat-icon>psychology</mat-icon>
+                <span>Essayer le Diagnostic IA</span>
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="trust-section">
+    <div class="container">
+        <div class="trust-content fade-in">
+            <h3>Ils nous font confiance</h3>
+            <div class="trust-logos">
+                <div class="trust-logo">
+                    <mat-icon>verified</mat-icon>
+                    <span>Certifié ISO</span>
+                </div>
+                <div class="trust-logo">
+                    <mat-icon>security</mat-icon>
+                    <span>Paiement Sécurisé</span>
+                </div>
+                <div class="trust-logo">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>Livraison Garantie</span>
+                </div>
+                <div class="trust-logo">
+                    <mat-icon>support_agent</mat-icon>
+                    <span>Support 24/7</span>
+                </div>
+            </div>
+        </div>
     </div>
 </section>

@@ -75,6 +75,21 @@ public interface ProductService {
             Pageable pageable);
 
     /**
+     * Filter products by category, brand, price range, stock, and search term
+     * 
+     * @param categoryId Category ID
+     * @param brandId    Brand ID
+     * @param minPrice   Minimum price
+     * @param maxPrice   Maximum price
+     * @param search     Search term
+     * @param inStock    Filter by stock availability
+     * @param pageable   Pagination parameters
+     * @return Page of filtered products
+     */
+    Page<Product> filterProducts(Long categoryId, Long brandId, BigDecimal minPrice,
+            BigDecimal maxPrice, String search, Boolean inStock, Pageable pageable);
+
+    /**
      * Get products by category
      * 
      * @param category Category name

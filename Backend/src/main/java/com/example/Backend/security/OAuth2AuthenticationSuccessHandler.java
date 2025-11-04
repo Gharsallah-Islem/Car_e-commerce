@@ -44,10 +44,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .name(name)
                 .build();
 
-        // Redirect to frontend with tokens
+        // Redirect to frontend with token
         String redirectUrl = String.format(
-                "http://localhost:4200/oauth2/redirect?token=%s&refreshToken=%s&email=%s&name=%s",
-                accessToken, refreshToken, email, name);
+                "http://localhost:4200/auth/oauth-callback?token=%s",
+                accessToken);
 
         // For API response (if frontend makes direct request)
         if (request.getParameter("mode") != null && request.getParameter("mode").equals("json")) {

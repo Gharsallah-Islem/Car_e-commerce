@@ -1,5 +1,7 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -28,10 +30,12 @@ public class CartItem implements Serializable {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
+    @JsonIgnoreProperties({ "cartItems", "orderItems" })
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -46,6 +50,15 @@ public class CartItem implements Serializable {
     private LocalDateTime createdAt;
 
     // Helper methods
+    @com.fasterxml.jackson.annotation.JsonProperty("price")
+    public BigDecimal getPrice() {
+        if (product != null && product.getPrice() != null) {
+            return product.getPrice();
+        }
+        return BigDecimal.ZERO;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("subtotal")
     public BigDecimal getSubtotal() {
         if (product != null && product.getPrice() != null && quantity != null) {
             return product.getPrice().multiply(BigDecimal.valueOf(quantity));

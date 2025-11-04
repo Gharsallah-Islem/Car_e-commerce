@@ -8,11 +8,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -182,5 +185,119 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Long countProductsInStock() {
         return productRepository.countInStock();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> filterProducts(Long categoryId, Long brandId, BigDecimal minPrice,
+            BigDecimal maxPrice, String search, Boolean inStock, Pageable pageable) {
+
+        // Map category ID to category name
+        final String categoryName = categoryId != null ? mapCategoryIdToName(categoryId) : null;
+
+        // Map brand ID to brand name
+        final String brandName = brandId != null ? mapBrandIdToName(brandId) : null;
+
+        // Get all products and filter in memory to avoid bytea issue
+        List<Product> allProducts = productRepository.findAll();
+
+        // Apply filters
+        List<Product> filtered = allProducts.stream()
+                .filter(p -> categoryName == null || categoryName.equals(p.getCategory()))
+                .filter(p -> brandName == null || brandName.equals(p.getBrand()))
+                .filter(p -> minPrice == null || p.getPrice().compareTo(minPrice) >= 0)
+                .filter(p -> maxPrice == null || p.getPrice().compareTo(maxPrice) <= 0)
+                .filter(p -> search == null || p.getName().toLowerCase().contains(search.toLowerCase()))
+                .filter(p -> inStock == null || !inStock || p.isInStock())
+                .collect(java.util.stream.Collectors.toList());
+
+        // Apply sorting
+        if (pageable.getSort().isSorted()) {
+            filtered = applySorting(filtered, pageable.getSort());
+        }
+
+        // Apply pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filtered.size());
+        List<Product> pageContent = filtered.subList(start, end);
+
+        return new org.springframework.data.domain.PageImpl<>(
+                pageContent,
+                pageable,
+                filtered.size());
+    }
+
+    /**
+     * Apply sorting to a list of products
+     */
+    private List<Product> applySorting(List<Product> products, Sort sort) {
+        java.util.Comparator<Product> comparator = null;
+
+        for (Sort.Order order : sort) {
+            java.util.Comparator<Product> currentComparator = null;
+
+            switch (order.getProperty()) {
+                case "name":
+                    currentComparator = java.util.Comparator.comparing(Product::getName,
+                            String.CASE_INSENSITIVE_ORDER);
+                    break;
+                case "price":
+                    currentComparator = java.util.Comparator.comparing(Product::getPrice);
+                    break;
+                case "createdAt":
+                    currentComparator = java.util.Comparator.comparing(Product::getCreatedAt);
+                    break;
+                default:
+                    currentComparator = java.util.Comparator.comparing(Product::getName);
+            }
+
+            if (order.getDirection() == Sort.Direction.DESC) {
+                currentComparator = currentComparator.reversed();
+            }
+
+            comparator = comparator == null ? currentComparator : comparator.thenComparing(currentComparator);
+        }
+
+        if (comparator != null) {
+            products.sort(comparator);
+        }
+
+        return products;
+    }
+
+    /**
+     * Map category ID to category name
+     */
+    private String mapCategoryIdToName(Long categoryId) {
+        Map<Long, String> categoryMap = new HashMap<>();
+        categoryMap.put(1L, "Engine Parts");
+        categoryMap.put(2L, "Brake Systems");
+        categoryMap.put(3L, "Suspension");
+        categoryMap.put(4L, "Electrical");
+        categoryMap.put(5L, "Body Parts");
+        categoryMap.put(6L, "Filters");
+        categoryMap.put(7L, "Exhaust");
+        categoryMap.put(8L, "Transmission");
+        categoryMap.put(9L, "Cooling System");
+        categoryMap.put(10L, "Interior");
+
+        return categoryMap.get(categoryId);
+    }
+
+    /**
+     * Map brand ID to brand name
+     */
+    private String mapBrandIdToName(Long brandId) {
+        Map<Long, String> brandMap = new HashMap<>();
+        brandMap.put(1L, "Bosch");
+        brandMap.put(2L, "Continental");
+        brandMap.put(3L, "Brembo");
+        brandMap.put(4L, "Bilstein");
+        brandMap.put(5L, "Denso");
+        brandMap.put(6L, "Mann-Filter");
+        brandMap.put(7L, "Akrapovic");
+        brandMap.put(8L, "ZF");
+
+        return brandMap.get(brandId);
     }
 }

@@ -54,7 +54,7 @@ export class ProductDetailComponent implements OnInit {
 
     hasCompatibility = computed(() => {
         const p = this.product();
-        return p?.compatibility !== undefined && p.compatibility !== null && p.compatibility.length > 0;
+        return p?.compatibilityString !== undefined && p.compatibilityString !== null && p.compatibilityString.trim().length > 0;
     });
 
     constructor(
@@ -67,21 +67,25 @@ export class ProductDetailComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.params.subscribe(params => {
-            const id = +params['id'];
+            const id = params['id']; // Keep as string (UUID from backend)
             if (id) {
                 this.loadProduct(id);
             }
         });
     }
 
-    loadProduct(id: number): void {
+    loadProduct(id: string | number): void {
         this.loading.set(true);
 
         this.productService.getProductById(id).subscribe({
             next: (product) => {
                 this.product.set(product);
                 this.loading.set(false);
-                this.loadRelatedProducts(id);
+                // For related products, try to extract a numeric ID or use the string ID
+                const numericId = typeof id === 'number' ? id : parseInt(id, 10);
+                if (!isNaN(numericId)) {
+                    this.loadRelatedProducts(numericId);
+                }
             },
             error: (error: any) => {
                 console.error('Error loading product:', error);

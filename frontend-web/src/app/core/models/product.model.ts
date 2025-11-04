@@ -9,6 +9,7 @@ export interface Product {
     category: Category;
     brand: Brand;
     compatibility?: VehicleCompatibility[];
+    compatibilityString?: string; // Simple string from backend (e.g., "Toyota Corolla, Camry")
     specifications?: ProductSpecification[];
     sku?: string;
     weight?: number;

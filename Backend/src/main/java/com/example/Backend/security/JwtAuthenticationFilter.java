@@ -30,10 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String userId = tokenProvider.getUserIdFromToken(jwt);
+                String subject = tokenProvider.getUserIdFromToken(jwt);
 
-                // Load user details by UUID
-                UserDetails userDetails = userDetailsService.loadUserById(UUID.fromString(userId));
+                UserDetails userDetails;
+                // Check if subject is a UUID or email
+                try {
+                    UUID userId = UUID.fromString(subject);
+                    userDetails = userDetailsService.loadUserById(userId);
+                } catch (IllegalArgumentException e) {
+                    // Subject is email, not UUID (OAuth2 token)
+                    userDetails = userDetailsService.loadUserByUsername(subject);
+                }
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());

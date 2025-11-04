@@ -1,1 +1,67 @@
-<p>chat-window works!</p>
+<div class="chat-window" *ngIf="conversationId">
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="chat-info">
+            <div class="avatar">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="#00a884">
+                    <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+            </div>
+            <div class="chat-title">
+                <h3>Support Team</h3>
+                <p class="status">Online</p>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <button class="action-btn" (click)="archiveChat()" title="Archive conversation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" #messagesContainer>
+        <div class="loading-spinner" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Loading messages...</p>
+        </div>
+
+        <div class="messages-list" *ngIf="!loading">
+            <app-message-bubble *ngFor="let message of messages; trackBy: trackByMessageId" [message]="message"
+                [isOwn]="isOwnMessage(message)" [showSenderName]="!isOwnMessage(message)"
+                (delete)="onDeleteMessage($event)">
+            </app-message-bubble>
+
+            <div class="no-messages" *ngIf="messages.length === 0">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="#8696a0">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+                </svg>
+                <p>No messages yet</p>
+                <span>Start the conversation!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <app-message-input [disabled]="sending" (sendMessage)="onSendMessage($event)">
+    </app-message-input>
+</div>
+
+<!-- No Conversation Selected -->
+<div class="no-conversation" *ngIf="!conversationId">
+    <svg width="80" height="80" viewBox="0 0 24 24" fill="#8696a0">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+    </svg>
+    <h2>Welcome to Support Chat</h2>
+    <p>Select a conversation from the sidebar or start a new chat to get help from our support team.</p>
+    <button class="start-chat-btn" (click)="startNewChat()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+        </svg>
+        Start New Chat
+    </button>
+</div>

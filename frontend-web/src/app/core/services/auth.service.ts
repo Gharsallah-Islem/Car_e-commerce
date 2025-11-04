@@ -89,11 +89,22 @@ export class AuthService {
     /**
      * Handle OAuth2 callback with token
      */
-    handleOAuthCallback(token: string, user: User): void {
-        const authResponse: AuthResponse = { token, user };
-        this.handleAuthSuccess(authResponse);
-        this.notificationService.success(`Welcome back, ${user.firstName}!`);
-        this.router.navigate(['/']);
+    handleOAuthCallback(token: string): void {
+        // Store token immediately
+        this.storageService.saveToken(token);
+
+        // Fetch user data from backend
+        this.getCurrentUser().subscribe({
+            next: (user) => {
+                this.notificationService.success(`Welcome back, ${user.firstName || user.email}!`);
+                this.router.navigate(['/']);
+            },
+            error: (error) => {
+                console.error('Failed to fetch user data after OAuth:', error);
+                this.notificationService.error('Failed to complete login');
+                this.logout();
+            }
+        });
     }
 
     /**

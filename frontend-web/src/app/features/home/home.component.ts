@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, HostListener, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,10 +10,13 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRippleModule } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { ProductService } from '../../core/services/product.service';
 import { Product, Category, CartItem } from '../../core/models';
 
 @Component({
@@ -31,12 +34,14 @@ import { Product, Category, CartItem } from '../../core/models';
         MatBadgeModule,
         MatInputModule,
         MatFormFieldModule,
-        MatDividerModule
+        MatDividerModule,
+        MatProgressSpinnerModule,
+        MatRippleModule
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
     // State signals
     searchQuery = signal<string>('');
     cartItemCount = signal<number>(0);
@@ -45,75 +50,30 @@ export class HomeComponent implements OnInit {
     isLoggedIn = signal<boolean>(false);
     userName = signal<string>('');
 
-    // Featured products (mock data for now - will connect to API later)
-    featuredProducts = signal<Product[]>([
-        {
-            id: 1,
-            name: 'Plaquettes de frein avant',
-            description: 'Plaquettes de frein haute performance pour une conduite sûre',
-            price: 45.99,
-            stock: 25,
-            imageUrl: 'https://placehold.co/300x200/e3f2fd/1976d2?text=Brake+Pads',
-            category: { id: 1, name: 'Freinage', description: 'Système de freinage' },
-            brand: { id: 1, name: 'Bosch' },
-            sku: 'BP-001',
-            createdAt: new Date(),
-            updatedAt: new Date()
-        },
-        {
-            id: 2,
-            name: 'Filtre à huile',
-            description: 'Filtre à huile de qualité supérieure pour moteur',
-            price: 12.99,
-            stock: 50,
-            imageUrl: 'https://placehold.co/300x200/fff3e0/f57c00?text=Oil+Filter',
-            category: { id: 2, name: 'Filtres', description: 'Filtration' },
-            brand: { id: 2, name: 'Mann-Filter' },
-            sku: 'OF-002',
-            createdAt: new Date(),
-            updatedAt: new Date()
-        },
-        {
-            id: 3,
-            name: 'Batterie 12V',
-            description: 'Batterie automobile longue durée 60Ah',
-            price: 89.99,
-            stock: 15,
-            imageUrl: 'https://placehold.co/300x200/e8f5e9/388e3c?text=Car+Battery',
-            category: { id: 3, name: 'Électrique', description: 'Système électrique' },
-            brand: { id: 3, name: 'Varta' },
-            sku: 'BAT-003',
-            createdAt: new Date(),
-            updatedAt: new Date()
-        },
-        {
-            id: 4,
-            name: 'Essuie-glaces',
-            description: 'Paire d\'essuie-glaces universels 55cm',
-            price: 19.99,
-            stock: 40,
-            imageUrl: 'https://placehold.co/300x200/fce4ec/c2185b?text=Wiper+Blades',
-            category: { id: 4, name: 'Accessoires', description: 'Accessoires auto' },
-            brand: { id: 1, name: 'Bosch' },
-            sku: 'WB-004',
-            createdAt: new Date(),
-            updatedAt: new Date()
-        }
-    ]);
+    // Featured products - loaded from API
+    featuredProducts = signal<Product[]>([]);
+    isLoadingProducts = signal<boolean>(true);
 
-    // Categories
-    categories = signal<Category[]>([
-        { id: 1, name: 'Freinage', description: 'Plaquettes, disques, étriers' },
-        { id: 2, name: 'Filtres', description: 'Huile, air, carburant' },
-        { id: 3, name: 'Électrique', description: 'Batteries, alternateurs' },
-        { id: 4, name: 'Accessoires', description: 'Essuie-glaces, ampoules' },
-        { id: 5, name: 'Moteur', description: 'Pièces moteur et transmission' },
-        { id: 6, name: 'Suspension', description: 'Amortisseurs, ressorts' }
-    ]);
+    // Categories - loaded from API
+    categories = signal<Category[]>([]);
+    isLoadingCategories = signal<boolean>(true);
+
+    // Animation states
+    scrollY = 0;
+    isScrolled = signal<boolean>(false);
+
+    // Stats
+    stats = [
+        { value: '10,000+', label: 'Pièces Disponibles', icon: 'inventory_2' },
+        { value: '5,000+', label: 'Clients Satisfaits', icon: 'people' },
+        { value: '99%', label: 'Taux de Satisfaction', icon: 'star' },
+        { value: '24/7', label: 'Support Client', icon: 'support_agent' }
+    ];
 
     constructor(
         public authService: AuthService,
-        public cartService: CartService
+        public cartService: CartService,
+        private productService: ProductService
     ) { }
 
     ngOnInit(): void {
@@ -130,11 +90,62 @@ export class HomeComponent implements OnInit {
 
         // Get cart item count
         this.updateCartCount();
+
+        // Load featured products from API
+        this.loadFeaturedProducts();
+
+        // Load categories from API
+        this.loadCategories();
+    }
+
+    ngAfterViewInit(): void {
+        // Initialize scroll animations
+        this.observeElements();
+    }
+
+    @HostListener('window:scroll', ['$event'])
+    onScroll(): void {
+        this.scrollY = window.scrollY;
+        this.isScrolled.set(this.scrollY > 50);
+        this.handleParallax();
+    }
+
+    loadFeaturedProducts(): void {
+        this.isLoadingProducts.set(true);
+        // Get 8 newest products for featured section
+        this.productService.getProducts({
+            page: 0,
+            size: 8,
+            sort: 'newest'
+        }).subscribe({
+            next: (response) => {
+                this.featuredProducts.set(response.content);
+                this.isLoadingProducts.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading featured products:', error);
+                this.isLoadingProducts.set(false);
+            }
+        });
+    }
+
+    loadCategories(): void {
+        this.isLoadingCategories.set(true);
+        this.productService.getCategories().subscribe({
+            next: (categories) => {
+                this.categories.set(categories);
+                this.isLoadingCategories.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading categories:', error);
+                this.isLoadingCategories.set(false);
+            }
+        });
     }
 
     updateCartCount(): void {
         this.cartService.cart$.subscribe(cart => {
-            const count = cart?.items.reduce((total: number, item: CartItem) => total + item.quantity, 0) || 0;
+            const count = cart?.items?.reduce((total: number, item: CartItem) => total + item.quantity, 0) || 0;
             this.cartItemCount.set(count);
         });
     }
@@ -158,6 +169,51 @@ export class HomeComponent implements OnInit {
         const element = document.getElementById(sectionId);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    private handleParallax(): void {
+        const parallaxElements = document.querySelectorAll('.parallax');
+        parallaxElements.forEach((element) => {
+            const speed = 0.5;
+            const yPos = -(this.scrollY * speed);
+            (element as HTMLElement).style.transform = `translateY(${yPos}px)`;
+        });
+    }
+
+    private observeElements(): void {
+        const observerOptions = {
+            root: null,
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animatable elements
+        const elements = document.querySelectorAll('.fade-in, .slide-up, .scale-in, .feature-card, .product-card, .category-card');
+        elements.forEach((element) => observer.observe(element));
+    }
+
+    addToCart(product: Product): void {
+        if (product.stock > 0) {
+            this.cartService.addToCart({
+                productId: product.id,
+                quantity: 1
+            }).subscribe({
+                next: () => {
+                    console.log('Product added to cart');
+                },
+                error: (error) => {
+                    console.error('Error adding to cart:', error);
+                }
+            });
         }
     }
 }

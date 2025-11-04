@@ -1,5 +1,6 @@
 package com.example.Backend.service.impl;
 
+import com.example.Backend.dto.ConversationDTO;
 import com.example.Backend.dto.MessageDTO;
 import com.example.Backend.entity.Conversation;
 import com.example.Backend.entity.Message;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +69,18 @@ public class ChatServiceImpl implements ChatService {
             throw new EntityNotFoundException("User not found with id: " + userId);
         }
         return conversationRepository.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ConversationDTO> getUserConversationsDTO(UUID userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found with id: " + userId);
+        }
+        List<Conversation> conversations = conversationRepository.findByUserId(userId);
+        return conversations.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -210,5 +224,40 @@ public class ChatServiceImpl implements ChatService {
         } else {
             return Message.SENDER_USER;
         }
+    }
+
+    /**
+     * Convert Conversation entity to ConversationDTO to avoid serialization issues
+     */
+    private ConversationDTO convertToDTO(Conversation conversation) {
+        // Count unread messages for this conversation
+        Long unreadCount = messageRepository.countByConversationIdAndIsRead(conversation.getId(), false);
+
+        // Get last message if exists
+        List<Message> messages = messageRepository.findTop1ByConversationIdOrderByCreatedAtDesc(conversation.getId());
+        MessageDTO lastMessageDTO = null;
+        if (!messages.isEmpty()) {
+            Message lastMessage = messages.get(0);
+            lastMessageDTO = MessageDTO.builder()
+                    .id(lastMessage.getId())
+                    .content(lastMessage.getContent())
+                    .senderId(lastMessage.getSenderId())
+                    .senderType(lastMessage.getSenderType())
+                    .isRead(lastMessage.getIsRead())
+                    .createdAt(lastMessage.getCreatedAt())
+                    .attachmentUrl(lastMessage.getAttachmentUrl())
+                    .build();
+        }
+
+        return ConversationDTO.builder()
+                .id(conversation.getId())
+                .userId(conversation.getUser().getId())
+                .title(conversation.getTitle())
+                .isActive(conversation.getIsActive())
+                .createdAt(conversation.getCreatedAt())
+                .updatedAt(conversation.getUpdatedAt())
+                .unreadCount(unreadCount.intValue())
+                .lastMessage(lastMessageDTO)
+                .build();
     }
 }

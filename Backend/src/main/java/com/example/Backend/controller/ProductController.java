@@ -32,22 +32,64 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * Get all products with pagination
-     * GET /api/products?page=0&size=20&sort=name,asc
+     * Get all products with pagination and filters
+     * GET
+     * /api/products?page=0&size=20&categoryId=1&brandId=2&minPrice=10&maxPrice=500&sort=newest
      * Security: Public endpoint
      */
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(defaultValue = "name") String sort) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        // Handle sort parameter from frontend
+        Sort.Direction direction = Sort.Direction.ASC;
+        String sortField = "name";
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        if (sort != null) {
+            switch (sort.toLowerCase()) {
+                case "newest":
+                    sortField = "createdAt";
+                    direction = Sort.Direction.DESC;
+                    break;
+                case "oldest":
+                    sortField = "createdAt";
+                    direction = Sort.Direction.ASC;
+                    break;
+                case "price-asc":
+                    sortField = "price";
+                    direction = Sort.Direction.ASC;
+                    break;
+                case "price-desc":
+                    sortField = "price";
+                    direction = Sort.Direction.DESC;
+                    break;
+                case "name":
+                default:
+                    sortField = "name";
+                    direction = Sort.Direction.ASC;
+                    break;
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        // If any filters are present, use search/filter method
+        if (categoryId != null || brandId != null || minPrice != null ||
+                maxPrice != null || search != null || inStock != null) {
+            Page<Product> products = productService.filterProducts(
+                    categoryId, brandId, minPrice, maxPrice, search, inStock, pageable);
+            return ResponseEntity.ok(products);
+        }
+
+        // Otherwise, return all products
         Page<Product> products = productService.getAllProducts(pageable);
         return ResponseEntity.ok(products);
     }

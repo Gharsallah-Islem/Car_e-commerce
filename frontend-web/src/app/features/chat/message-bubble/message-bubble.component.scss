@@ -1,0 +1,176 @@
+// WhatsApp/Messenger-style message bubbles
+.message-wrapper {
+    display: flex;
+    margin: 4px 0;
+    padding: 0 12px;
+    animation: messageSlideIn 0.2s ease-out;
+
+    &.own {
+        justify-content: flex-end;
+    }
+
+    &.other {
+        justify-content: flex-start;
+    }
+}
+
+.message-bubble {
+    position: relative;
+    max-width: 65%;
+    padding: 8px 12px 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+    word-wrap: break-word;
+    transition: all 0.2s ease;
+
+    &:hover {
+        .delete-btn {
+            opacity: 1;
+        }
+    }
+
+    // Own message (user sent)
+    &.own-bubble {
+        background: #dcf8c6; // WhatsApp green
+        color: #000;
+        border-bottom-right-radius: 2px;
+
+        // Alternative: Messenger blue
+        // background: #0084ff;
+        // color: #fff;
+    }
+
+    // Other's message (support/admin)
+    &.other-bubble {
+        background: #ffffff;
+        color: #000;
+        border: 1px solid #e0e0e0;
+        border-bottom-left-radius: 2px;
+    }
+}
+
+.sender-name {
+    font-size: 0.75rem;
+    color: #667781;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.message-content {
+    .message-text {
+        margin: 0;
+        font-size: 0.9375rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+}
+
+.message-attachment {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #0084ff;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #006bd6;
+            text-decoration: underline;
+        }
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.message-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.message-time {
+    font-size: 0.6875rem;
+    color: #667781;
+    user-select: none;
+}
+
+.read-status {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+
+    .tick-icon {
+        position: relative;
+
+        // Sent (grey double tick)
+        &.sent {
+            color: #667781;
+        }
+
+        // Read (blue double tick - WhatsApp style)
+        &.read {
+            color: #53bdeb; // WhatsApp blue
+            // Alternative: Messenger style
+            // color: #0084ff;
+        }
+    }
+}
+
+.delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    color: white;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.7);
+        transform: scale(1.1);
+    }
+
+    svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+// Animation
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .message-bubble {
+        max-width: 80%;
+    }
+}

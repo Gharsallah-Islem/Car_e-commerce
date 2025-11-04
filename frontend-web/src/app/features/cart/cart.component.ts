@@ -38,7 +38,11 @@ export class CartComponent implements OnInit {
 
     // Computed values
     subtotal = computed(() => {
-        return this.cartItems().reduce((sum, item) => {
+        const items = this.cartItems();
+        if (!items || items.length === 0) {
+            return 0;
+        }
+        return items.reduce((sum, item) => {
             const price = item.product.discount && item.product.discount > 0
                 ? item.product.price * (1 - item.product.discount / 100)
                 : item.product.price;
@@ -59,7 +63,8 @@ export class CartComponent implements OnInit {
     });
 
     isEmpty = computed(() => {
-        return this.cartItems().length === 0;
+        const items = this.cartItems();
+        return !items || items.length === 0;
     });
 
     constructor(
@@ -73,7 +78,7 @@ export class CartComponent implements OnInit {
 
         // Subscribe to cart updates
         this.cartService.cart$.subscribe(cart => {
-            if (cart) {
+            if (cart && cart.items) {
                 this.cartItems.set(cart.items);
             } else {
                 this.cartItems.set([]);
@@ -85,11 +90,16 @@ export class CartComponent implements OnInit {
         this.loading.set(true);
         this.cartService.getCartFromBackend().subscribe({
             next: (cart) => {
-                this.cartItems.set(cart.items);
+                if (cart && cart.items) {
+                    this.cartItems.set(cart.items);
+                } else {
+                    this.cartItems.set([]);
+                }
                 this.loading.set(false);
             },
             error: () => {
-                // Cart loading handled by service
+                // Cart loading handled by service - initialize with empty array
+                this.cartItems.set([]);
                 this.loading.set(false);
             }
         });
@@ -106,13 +116,9 @@ export class CartComponent implements OnInit {
             return;
         }
 
-        if (!item.id) {
-            this.notificationService.error('Erreur: ID de l\'article invalide');
-            return;
-        }
-
+        // Use product.id as the backend expects productId, not cartItemId
         this.cartService.updateCartItem({
-            cartItemId: item.id,
+            cartItemId: item.product.id,
             quantity: quantity
         }).subscribe();
     }
@@ -126,12 +132,8 @@ export class CartComponent implements OnInit {
     }
 
     removeItem(item: CartItem): void {
-        if (!item.id) {
-            this.notificationService.error('Erreur: ID de l\'article invalide');
-            return;
-        }
-
-        this.cartService.removeFromCart(item.id).subscribe({
+        // Use product.id as the backend expects productId
+        this.cartService.removeFromCart(item.product.id).subscribe({
             next: () => {
                 this.notificationService.success('Produit retiré du panier');
             }

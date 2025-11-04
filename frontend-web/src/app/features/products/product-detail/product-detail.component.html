@@ -134,19 +134,12 @@
         @if (hasCompatibility()) {
         <mat-tab label="Compatibilité">
             <div class="tab-content">
-                <div class="compatibility-list">
-                    @for (vehicle of product()!.compatibility!; track vehicle.id) {
-                    <div class="vehicle-card">
-                        <mat-icon>directions_car</mat-icon>
-                        <div>
-                            <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
-                            <span>{{ vehicle.year }}</span>
-                            @if (vehicle.engineType) {
-                            <span> - {{ vehicle.engineType }}</span>
-                            }
-                        </div>
+                <div class="compatibility-info">
+                    <mat-icon class="compatibility-icon">directions_car</mat-icon>
+                    <div class="compatibility-text">
+                        <h3>Compatible avec:</h3>
+                        <p>{{ product()!.compatibilityString }}</p>
                     </div>
-                    }
                 </div>
             </div>
         </mat-tab>

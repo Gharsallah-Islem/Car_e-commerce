@@ -1,70 +1,134 @@
 <div class="login-container">
-    <mat-card class="login-card">
-        <mat-card-header>
-            <div class="header-content">
-                <mat-icon class="logo-icon">directions_car</mat-icon>
-                <mat-card-title>Welcome Back</mat-card-title>
-                <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Left Panel - Branding -->
+    <div class="brand-panel fade-in">
+        <div class="brand-content">
+            <div class="brand-icon-wrapper">
+                <mat-icon class="brand-icon">directions_car</mat-icon>
+                <div class="icon-glow"></div>
             </div>
-        </mat-card-header>
+            <h1 class="brand-title">Car Parts Hub</h1>
+            <p class="brand-subtitle">Your Premium Auto Parts Marketplace</p>
 
-        <mat-card-content>
-            <!-- Email/Password Login Form -->
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Email</mat-label>
-                    <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
-                        autocomplete="email">
-                    <mat-icon matPrefix>email</mat-icon>
-                    <mat-error *ngIf="emailControl?.invalid">
-                        {{ getEmailErrorMessage() }}
-                    </mat-error>
-                </mat-form-field>
+            <div class="features-list">
+                <div class="feature-item" *ngFor="let feature of features">
+                    <div class="feature-icon">
+                        <mat-icon>{{ feature.icon }}</mat-icon>
+                    </div>
+                    <div class="feature-text">
+                        <h3>{{ feature.title }}</h3>
+                        <p>{{ feature.description }}</p>
+                    </div>
+                </div>
+            </div>
 
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Password</mat-label>
-                    <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-                        placeholder="Enter your password" autocomplete="current-password">
-                    <mat-icon matPrefix>lock</mat-icon>
-                    <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
-                        [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()">
-                        <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            <div class="trust-badges">
+                <div class="badge">
+                    <mat-icon>verified</mat-icon>
+                    <span>Verified Parts</span>
+                </div>
+                <div class="badge">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>Fast Delivery</span>
+                </div>
+                <div class="badge">
+                    <mat-icon>support_agent</mat-icon>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel - Login Form -->
+    <div class="form-panel slide-in">
+        <mat-card class="login-card">
+            <div class="card-header">
+                <h2 class="welcome-title">Welcome Back</h2>
+                <p class="welcome-subtitle">Sign in to continue your journey</p>
+            </div>
+
+            <mat-card-content>
+                <!-- Email/Password Login Form -->
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                    <div class="input-group">
+                        <mat-form-field appearance="outline" class="full-width modern-input">
+                            <mat-label>Email Address</mat-label>
+                            <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
+                                autocomplete="email">
+                            <mat-icon matPrefix class="input-icon">email</mat-icon>
+                            <mat-error *ngIf="emailControl?.invalid">
+                                {{ getEmailErrorMessage() }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="input-group">
+                        <mat-form-field appearance="outline" class="full-width modern-input">
+                            <mat-label>Password</mat-label>
+                            <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                                placeholder="Enter your password" autocomplete="current-password">
+                            <mat-icon matPrefix class="input-icon">lock</mat-icon>
+                            <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
+                                [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()"
+                                class="toggle-password">
+                                <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                            </button>
+                            <mat-error *ngIf="passwordControl?.invalid">
+                                {{ getPasswordErrorMessage() }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-actions">
+                        <mat-checkbox class="remember-me" color="primary">Remember me</mat-checkbox>
+                        <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <button mat-raised-button type="submit" class="full-width submit-btn gradient-btn"
+                        [disabled]="isLoading()">
+                        <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
+                        <span *ngIf="!isLoading()">
+                            <mat-icon class="btn-icon">login</mat-icon>
+                            Sign In
+                        </span>
                     </button>
-                    <mat-error *ngIf="passwordControl?.invalid">
-                        {{ getPasswordErrorMessage() }}
-                    </mat-error>
-                </mat-form-field>
+                </form>
 
-                <div class="forgot-password">
-                    <a routerLink="/auth/forgot-password" class="link">Forgot password?</a>
+                <!-- Divider -->
+                <div class="divider-container">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">OR CONTINUE WITH</span>
+                    <div class="divider-line"></div>
                 </div>
 
-                <button mat-raised-button color="primary" type="submit" class="full-width submit-btn"
-                    [disabled]="isLoading()">
-                    <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
-                    <span *ngIf="!isLoading()">Sign In</span>
-                </button>
-            </form>
+                <!-- Social Login -->
+                <div class="social-buttons">
+                    <button mat-stroked-button class="social-btn google-btn" (click)="loginWithGoogle()" type="button">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                            class="social-icon">
+                        <span>Google</span>
+                    </button>
+                </div>
 
-            <!-- Divider -->
-            <div class="divider-container">
-                <mat-divider></mat-divider>
-                <span class="divider-text">OR</span>
-                <mat-divider></mat-divider>
-            </div>
-
-            <!-- Google OAuth2 Login -->
-            <button mat-stroked-button class="full-width google-btn" (click)="loginWithGoogle()" type="button">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                    class="google-icon">
-                Continue with Google
-            </button>
-
-            <!-- Register Link -->
-            <div class="register-link">
-                <span>Don't have an account?</span>
-                <a routerLink="/auth/register" class="link">Sign up</a>
-            </div>
-        </mat-card-content>
-    </mat-card>
+                <!-- Register Link -->
+                <div class="footer-link">
+                    <span>Don't have an account?</span>
+                    <a routerLink="/auth/register" class="link">Create Account</a>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
 </div>

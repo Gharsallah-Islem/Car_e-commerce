@@ -38,6 +38,47 @@ export class RegisterComponent {
     hideConfirmPassword = signal(true);
     isLoading = signal(false);
 
+    benefits = [
+        {
+            number: '01',
+            title: 'Create Your Profile',
+            description: 'Set up your account in seconds and access thousands of premium auto parts'
+        },
+        {
+            number: '02',
+            title: 'Smart Recommendations',
+            description: 'Get personalized part suggestions based on your vehicle and preferences'
+        },
+        {
+            number: '03',
+            title: 'Track Your Orders',
+            description: 'Monitor deliveries in real-time and manage your purchase history'
+        },
+        {
+            number: '04',
+            title: 'Exclusive Deals',
+            description: 'Access member-only discounts and special promotions'
+        }
+    ];
+
+    stats = [
+        {
+            icon: 'people',
+            value: '50K+',
+            label: 'Happy Customers'
+        },
+        {
+            icon: 'star',
+            value: '4.9',
+            label: 'Average Rating'
+        },
+        {
+            icon: 'verified',
+            value: '100%',
+            label: 'Verified Parts'
+        }
+    ];
+
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,

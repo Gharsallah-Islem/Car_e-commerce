@@ -1,5 +1,6 @@
 package com.example.Backend.service;
 
+import com.example.Backend.dto.ConversationDTO;
 import com.example.Backend.dto.MessageDTO;
 import com.example.Backend.entity.Conversation;
 import com.example.Backend.entity.Message;
@@ -36,6 +37,14 @@ public interface ChatService {
      * @return List of conversations
      */
     List<Conversation> getUserConversations(UUID userId);
+
+    /**
+     * Get all conversations for a user as DTOs (prevents serialization issues)
+     * 
+     * @param userId User ID
+     * @return List of conversation DTOs
+     */
+    List<ConversationDTO> getUserConversationsDTO(UUID userId);
 
     /**
      * Send message in conversation

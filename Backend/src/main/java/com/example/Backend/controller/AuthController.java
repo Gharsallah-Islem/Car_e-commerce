@@ -40,17 +40,77 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
 
+        // Get user details
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipal.getId());
+
         Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", jwt);
+        response.put("token", jwt);
         response.put("tokenType", "Bearer");
+
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("id", user.getId());
+        userData.put("username", user.getUsername());
+        userData.put("email", user.getEmail());
+        userData.put("firstName", extractFirstName(user.getFullName()));
+        userData.put("lastName", extractLastName(user.getFullName()));
+        userData.put("fullName", user.getFullName());
+        userData.put("phoneNumber", user.getPhone());
+        userData.put("address", user.getAddress());
+        userData.put("role", user.getRole().getName());
+
+        response.put("user", userData);
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO) {
-        userService.createUser(userDTO);
-        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
+        // Create the user
+        User newUser = userService.createUser(userDTO);
+
+        // Auto-login the user after registration
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        newUser.getUsername(),
+                        userDTO.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
+
+        // Prepare response with token and user data
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", jwt);
+        response.put("tokenType", "Bearer");
+
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("id", newUser.getId());
+        userData.put("username", newUser.getUsername());
+        userData.put("email", newUser.getEmail());
+        userData.put("firstName", extractFirstName(newUser.getFullName()));
+        userData.put("lastName", extractLastName(newUser.getFullName()));
+        userData.put("fullName", newUser.getFullName());
+        userData.put("phoneNumber", newUser.getPhone());
+        userData.put("address", newUser.getAddress());
+        userData.put("role", newUser.getRole().getName());
+
+        response.put("user", userData);
+
+        return ResponseEntity.ok(response);
+    }
+
+    private String extractFirstName(String fullName) {
+        if (fullName == null)
+            return "";
+        String[] parts = fullName.split(" ", 2);
+        return parts[0];
+    }
+
+    private String extractLastName(String fullName) {
+        if (fullName == null)
+            return "";
+        String[] parts = fullName.split(" ", 2);
+        return parts.length > 1 ? parts[1] : "";
     }
 
     @GetMapping("/me")
@@ -61,10 +121,13 @@ public class AuthController {
         response.put("id", user.getId());
         response.put("username", user.getUsername());
         response.put("email", user.getEmail());
-        response.put("name", user.getFullName());
+        response.put("firstName", extractFirstName(user.getFullName()));
+        response.put("lastName", extractLastName(user.getFullName()));
         response.put("fullName", user.getFullName());
+        response.put("name", user.getFullName());
         response.put("phoneNumber", user.getPhone());
         response.put("address", user.getAddress());
+        response.put("role", user.getRole().getName());
 
         return ResponseEntity.ok(response);
     }

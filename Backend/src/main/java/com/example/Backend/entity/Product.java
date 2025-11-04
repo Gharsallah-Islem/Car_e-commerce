@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -58,9 +59,18 @@ public class Product implements Serializable {
     private Integer year;
 
     @Column(name = "compatibility", columnDefinition = "TEXT")
-    private String compatibility; // JSON array of compatible models
+    private String compatibility; // Comma-separated string of compatible models
 
-    @Column(name = "image_url")
+    /**
+     * Get compatibility as a simple string for frontend display
+     * The frontend expects this as a string to display in the UI
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty("compatibilityString")
+    public String getCompatibilityString() {
+        return compatibility;
+    }
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "category", length = 100)
@@ -75,9 +85,11 @@ public class Product implements Serializable {
     private LocalDateTime updatedAt;
 
     // Relationships
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<CartItem> cartItems = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 

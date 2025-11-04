@@ -18,7 +18,7 @@ import {
   providedIn: 'root'
 })
 export class ChatService {
-  private readonly apiUrl = `${environment.apiUrl}/api/chat`;
+  private readonly apiUrl = `${environment.apiUrl}/chat`;
 
   constructor(private http: HttpClient) { }
 

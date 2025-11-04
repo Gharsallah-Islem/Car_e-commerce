@@ -38,6 +38,10 @@
         <mat-icon>psychology</mat-icon>
         IA Mécanique
       </button>
+      <button mat-button routerLink="/chat">
+        <mat-icon>chat</mat-icon>
+        Support
+      </button>
     </div>
 
     <!-- User Actions -->
@@ -63,6 +67,10 @@
         <button mat-menu-item routerLink="/orders">
           <mat-icon>receipt_long</mat-icon>
           Mes commandes
+        </button>
+        <button mat-menu-item routerLink="/chat">
+          <mat-icon>chat</mat-icon>
+          Support Chat
         </button>
         @if (authService.currentUser()?.role === 'ADMIN' || authService.currentUser()?.role === 'SUPER_ADMIN') {
         <mat-divider></mat-divider>

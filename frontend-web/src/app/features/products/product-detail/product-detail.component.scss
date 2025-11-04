@@ -260,30 +260,38 @@
             }
         }
 
-        .compatibility-list {
-            display: grid;
-            gap: 1rem;
+        .compatibility-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
 
-            .vehicle-card {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                padding: 1rem;
-                border: 1px solid #eee;
-                border-radius: 8px;
+            .compatibility-icon {
+                color: #667eea;
+                font-size: 48px;
+                width: 48px;
+                height: 48px;
+                flex-shrink: 0;
+            }
 
-                mat-icon {
-                    color: #667eea;
+            .compatibility-text {
+                flex: 1;
+
+                h3 {
+                    margin: 0 0 0.5rem 0;
+                    color: #333;
+                    font-size: 1.125rem;
+                    font-weight: 600;
                 }
 
-                strong {
-                    display: block;
-                    margin-bottom: 0.25rem;
-                }
-
-                span {
+                p {
+                    margin: 0;
                     color: #666;
-                    font-size: 0.875rem;
+                    line-height: 1.6;
+                    font-size: 0.9375rem;
                 }
             }
         }

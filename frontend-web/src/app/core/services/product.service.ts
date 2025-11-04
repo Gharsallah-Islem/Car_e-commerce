@@ -11,9 +11,9 @@ import { Product, ProductResponse, ProductFilter, Category, Brand } from '../mod
     providedIn: 'root'
 })
 export class ProductService {
-    private readonly endpoint = '/products';
-    private readonly categoryEndpoint = '/categories';
-    private readonly brandEndpoint = '/brands';
+    private readonly endpoint = 'products';
+    private readonly categoryEndpoint = 'categories';
+    private readonly brandEndpoint = 'brands';
 
     constructor(private apiService: ApiService) { }
 
@@ -41,7 +41,9 @@ export class ProductService {
     /**
      * Get a single product by ID
      */
-    getProductById(id: number): Observable<Product> {
+    getProductById(id: number | string): Observable<Product> {
+        // If id is a number, it's being used as-is (may fail if backend expects UUID)
+        // If id is a string (UUID), use it directly
         return this.apiService.get<Product>(`${this.endpoint}/${id}`);
     }
 

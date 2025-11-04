@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models';
 
@@ -25,7 +26,8 @@ import { LoginRequest } from '../../../core/models';
         MatButtonModule,
         MatIconModule,
         MatDividerModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatCheckboxModule
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
@@ -34,6 +36,24 @@ export class LoginComponent {
     loginForm: FormGroup;
     hidePassword = signal(true);
     isLoading = signal(false);
+
+    features = [
+        {
+            icon: 'inventory_2',
+            title: '10,000+ Parts',
+            description: 'Extensive inventory for all car models'
+        },
+        {
+            icon: 'verified_user',
+            title: '100% Authentic',
+            description: 'Guaranteed genuine auto parts'
+        },
+        {
+            icon: 'bolt',
+            title: 'Express Shipping',
+            description: 'Fast delivery to your doorstep'
+        }
+    ];
 
     constructor(
         private fb: FormBuilder,

@@ -50,6 +50,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/ai-mechanic/ai-mechanic.component').then(m => m.AiMechanicComponent)
     },
 
+    // Chat route (protected)
+    {
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat-page/chat-page.component').then(m => m.ChatPageComponent),
+        canActivate: [authGuard]
+    },
+
     // Authentication routes (lazy loaded)
     {
         path: 'auth',

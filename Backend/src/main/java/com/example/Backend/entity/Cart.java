@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class Cart implements Serializable {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -41,16 +43,19 @@ public class Cart implements Serializable {
     private LocalDateTime updatedAt;
 
     // Relationships
+    @com.fasterxml.jackson.annotation.JsonProperty("items")
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
     // Helper methods
+    @com.fasterxml.jackson.annotation.JsonProperty("totalAmount")
     public BigDecimal getTotalPrice() {
         return cartItems.stream()
                 .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    @com.fasterxml.jackson.annotation.JsonProperty("totalItems")
     public int getTotalItems() {
         return cartItems.stream()
                 .mapToInt(CartItem::getQuantity)

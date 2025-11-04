@@ -27,18 +27,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserDTO userDTO) {
-        if (usernameExists(userDTO.getUsername())) {
+        // Auto-generate username from email if not provided
+        String username = userDTO.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            // Extract username from email (part before @)
+            username = userDTO.getEmail().split("@")[0];
+            // Remove any special characters and ensure it's at least 3 characters
+            username = username.replaceAll("[^a-zA-Z0-9]", "");
+            if (username.length() < 3) {
+                username = username + "user";
+            }
+            // Make sure it's unique by adding numbers if needed
+            String baseUsername = username;
+            int counter = 1;
+            while (usernameExists(username)) {
+                username = baseUsername + counter;
+                counter++;
+            }
+        } else if (usernameExists(username)) {
             throw new IllegalArgumentException("Username already exists");
         }
+
         if (emailExists(userDTO.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
         User user = new User();
-        user.setUsername(userDTO.getUsername());
+        user.setUsername(username);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmail(userDTO.getEmail());
         user.setFullName(userDTO.getFullName());
+        user.setPhone(userDTO.getPhoneNumber());
         user.setAddress(userDTO.getAddress());
 
         // Set default role to CLIENT

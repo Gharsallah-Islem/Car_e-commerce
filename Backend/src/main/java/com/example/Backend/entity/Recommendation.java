@@ -29,7 +29,7 @@ public class Recommendation implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl; // Uploaded image for AI analysis
 
     @Column(name = "symptoms", columnDefinition = "TEXT")

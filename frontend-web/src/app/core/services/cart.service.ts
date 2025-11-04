@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, throwError, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { StorageService } from './storage.service';
 import { NotificationService } from './notification.service';
@@ -68,11 +68,18 @@ export class CartService {
     getCartFromBackend(): Observable<Cart> {
         return this.apiService.get<Cart>('cart').pipe(
             tap(cart => {
+                // Ensure cart has items array
+                if (!cart.items) {
+                    cart.items = [];
+                }
                 this.updateCartState(cart);
             }),
             catchError(error => {
                 console.error('Failed to load cart', error);
-                return throwError(() => error);
+                // Initialize with empty cart on error
+                const emptyCart = this.createEmptyCart();
+                this.updateCartState(emptyCart);
+                return of(emptyCart);
             })
         );
     }
@@ -85,7 +92,12 @@ export class CartService {
 
         if (token) {
             // Authenticated user - add via API
-            return this.apiService.post<Cart>('cart/add', request).pipe(
+            // Convert productId to string for backend UUID
+            const backendRequest = {
+                productId: String(request.productId),
+                quantity: request.quantity
+            };
+            return this.apiService.post<Cart>('cart/items', backendRequest).pipe(
                 tap(cart => {
                     this.updateCartState(cart);
                     this.notificationService.success('Product added to cart');
@@ -108,13 +120,15 @@ export class CartService {
         const token = this.storageService.getToken();
 
         if (token) {
-            return this.apiService.put<Cart>('cart/update', request).pipe(
+            // Backend uses productId in path - extract from cartItemId which is actually productId
+            // Convert to string for backend UUID
+            return this.apiService.put<Cart>(`cart/items/${request.cartItemId}`, { quantity: request.quantity }).pipe(
                 tap(cart => {
                     this.updateCartState(cart);
-                    this.notificationService.success('Cart updated');
+                    this.notificationService.success('Quantité mise à jour');
                 }),
                 catchError(error => {
-                    this.notificationService.error('Failed to update cart');
+                    this.notificationService.error('Échec de la mise à jour');
                     return throwError(() => error);
                 })
             );
@@ -130,7 +144,8 @@ export class CartService {
         const token = this.storageService.getToken();
 
         if (token) {
-            return this.apiService.delete<Cart>(`cart/remove/${cartItemId}`).pipe(
+            // Backend expects productId but we'll use the cartItemId for now
+            return this.apiService.delete<Cart>(`cart/items/${cartItemId}`).pipe(
                 tap(cart => {
                     this.updateCartState(cart);
                     this.notificationService.success('Item removed from cart');
@@ -152,7 +167,7 @@ export class CartService {
         const token = this.storageService.getToken();
 
         if (token) {
-            return this.apiService.delete<void>('cart/clear').pipe(
+            return this.apiService.delete<void>('cart').pipe(
                 tap(() => {
                     this.updateCartState(null);
                     this.notificationService.success('Cart cleared');
@@ -336,6 +351,9 @@ export class CartService {
         const cart = this.storageService.getCart();
         if (cart) {
             this.updateCartState(cart);
+        } else {
+            // Initialize with empty cart if nothing in storage
+            this.updateCartState(this.createEmptyCart());
         }
     }
 
@@ -351,8 +369,10 @@ export class CartService {
      * Recalculate cart totals
      */
     private recalculateCart(cart: Cart): void {
-        cart.totalAmount = cart.items.reduce((sum: number, item: CartItem) => sum + item.subtotal, 0);
-        cart.totalItems = cart.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+        if (cart && cart.items) {
+            cart.totalAmount = cart.items.reduce((sum: number, item: CartItem) => sum + item.subtotal, 0);
+            cart.totalItems = cart.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+        }
     }
 
     /**

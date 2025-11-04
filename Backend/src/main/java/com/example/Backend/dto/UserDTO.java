@@ -1,6 +1,7 @@
 package com.example.Backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -13,7 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDTO {
 
-    @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
@@ -23,13 +23,30 @@ public class UserDTO {
     @Email(message = "Email should be valid")
     private String email;
 
-    @NotBlank(message = "Full name is required")
-    @JsonAlias("name") // Accept both "fullName" and "name"
+    @JsonAlias({ "fullName", "name" }) // Accept "fullName" or "name"
     private String fullName;
+
+    // Support firstName and lastName for registration
+    @JsonProperty("firstName")
+    private String firstName;
+
+    @JsonProperty("lastName")
+    private String lastName;
 
     private String phoneNumber;
 
     private String address;
 
     private Integer roleId;
+
+    // Combine firstName and lastName into fullName if needed
+    public String getFullName() {
+        if (fullName != null && !fullName.isEmpty()) {
+            return fullName;
+        }
+        if (firstName != null && lastName != null) {
+            return firstName + " " + lastName;
+        }
+        return fullName;
+    }
 }

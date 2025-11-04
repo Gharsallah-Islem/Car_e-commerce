@@ -1,5 +1,6 @@
 package com.example.Backend.controller;
 
+import com.example.Backend.dto.ConversationDTO;
 import com.example.Backend.dto.MessageDTO;
 import com.example.Backend.entity.Conversation;
 import com.example.Backend.entity.Message;
@@ -76,10 +77,10 @@ public class ChatController {
      * GET /api/chat/conversations
      */
     @GetMapping("/conversations")
-    public ResponseEntity<List<Conversation>> getMyConversations(
+    public ResponseEntity<List<ConversationDTO>> getMyConversations(
             @AuthenticationPrincipal UserPrincipal currentUser) {
 
-        List<Conversation> conversations = chatService.getUserConversations(currentUser.getId());
+        List<ConversationDTO> conversations = chatService.getUserConversationsDTO(currentUser.getId());
         return ResponseEntity.ok(conversations);
     }
 
