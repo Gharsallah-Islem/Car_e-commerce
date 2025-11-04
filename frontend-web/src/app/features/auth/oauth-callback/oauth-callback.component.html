@@ -1,0 +1,18 @@
+<div class="callback-container">
+    <mat-card class="callback-card">
+        <mat-card-content>
+            <div class="content" *ngIf="!errorMessage">
+                <mat-spinner diameter="60"></mat-spinner>
+                <h2>Signing you in...</h2>
+                <p>Please wait while we complete your Google authentication.</p>
+            </div>
+
+            <div class="error-content" *ngIf="errorMessage">
+                <mat-icon class="error-icon">error_outline</mat-icon>
+                <h2>Authentication Failed</h2>
+                <p>{{ errorMessage }}</p>
+                <p class="redirect-message">Redirecting to login page...</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

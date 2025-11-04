@@ -1,0 +1,25 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ecommercespareparts
+    username: lasmer
+    password: lasmer
+  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+
+# Development server settings
+server:
+  port: 8080
+
+# Logging for development
+logging:
+  level:
+    com.example.Backend: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG

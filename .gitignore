@@ -1,0 +1,145 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Backend (Spring Boot / Maven)
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/HELP.md
+backend/*.log
+backend/*.logs
+backend/.gradle/
+backend/build/
+backend/out/
+
+# Frontend (Angular / Node)
+frontend-web/node_modules/
+frontend-web/dist/
+frontend-web/.angular/
+frontend-web/.tmp/
+frontend-web/npm-debug.log*
+frontend-web/yarn-debug.log*
+frontend-web/yarn-error.log*
+frontend-web/.env
+frontend-web/.env.local
+frontend-web/coverage/
+
+# Mobile (Kotlin / Android)
+mobile-app/.gradle/
+mobile-app/local.properties
+mobile-app/.idea/
+mobile-app/*.iml
+mobile-app/build/
+mobile-app/captures/
+mobile-app/.externalNativeBuild/
+mobile-app/.cxx/
+mobile-app/*.apk
+mobile-app/*.ap_
+mobile-app/*.aab
+
+# AI Module (Python)
+ai-module/__pycache__/
+ai-module/*.py[cod]
+ai-module/*$py.class
+ai-module/.Python
+ai-module/venv/
+ai-module/env/
+ai-module/ENV/
+ai-module/.venv/
+ai-module/pip-log.txt
+ai-module/pip-delete-this-directory.txt
+ai-module/.pytest_cache/
+ai-module/.coverage
+ai-module/htmlcov/
+ai-module/*.egg-info/
+ai-module/dist/
+ai-module/build/
+ai-module/.ipynb_checkpoints/
+ai-module/models/*.h5
+ai-module/models/*.pkl
+ai-module/models/*.pth
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs/
+*.log
+
+# Temp Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.crt
+*.cer
+
+# Build artifacts
+*.class
+*.jar
+!gradle-wrapper.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Package Files
+node_modules/
+vendor/
+packages/
+
+# Test Coverage
+coverage/
+.nyc_output/
+test-results/
+
+# Compiled files
+*.com
+*.exe
+*.dll
+*.so
+*.dylib
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

@@ -1,0 +1,210 @@
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>Mon Panier</h1>
+        <button mat-stroked-button [routerLink]="['/products']" class="continue-shopping">
+            <mat-icon>arrow_back</mat-icon>
+            Continuer mes achats
+        </button>
+    </div>
+
+    @if (loading()) {
+    <div class="loading-container">
+        <mat-icon class="spinner">autorenew</mat-icon>
+        <p>Chargement du panier...</p>
+    </div>
+    }
+
+    @if (!loading() && isEmpty()) {
+    <div class="empty-cart">
+        <mat-icon>shopping_cart</mat-icon>
+        <h2>Votre panier est vide</h2>
+        <p>Commencez vos achats en explorant notre catalogue de pièces automobiles</p>
+        <button mat-raised-button color="primary" [routerLink]="['/products']">
+            Découvrir nos produits
+        </button>
+    </div>
+    }
+
+    @if (!loading() && !isEmpty()) {
+    <div class="cart-content">
+        <!-- Cart Items -->
+        <div class="cart-items">
+            <div class="items-header">
+                <h2>Articles ({{ cartItems().length }})</h2>
+                <button mat-button color="warn" (click)="clearCart()">
+                    <mat-icon>delete_outline</mat-icon>
+                    Vider le panier
+                </button>
+            </div>
+
+            @for (item of cartItems(); track item.product.id) {
+            <mat-card class="cart-item">
+                <div class="item-image">
+                    <img [src]="item.product.imageUrl || 'https://placehold.co/120/e0e0e0/757575?text=No+Image'"
+                        [alt]="item.product.name">
+                </div>
+
+                <div class="item-details">
+                    <h3 [routerLink]="['/products', item.product.id]" class="item-name">
+                        {{ item.product.name }}
+                    </h3>
+                    <p class="item-brand">{{ item.product.brand.name }}</p>
+                    <p class="item-ref">Référence: {{ item.product.sku }}</p>
+
+                    @if (item.product.stock > 0) {
+                    <div class="stock-status in-stock">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>En stock ({{ item.product.stock }} disponibles)</span>
+                    </div>
+                    } @else {
+                    <div class="stock-status out-of-stock">
+                        <mat-icon>cancel</mat-icon>
+                        <span>Rupture de stock</span>
+                    </div>
+                    }
+                </div>
+
+                <div class="item-quantity">
+                    <label>Quantité</label>
+                    <div class="quantity-controls">
+                        <button mat-icon-button (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1">
+                            <mat-icon>remove</mat-icon>
+                        </button>
+                        <input type="number" [(ngModel)]="item.quantity" (change)="updateQuantity(item, item.quantity)"
+                            min="1" [max]="item.product.stock">
+                        <button mat-icon-button (click)="increaseQuantity(item)"
+                            [disabled]="item.quantity >= item.product.stock">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="item-price">
+                    @if (item.product.discount && item.product.discount > 0) {
+                    <div class="price-with-discount">
+                        <span class="original-price">{{ item.product.price | number:'1.2-2' }} MAD</span>
+                        <span class="discounted-price">{{ getItemPrice(item) | number:'1.2-2' }} MAD</span>
+                        <span class="discount-badge">-{{ item.product.discount }}%</span>
+                    </div>
+                    } @else {
+                    <span class="current-price">{{ item.product.price | number:'1.2-2' }} MAD</span>
+                    }
+                </div>
+
+                <div class="item-total">
+                    <label>Total</label>
+                    <span class="total-price">{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                </div>
+
+                <div class="item-actions">
+                    <button mat-icon-button color="warn" (click)="removeItem(item)" class="remove-btn">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+            </mat-card>
+            }
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="cart-summary">
+            <mat-card>
+                <h2>Récapitulatif</h2>
+                <mat-divider></mat-divider>
+
+                <!-- Coupon Section -->
+                <div class="coupon-section">
+                    <h3>Code promo</h3>
+                    @if (discount() === 0) {
+                    <div class="coupon-input">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Entrez votre code</mat-label>
+                            <input matInput [(ngModel)]="couponCode" placeholder="WELCOME10">
+                        </mat-form-field>
+                        <button mat-raised-button color="primary" (click)="applyCoupon()" [disabled]="!couponCode()">
+                            Appliquer
+                        </button>
+                    </div>
+                    } @else {
+                    <div class="coupon-applied">
+                        <div class="coupon-info">
+                            <mat-icon>local_offer</mat-icon>
+                            <span>Code appliqué: {{ couponCode() }}</span>
+                        </div>
+                        <button mat-icon-button (click)="removeCoupon()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                    }
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <!-- Price Breakdown -->
+                <div class="price-breakdown">
+                    <div class="price-row">
+                        <span>Sous-total</span>
+                        <span>{{ subtotal() | number:'1.2-2' }} MAD</span>
+                    </div>
+
+                    <div class="price-row">
+                        <span>TVA (20%)</span>
+                        <span>{{ tax() | number:'1.2-2' }} MAD</span>
+                    </div>
+
+                    <div class="price-row">
+                        <span>Livraison</span>
+                        @if (shipping() === 0) {
+                        <span class="free-shipping">GRATUIT</span>
+                        } @else {
+                        <span>{{ shipping() | number:'1.2-2' }} MAD</span>
+                        }
+                    </div>
+
+                    @if (shipping() > 0) {
+                    <div class="shipping-info">
+                        <mat-icon>info</mat-icon>
+                        <span>Livraison gratuite à partir de 500 MAD</span>
+                    </div>
+                    }
+
+                    @if (discount() > 0) {
+                    <div class="price-row discount-row">
+                        <span>Réduction</span>
+                        <span class="discount-amount">-{{ discount() | number:'1.2-2' }} MAD</span>
+                    </div>
+                    }
+
+                    <mat-divider></mat-divider>
+
+                    <div class="price-row total-row">
+                        <span>Total</span>
+                        <span class="total-amount">{{ total() | number:'1.2-2' }} MAD</span>
+                    </div>
+                </div>
+
+                <button mat-raised-button color="primary" class="checkout-btn" (click)="proceedToCheckout()"
+                    [disabled]="isEmpty()">
+                    <mat-icon>shopping_bag</mat-icon>
+                    Procéder au paiement
+                </button>
+
+                <!-- Payment Methods -->
+                <div class="payment-methods">
+                    <p>Paiement sécurisé par:</p>
+                    <div class="payment-icons">
+                        <mat-icon>credit_card</mat-icon>
+                        <mat-icon>account_balance</mat-icon>
+                        <span class="payment-badge">Stripe</span>
+                    </div>
+                </div>
+
+                <!-- Security Badge -->
+                <div class="security-badge">
+                    <mat-icon>lock</mat-icon>
+                    <span>Paiement 100% sécurisé</span>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+    }
+</div>

@@ -1,0 +1,757 @@
+.checkout-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+
+    // Checkout Header
+    .checkout-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .back-btn {
+            mat-icon {
+                margin-right: 0.5rem;
+            }
+        }
+    }
+
+    // Checkout Content Layout
+    .checkout-content {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+
+        // Stepper Section
+        .stepper-section {
+            ::ng-deep .mat-stepper-horizontal {
+                background: transparent;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #1a1a1a;
+                margin: 0 0 1.5rem 0;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+                font-weight: 500;
+                color: #333;
+                margin: 1.5rem 0 1rem 0;
+            }
+
+            // Form Styles
+            form {
+                padding: 1.5rem 0;
+
+                .form-row {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 1rem;
+
+                    .full-width {
+                        width: 100%;
+                    }
+
+                    .half-width {
+                        flex: 1;
+                    }
+
+                    mat-checkbox {
+                        margin-top: 0.5rem;
+                    }
+                }
+            }
+
+            // Payment Methods
+            .payment-methods {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin: 1.5rem 0;
+
+                .payment-option {
+                    padding: 1.5rem;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    border: 2px solid transparent;
+
+                    &:hover {
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    }
+
+                    &.selected {
+                        border-color: #2196f3;
+                        background: #e3f2fd;
+                    }
+
+                    mat-radio-button {
+                        width: 100%;
+
+                        ::ng-deep .mdc-radio {
+                            margin-right: 1rem;
+                        }
+                    }
+
+                    .payment-content {
+                        width: 100%;
+
+                        .payment-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+                            margin-bottom: 0.5rem;
+
+                            mat-icon {
+                                font-size: 28px;
+                                width: 28px;
+                                height: 28px;
+                                color: #2196f3;
+                            }
+
+                            span {
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                color: #1a1a1a;
+                            }
+                        }
+
+                        p {
+                            color: #666;
+                            margin: 0.5rem 0;
+                        }
+
+                        .payment-badges {
+                            display: flex;
+                            gap: 0.5rem;
+                            margin-top: 1rem;
+
+                            .badge {
+                                background: #f5f5f5;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: 4px;
+                                font-size: 0.85rem;
+                                font-weight: 500;
+                                color: #666;
+
+                                &.stripe {
+                                    background: #635bff;
+                                    color: white;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Card Details
+            .card-details {
+                margin-top: 2rem;
+                padding: 1.5rem;
+                background: #f9f9f9;
+                border-radius: 8px;
+
+                h3 {
+                    margin-top: 0;
+                }
+
+                .stripe-element-container {
+                    margin: 1.5rem 0;
+
+                    label {
+                        display: block;
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        color: #666;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .stripe-element {
+                        background: white;
+                        padding: 1rem;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        min-height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .stripe-placeholder {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            color: #999;
+
+                            mat-icon {
+                                font-size: 32px;
+                                width: 32px;
+                                height: 32px;
+                            }
+                        }
+                    }
+
+                    .error-message {
+                        color: #f44336;
+                        font-size: 0.85rem;
+                        margin-top: 0.5rem;
+                    }
+                }
+            }
+
+            // Cash Details
+            .cash-details {
+                margin-top: 2rem;
+
+                .info-box {
+                    display: flex;
+                    gap: 1rem;
+                    background: #e3f2fd;
+                    padding: 1.5rem;
+                    border-radius: 8px;
+                    margin-bottom: 1.5rem;
+
+                    mat-icon {
+                        color: #2196f3;
+                        font-size: 32px;
+                        width: 32px;
+                        height: 32px;
+                    }
+
+                    h4 {
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        color: #1976d2;
+                        margin: 0 0 0.5rem 0;
+                    }
+
+                    ul {
+                        margin: 0;
+                        padding-left: 1.5rem;
+                        color: #666;
+
+                        li {
+                            margin-bottom: 0.5rem;
+                        }
+                    }
+                }
+            }
+
+            // Review Section
+            .review-section {
+                .review-card {
+                    margin-bottom: 1.5rem;
+                    padding: 1.5rem;
+
+                    .review-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 1rem;
+
+                        mat-icon {
+                            color: #2196f3;
+                            font-size: 24px;
+                            width: 24px;
+                            height: 24px;
+                        }
+
+                        h4 {
+                            flex: 1;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            color: #1a1a1a;
+                            margin: 0;
+                        }
+                    }
+
+                    .review-content {
+                        padding-left: 2.5rem;
+
+                        p {
+                            margin: 0.25rem 0;
+                            color: #666;
+
+                            strong {
+                                color: #1a1a1a;
+                            }
+
+                            mat-icon {
+                                font-size: 16px;
+                                width: 16px;
+                                height: 16px;
+                                vertical-align: middle;
+                                margin-right: 0.5rem;
+                                color: #2196f3;
+                            }
+                        }
+
+                        .secure-badge {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            background: #e8f5e9;
+                            padding: 0.5rem 1rem;
+                            border-radius: 4px;
+                            margin-top: 0.5rem;
+                            color: #4caf50;
+                            font-weight: 500;
+                            width: fit-content;
+
+                            mat-icon {
+                                color: #4caf50;
+                            }
+                        }
+                    }
+
+                    .review-items {
+                        padding-left: 2.5rem;
+
+                        .review-item {
+                            display: flex;
+                            gap: 1rem;
+                            padding: 1rem 0;
+                            border-bottom: 1px solid #f0f0f0;
+
+                            &:last-child {
+                                border-bottom: none;
+                            }
+
+                            img {
+                                width: 80px;
+                                height: 80px;
+                                object-fit: cover;
+                                border-radius: 4px;
+                            }
+
+                            .item-info {
+                                flex: 1;
+
+                                h5 {
+                                    font-size: 1rem;
+                                    font-weight: 500;
+                                    color: #1a1a1a;
+                                    margin: 0 0 0.5rem 0;
+                                }
+
+                                .item-brand {
+                                    color: #666;
+                                    font-size: 0.9rem;
+                                    margin: 0.25rem 0;
+                                }
+
+                                .item-quantity {
+                                    color: #999;
+                                    font-size: 0.85rem;
+                                    margin: 0.25rem 0;
+                                }
+                            }
+
+                            .item-price {
+                                display: flex;
+                                align-items: center;
+
+                                .price {
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                    color: #2196f3;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Step Actions
+            .step-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #e0e0e0;
+
+                button {
+                    padding: 0.75rem 2rem;
+                    font-size: 1rem;
+
+                    mat-icon {
+                        margin-right: 0.5rem;
+                    }
+
+                    mat-spinner {
+                        margin-right: 0.5rem;
+                    }
+                }
+            }
+        }
+
+        // Summary Sidebar
+        .summary-sidebar {
+            mat-card {
+                position: sticky;
+                top: 2rem;
+                padding: 1.5rem;
+
+                h3 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    margin: 0 0 1rem 0;
+                }
+
+                mat-divider {
+                    margin: 1.5rem 0;
+                }
+
+                .summary-items {
+                    .summary-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 0.75rem;
+                        font-size: 0.9rem;
+
+                        span:first-child {
+                            color: #666;
+                        }
+
+                        span:last-child {
+                            font-weight: 500;
+                            color: #1a1a1a;
+                        }
+                    }
+                }
+
+                .summary-totals {
+                    .total-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 0.75rem;
+
+                        span:first-child {
+                            color: #666;
+                        }
+
+                        span:last-child {
+                            font-weight: 500;
+                            color: #1a1a1a;
+                        }
+
+                        .free {
+                            color: #4caf50;
+                            font-weight: 600;
+                        }
+
+                        &.grand-total {
+                            margin-top: 1rem;
+
+                            span {
+                                font-size: 1.3rem;
+                                font-weight: 700;
+                            }
+
+                            span:last-child {
+                                color: #2196f3;
+                            }
+                        }
+                    }
+                }
+
+                .security-badges {
+                    margin-top: 1.5rem;
+
+                    .badge {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: #f5f5f5;
+                        padding: 0.75rem;
+                        border-radius: 4px;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.9rem;
+                        color: #666;
+
+                        mat-icon {
+                            color: #4caf50;
+                            font-size: 20px;
+                            width: 20px;
+                            height: 20px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Order Confirmation
+    .order-confirmation {
+        max-width: 800px;
+        margin: 2rem auto;
+
+        .confirmation-card {
+            padding: 3rem;
+            text-align: center;
+
+            .success-icon {
+                margin-bottom: 1.5rem;
+
+                mat-icon {
+                    font-size: 120px;
+                    width: 120px;
+                    height: 120px;
+                    color: #4caf50;
+                }
+            }
+
+            h1 {
+                font-size: 2rem;
+                font-weight: 600;
+                color: #1a1a1a;
+                margin: 0 0 1rem 0;
+            }
+
+            .order-number {
+                font-size: 1.1rem;
+                color: #666;
+                margin-bottom: 2rem;
+
+                strong {
+                    color: #2196f3;
+                    font-weight: 600;
+                }
+            }
+
+            .confirmation-message {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: #e3f2fd;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 2rem;
+
+                mat-icon {
+                    color: #2196f3;
+                }
+
+                p {
+                    margin: 0;
+                    color: #1976d2;
+
+                    strong {
+                        font-weight: 600;
+                    }
+                }
+            }
+
+            mat-divider {
+                margin: 2rem 0;
+            }
+
+            .order-summary {
+                text-align: left;
+                margin-bottom: 2rem;
+
+                h3 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    margin: 0 0 1rem 0;
+                }
+
+                .summary-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.75rem 0;
+                    border-bottom: 1px solid #f0f0f0;
+
+                    span:first-child {
+                        color: #666;
+                    }
+
+                    .amount {
+                        font-size: 1.25rem;
+                        font-weight: 700;
+                        color: #2196f3;
+                    }
+                }
+            }
+
+            .next-steps {
+                text-align: left;
+                margin-bottom: 2rem;
+
+                h3 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    margin: 0 0 1.5rem 0;
+                }
+
+                .step {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+
+                    mat-icon {
+                        color: #2196f3;
+                        font-size: 32px;
+                        width: 32px;
+                        height: 32px;
+                    }
+
+                    h4 {
+                        font-size: 1rem;
+                        font-weight: 600;
+                        color: #1a1a1a;
+                        margin: 0 0 0.25rem 0;
+                    }
+
+                    p {
+                        margin: 0;
+                        color: #666;
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+
+            .confirmation-actions {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin-top: 2rem;
+
+                button {
+                    padding: 0.75rem 2rem;
+                    font-size: 1rem;
+
+                    mat-icon {
+                        margin-right: 0.5rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+    .checkout-container {
+        .checkout-content {
+            grid-template-columns: 1fr 350px;
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .checkout-container {
+        .checkout-content {
+            grid-template-columns: 1fr;
+
+            .summary-sidebar {
+                mat-card {
+                    position: static;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-container {
+        padding: 1rem;
+
+        .checkout-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .checkout-content {
+            .stepper-section {
+                h2 {
+                    font-size: 1.25rem;
+                }
+
+                form {
+                    .form-row {
+                        flex-direction: column;
+
+                        .half-width {
+                            width: 100%;
+                        }
+                    }
+                }
+
+                .step-actions {
+                    flex-direction: column;
+
+                    button {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+
+        .order-confirmation {
+            .confirmation-card {
+                padding: 2rem 1rem;
+
+                h1 {
+                    font-size: 1.5rem;
+                }
+
+                .success-icon {
+                    mat-icon {
+                        font-size: 80px;
+                        width: 80px;
+                        height: 80px;
+                    }
+                }
+
+                .confirmation-actions {
+                    flex-direction: column;
+
+                    button {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-container {
+        .checkout-header {
+            h1 {
+                font-size: 1.25rem;
+            }
+        }
+
+        .order-confirmation {
+            .confirmation-card {
+                .order-number {
+                    font-size: 1rem;
+                }
+            }
+        }
+    }
+}

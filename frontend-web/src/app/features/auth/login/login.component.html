@@ -1,0 +1,70 @@
+<div class="login-container">
+    <mat-card class="login-card">
+        <mat-card-header>
+            <div class="header-content">
+                <mat-icon class="logo-icon">directions_car</mat-icon>
+                <mat-card-title>Welcome Back</mat-card-title>
+                <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- Email/Password Login Form -->
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
+                        autocomplete="email">
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="emailControl?.invalid">
+                        {{ getEmailErrorMessage() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Password</mat-label>
+                    <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                        placeholder="Enter your password" autocomplete="current-password">
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
+                        [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()">
+                        <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="passwordControl?.invalid">
+                        {{ getPasswordErrorMessage() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="forgot-password">
+                    <a routerLink="/auth/forgot-password" class="link">Forgot password?</a>
+                </div>
+
+                <button mat-raised-button color="primary" type="submit" class="full-width submit-btn"
+                    [disabled]="isLoading()">
+                    <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
+                    <span *ngIf="!isLoading()">Sign In</span>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider-container">
+                <mat-divider></mat-divider>
+                <span class="divider-text">OR</span>
+                <mat-divider></mat-divider>
+            </div>
+
+            <!-- Google OAuth2 Login -->
+            <button mat-stroked-button class="full-width google-btn" (click)="loginWithGoogle()" type="button">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                    class="google-icon">
+                Continue with Google
+            </button>
+
+            <!-- Register Link -->
+            <div class="register-link">
+                <span>Don't have an account?</span>
+                <a routerLink="/auth/register" class="link">Sign up</a>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

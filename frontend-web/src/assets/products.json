@@ -1,0 +1,74 @@
+[
+  {
+    "id": 101,
+    "sku": "BP-101",
+    "name": "Plaquettes de frein Performance",
+    "price": 59.99,
+    "description": "Plaquettes de frein semi-métalliques haute performance — adhérence et longévité.",
+    "image": "https://images.unsplash.com/photo-1583267745991-e3c8f6f9a3bb?auto=format&fit=crop&w=1200&q=80",
+    "stock": 74,
+    "category": "Freinage",
+    "brand": "BrakeMaster",
+    "compatibility": ["Toyota Corolla 2010-2018","Honda Civic 2012-2019"]
+  },
+  {
+    "id": 102,
+    "sku": "OF-225",
+    "name": "Filtre à huile XL",
+    "price": 14.5,
+    "description": "Filtre à huile universel, protection optimale du moteur.",
+    "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",
+    "stock": 210,
+    "category": "Filtres",
+    "brand": "FilterPro",
+    "compatibility": ["Ford Focus 2014-2018","Volkswagen Golf 2013-2019"]
+  },
+  {
+    "id": 103,
+    "sku": "BAT-900",
+    "name": "Batterie AGM 12V 70Ah",
+    "price": 129.0,
+    "description": "Batterie AGM haute capacité, fiable pour démarrages fréquents.",
+    "image": "https://images.unsplash.com/photo-1613458730816-4a2d3dfcb9d7?auto=format&fit=crop&w=1200&q=80",
+    "stock": 36,
+    "category": "Électrique",
+    "brand": "PowerCell",
+    "compatibility": ["Nombreux modèles européens et asiatiques"]
+  },
+  {
+    "id": 104,
+    "sku": "SPK-11",
+    "name": "Bougie d'allumage Iridium",
+    "price": 9.99,
+    "description": "Bougie Iridium pour démarrage rapide et consommation réduite.",
+    "image": "https://images.unsplash.com/photo-1602810312446-3f4d3c3b6b1a?auto=format&fit=crop&w=1200&q=80",
+    "stock": 480,
+    "category": "Allumage",
+    "brand": "SparkElite",
+    "compatibility": ["Moteurs essence 1.0 - 2.5L"]
+  },
+  {
+    "id": 105,
+    "sku": "SHK-45",
+    "name": "Amortisseur Sport ajustable",
+    "price": 199.0,
+    "description": "Amortisseur sport réglable — tenue de route renforcée.",
+    "image": "https://images.unsplash.com/photo-1600508772831-1b350d3e9b0d?auto=format&fit=crop&w=1200&q=80",
+    "stock": 18,
+    "category": "Suspension",
+    "brand": "RideTech",
+    "compatibility": ["Modèles compacts et berlines"]
+  },
+  {
+    "id": 106,
+    "sku": "LED-900",
+    "name": "Pack Ampoules LED H4",
+    "price": 49.0,
+    "description": "Kit LED H4 blanc 6000K, plug-and-play.",
+    "image": "https://images.unsplash.com/photo-1541534759-9b6c7b6b9c8b?auto=format&fit=crop&w=1200&q=80",
+    "stock": 95,
+    "category": "Éclairage",
+    "brand": "LumenPro",
+    "compatibility": ["Véhicules compatibles H4"]
+  }
+]

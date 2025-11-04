@@ -1,0 +1,131 @@
+<!-- Hero Section with video background -->
+<section class="hero hero-video">
+  <video class="hero-bg" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1516239322209-57d2a3b07b66?auto=format&fit=crop&w=1600&q=60">
+    <source src="https://cdn.coverr.co/videos/coverr-drive-1622/1080p.mp4" type="video/mp4">
+    <source src="https://cdn.coverr.co/videos/coverr-car-engine-8986/1080p.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <h1 class="hero-title">Trouvez les pièces automobiles qu'il vous faut</h1>
+      <p class="hero-subtitle">Qualité premium, compatibilité garantie, livraison rapide.</p>
+      <div class="hero-actions">
+        <button mat-raised-button color="accent" size="large" (click)="scrollToSection('products')">
+          Découvrir nos produits
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+        <button mat-stroked-button color="primary" size="large" routerLink="/ai-mechanic">
+          <mat-icon>psychology</mat-icon>
+          Essayer le diagnostic IA
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="feature-card">
+        <mat-icon color="primary">local_shipping</mat-icon>
+        <h3>Livraison Rapide</h3>
+        <p>Livraison en 24-48h partout en Tunisie</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">verified</mat-icon>
+        <h3>Qualité Garantie</h3>
+        <p>Pièces certifiées et garanties 2 ans</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">support_agent</mat-icon>
+        <h3>Support 24/7</h3>
+        <p>Assistance technique disponible</p>
+    </div>
+    <div class="feature-card">
+        <mat-icon color="primary">psychology</mat-icon>
+        <h3>IA Mécanique</h3>
+        <p>Diagnostic intelligent par IA</p>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section id="products" class="products-section">
+    <div class="section-header">
+        <h2>Produits Populaires</h2>
+        <button mat-button color="primary" routerLink="/products">
+            Voir tout
+            <mat-icon>arrow_forward</mat-icon>
+        </button>
+    </div>
+
+    <!-- Horizontal carousel using native scroll-snap for performance -->
+    <div class="featured-carousel" id="featuredCarousel">
+      @for (product of featuredProducts(); track product.id) {
+        <div class="featured-card" [routerLink]="['/products', product.id]">
+          <div class="image-wrap">
+            <img [src]="product.imageUrl || 'https://images.unsplash.com/photo-1515923162041-1f4a3f07d2b6?auto=format&fit=crop&w=800&q=70'" [alt]="product.name">
+          </div>
+          <div class="info">
+            <h3>{{ product.name }}</h3>
+            <div class="meta">
+              <span class="brand">{{ getBrandName(product) }}</span>
+              <span class="price">{{ product.price }}€</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+</section>
+
+<!-- About Us Section -->
+<section class="about-section">
+  <div class="about-grid">
+    <div class="about-media parallax">
+      <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1400&q=70" alt="Atelier Auto">
+    </div>
+    <div class="about-content">
+      <h2>À propos</h2>
+      <p>Nous sommes des passionnés d'automobile, dédiés à fournir des pièces premium, testées et compatibles. Notre mission est simple: vous remettre sur la route avec performance et style.</p>
+      <blockquote>"Driven by precision, powered by passion."</blockquote>
+      <div class="about-stats">
+        <div><strong>10k+</strong><span>Références</span></div>
+        <div><strong>24/7</strong><span>Support</span></div>
+        <div><strong>2 ans</strong><span>Garantie</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section id="categories" class="categories-section">
+    <div class="section-header">
+        <h2>Catégories Principales</h2>
+    </div>
+
+    <div class="categories-grid">
+        @for (category of categories(); track category.id) {
+        <mat-card class="category-card" [routerLink]="['/products']" [queryParams]="{category: category.id}">
+            <div class="category-image">
+                <img [src]="getCategoryImage(category.name)" [alt]="category.name">
+                <div class="category-overlay"></div>
+            </div>
+            <mat-card-content>
+                <mat-icon color="primary">category</mat-icon>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Besoin d'aide pour trouver la bonne pièce ?</h2>
+        <p>Notre assistant IA peut vous aider à diagnostiquer les problèmes de votre véhicule</p>
+        <button mat-raised-button color="accent" size="large" routerLink="/ai-mechanic">
+            <mat-icon>psychology</mat-icon>
+            Essayer le diagnostic IA
+        </button>
+    </div>
+</section>

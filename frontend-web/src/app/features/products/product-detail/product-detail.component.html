@@ -1,0 +1,176 @@
+@if (loading()) {
+<div class="loading-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Chargement du produit...</p>
+</div>
+} @else if (product()) {
+<div class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a routerLink="/">Accueil</a>
+        <mat-icon>chevron_right</mat-icon>
+        <a routerLink="/products">Produits</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span>{{ product()!.name }}</span>
+    </div>
+
+    <!-- Product Details -->
+    <div class="product-detail">
+        <!-- Images -->
+        <div class="product-images">
+            <div class="main-image">
+                <img [src]="product()!.imageUrl || 'https://images.unsplash.com/photo-1515923162041-1f4a3f07d2b6?auto=format&fit=crop&w=1200&q=70'"
+                    [alt]="product()!.name">
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="product-info">
+            <div class="brand">{{ product()!.brand.name }}</div>
+            <h1>{{ product()!.name }}</h1>
+
+            @if (hasRating()) {
+            <div class="rating">
+                <div class="stars">
+                    @for (i of [1,2,3,4,5]; track i) {
+                    <mat-icon>{{ i <= product()!.rating! ? 'star' : 'star_border' }}</mat-icon>
+                            }
+                </div>
+                <span>({{ product()!.reviewCount }} avis)</span>
+            </div>
+            }
+
+            <div class="price-section">
+                @if (hasDiscount()) {
+                <span class="original-price">{{ product()!.price }}€</span>
+                <span class="discounted-price">{{ product()!.price * (1 - product()!.discount! / 100) | number:'1.2-2'
+                    }}€</span>
+                <span class="discount-badge">-{{ product()!.discount }}%</span>
+                } @else {
+                <span class="price">{{ product()!.price }}€</span>
+                }
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="stock-info">
+                @if (product()!.stock > 0) {
+                <div class="in-stock">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>En stock ({{ product()!.stock }} disponibles)</span>
+                </div>
+                } @else {
+                <div class="out-of-stock">
+                    <mat-icon>cancel</mat-icon>
+                    <span>Rupture de stock</span>
+                </div>
+                }
+            </div>
+
+            <div class="description">
+                <p>{{ product()!.description }}</p>
+            </div>
+
+            @if (product()!.stock > 0) {
+            <div class="quantity-selector">
+                <label>Quantité:</label>
+                <div class="quantity-controls">
+                    <button mat-icon-button (click)="decreaseQuantity()" [disabled]="quantity() <= 1">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="quantity-value">{{ quantity() }}</span>
+                    <button mat-icon-button (click)="increaseQuantity()" [disabled]="quantity() >= product()!.stock">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button mat-raised-button color="accent" (click)="addToCart()" class="add-to-cart">
+                    <mat-icon>add_shopping_cart</mat-icon>
+                    Ajouter au panier
+                </button>
+                <button mat-raised-button color="primary" (click)="buyNow()" class="buy-now">
+                    <mat-icon>shopping_cart_checkout</mat-icon>
+                    Acheter maintenant
+                </button>
+            </div>
+            }
+
+            <div class="product-meta">
+                <div class="meta-item">
+                    <strong>SKU:</strong> {{ product()!.sku }}
+                </div>
+                <div class="meta-item">
+                    <strong>Catégorie:</strong> {{ product()!.category.name }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group class="product-tabs">
+        <mat-tab label="Description">
+            <div class="tab-content">
+                <p>{{ product()!.description }}</p>
+            </div>
+        </mat-tab>
+
+        @if (hasSpecifications()) {
+        <mat-tab label="Spécifications">
+            <div class="tab-content">
+                <table class="specs-table">
+                    @for (spec of product()!.specifications!; track spec.key) {
+                    <tr>
+                        <td class="spec-key">{{ spec.key }}</td>
+                        <td class="spec-value">{{ spec.value }}</td>
+                    </tr>
+                    }
+                </table>
+            </div>
+        </mat-tab>
+        }
+
+        @if (hasCompatibility()) {
+        <mat-tab label="Compatibilité">
+            <div class="tab-content">
+                <div class="compatibility-list">
+                    @for (vehicle of product()!.compatibility!; track vehicle.id) {
+                    <div class="vehicle-card">
+                        <mat-icon>directions_car</mat-icon>
+                        <div>
+                            <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
+                            <span>{{ vehicle.year }}</span>
+                            @if (vehicle.engineType) {
+                            <span> - {{ vehicle.engineType }}</span>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </mat-tab>
+        }
+    </mat-tab-group>
+
+    <!-- Related Products -->
+    @if (relatedProducts().length > 0) {
+    <div class="related-products">
+        <h2>Produits similaires</h2>
+        <div class="related-grid">
+            @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
+            <mat-card [routerLink]="['/products', relatedProduct.id]" class="related-card">
+                <img mat-card-image
+                    [src]="relatedProduct.imageUrl || 'https://placehold.co/200/e0e0e0/757575?text=No+Image'"
+                    [alt]="relatedProduct.name">
+                <mat-card-content>
+                    <h4>{{ relatedProduct.name }}</h4>
+                    <div class="price">{{ relatedProduct.price }}€</div>
+                </mat-card-content>
+            </mat-card>
+            }
+        </div>
+    </div>
+    }
+</div>
+}

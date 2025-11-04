@@ -1,0 +1,12 @@
+<section class="cats">
+  <div class="container">
+    <h2>Catégories Principales</h2>
+    <div class="list">
+      <a class="cat-card" *ngFor="let c of categories" [routerLink]="['/products']" [queryParams]="{ cat: c.id }">
+        <div class="icon"><img [src]="c.icon" [alt]="c.title" /></div>
+        <h3>{{ c.title }}</h3>
+        <p class="sub">{{ c.subtitle }}</p>
+      </a>
+    </div>
+  </div>
+</section>

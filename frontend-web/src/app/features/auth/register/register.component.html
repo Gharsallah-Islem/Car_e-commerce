@@ -1,0 +1,121 @@
+<div class="register-container">
+    <mat-card class="register-card">
+        <mat-card-header>
+            <div class="header-content">
+                <mat-icon class="logo-icon">directions_car</mat-icon>
+                <mat-card-title>Create Account</mat-card-title>
+                <mat-card-subtitle>Join our car parts marketplace</mat-card-subtitle>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- Registration Form -->
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                <div class="name-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                        <mat-label>First Name</mat-label>
+                        <input matInput type="text" formControlName="firstName" placeholder="John"
+                            autocomplete="given-name">
+                        <mat-icon matPrefix>person</mat-icon>
+                        <mat-error *ngIf="firstNameControl?.invalid">
+                            {{ getFirstNameError() }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                        <mat-label>Last Name</mat-label>
+                        <input matInput type="text" formControlName="lastName" placeholder="Doe"
+                            autocomplete="family-name">
+                        <mat-error *ngIf="lastNameControl?.invalid">
+                            {{ getLastNameError() }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
+                        autocomplete="email">
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="emailControl?.invalid">
+                        {{ getEmailError() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Phone Number (Optional)</mat-label>
+                    <input matInput type="tel" formControlName="phoneNumber" placeholder="12345678" autocomplete="tel">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-error *ngIf="phoneControl?.invalid">
+                        {{ getPhoneError() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Password</mat-label>
+                    <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                        placeholder="At least 6 characters" autocomplete="new-password">
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
+                        <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="passwordControl?.invalid">
+                        {{ getPasswordError() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput [type]="hideConfirmPassword() ? 'password' : 'text'"
+                        formControlName="confirmPassword" placeholder="Re-enter your password"
+                        autocomplete="new-password">
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="toggleConfirmPasswordVisibility()">
+                        <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="confirmPasswordControl?.invalid || registerForm.hasError('passwordMismatch')">
+                        {{ getConfirmPasswordError() }}
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="terms-checkbox">
+                    <mat-checkbox formControlName="termsAccepted">
+                        I agree to the
+                        <a href="/terms" target="_blank" class="link">Terms & Conditions</a>
+                        and
+                        <a href="/privacy" target="_blank" class="link">Privacy Policy</a>
+                    </mat-checkbox>
+                    <mat-error *ngIf="termsControl?.invalid && termsControl?.touched" class="terms-error">
+                        You must accept the terms and conditions
+                    </mat-error>
+                </div>
+
+                <button mat-raised-button color="primary" type="submit" class="full-width submit-btn"
+                    [disabled]="isLoading()">
+                    <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
+                    <span *ngIf="!isLoading()">Create Account</span>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider-container">
+                <mat-divider></mat-divider>
+                <span class="divider-text">OR</span>
+                <mat-divider></mat-divider>
+            </div>
+
+            <!-- Google OAuth2 Registration -->
+            <button mat-stroked-button class="full-width google-btn" (click)="loginWithGoogle()" type="button">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                    class="google-icon">
+                Sign up with Google
+            </button>
+
+            <!-- Login Link -->
+            <div class="login-link">
+                <span>Already have an account?</span>
+                <a routerLink="/auth/login" class="link">Sign in</a>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

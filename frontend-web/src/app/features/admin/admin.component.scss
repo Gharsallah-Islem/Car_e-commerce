@@ -1,0 +1,519 @@
+.admin-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+// Header
+.admin-header {
+    margin-bottom: 2rem;
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+        border-radius: 12px;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .title-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+
+        >mat-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        p {
+            margin: 0.25rem 0 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+    }
+
+    button {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+
+        mat-icon {
+            margin-right: 0.5rem;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    }
+}
+
+// Stats Grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            mat-icon {
+                font-size: 40px;
+                width: 40px;
+                height: 40px;
+                color: white;
+            }
+
+            &.revenue {
+                background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            }
+
+            &.orders {
+                background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+            }
+
+            &.products {
+                background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+            }
+
+            &.users {
+                background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
+            }
+        }
+
+        .stat-content {
+            flex: 1;
+
+            h3 {
+                margin: 0;
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #333;
+            }
+
+            p {
+                margin: 0.25rem 0 0;
+                color: #666;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+
+            .badge {
+                display: inline-block;
+                margin-top: 0.5rem;
+                padding: 0.25rem 0.75rem;
+                background: #e3f2fd;
+                color: #1976d2;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 600;
+
+                &.warn {
+                    background: #fff3e0;
+                    color: #e65100;
+                }
+            }
+        }
+    }
+}
+
+// Tabs
+::ng-deep .mat-mdc-tab-group {
+    .mat-mdc-tab-labels {
+        background: white;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mat-mdc-tab-body-wrapper {
+        padding-top: 2rem;
+    }
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+// Card Header
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+
+        mat-icon {
+            color: #1976d2;
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    button {
+        mat-icon {
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+mat-divider {
+    margin: 1.5rem 0;
+}
+
+// Forms
+.form-card {
+    padding: 2rem;
+    border-left: 4px solid #1976d2;
+}
+
+.product-form {
+    padding: 1rem 0;
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .half-width {
+        flex: 1;
+    }
+
+    .third-width {
+        flex: 1;
+    }
+
+    mat-form-field {
+        margin-bottom: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+
+        button {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+
+            mat-icon,
+            mat-spinner {
+                margin-right: 0.5rem;
+            }
+        }
+    }
+}
+
+// Tables
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+
+    table {
+        width: 100%;
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+            padding: 1rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            mat-icon {
+                color: #999;
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        .price-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            .original-price {
+                text-decoration: line-through;
+                color: #999;
+                font-size: 0.85rem;
+            }
+
+            .discount-price {
+                color: #e65100;
+                font-weight: 600;
+            }
+
+            .current-price {
+                font-weight: 600;
+                color: #333;
+            }
+        }
+
+        .stock-out {
+            color: #f44336;
+        }
+
+        .stock-low {
+            color: #ff9800;
+        }
+
+        .stock-ok {
+            color: #4caf50;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            .customer-email {
+                color: #666;
+                font-size: 0.85rem;
+            }
+        }
+
+        .total-amount {
+            color: #1976d2;
+            font-size: 1.1rem;
+        }
+
+        .status-select,
+        .role-select {
+            margin: 0;
+            width: 150px;
+
+            ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+                display: none;
+            }
+        }
+
+        mat-chip {
+            font-size: 0.85rem;
+
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                margin-right: 0.25rem;
+            }
+        }
+
+        mat-slide-toggle {
+            ::ng-deep .mdc-switch {
+                margin-right: 0.5rem;
+            }
+        }
+
+        button[mat-icon-button] {
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+
+    mat-paginator {
+        background: transparent;
+        margin-top: 1rem;
+    }
+}
+
+// Responsive
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+
+    .admin-header {
+        .header-content {
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .title-section {
+            width: 100%;
+            flex-direction: column;
+            text-align: center;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+
+        .stat-card {
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+
+                mat-icon {
+                    font-size: 32px;
+                    width: 32px;
+                    height: 32px;
+                }
+            }
+
+            .stat-content {
+                h3 {
+                    font-size: 1.5rem;
+                }
+            }
+        }
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .form-row {
+        flex-direction: column;
+
+        .half-width,
+        .third-width {
+            width: 100%;
+        }
+    }
+
+    .form-actions {
+        flex-direction: column;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .table-container {
+        table {
+            font-size: 0.85rem;
+
+            th,
+            td {
+                padding: 0.5rem;
+            }
+
+            .product-image {
+                width: 40px;
+                height: 40px;
+
+                mat-icon {
+                    font-size: 24px;
+                    width: 24px;
+                    height: 24px;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header {
+        .title-section {
+            >mat-icon {
+                font-size: 48px;
+                width: 48px;
+                height: 48px;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+    }
+
+    .card-header {
+        h2 {
+            font-size: 1.25rem;
+
+            mat-icon {
+                font-size: 24px;
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+}

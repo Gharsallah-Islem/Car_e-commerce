@@ -1,0 +1,493 @@
+.profile-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+// Header
+.profile-header {
+    margin-bottom: 2rem;
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        border-radius: 12px;
+        color: white;
+    }
+
+    .avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+            color: white;
+        }
+    }
+
+    .user-info {
+        h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 0.25rem 0 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+    }
+
+    button {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+
+        mat-icon {
+            margin-right: 0.5rem;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    }
+}
+
+// Stats Grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+
+        mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            color: #2196f3;
+        }
+
+        .stat-content {
+            h3 {
+                margin: 0;
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #2196f3;
+            }
+
+            p {
+                margin: 0.25rem 0 0;
+                color: #666;
+                font-size: 0.9rem;
+            }
+        }
+    }
+}
+
+// Tabs
+::ng-deep .mat-mdc-tab-group {
+    .mat-mdc-tab-labels {
+        background: white;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mat-mdc-tab-body-wrapper {
+        padding-top: 2rem;
+    }
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+// Card Header
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+
+        mat-icon {
+            color: #2196f3;
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    button {
+        mat-icon {
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+mat-divider {
+    margin: 1.5rem 0;
+}
+
+// Profile View
+.profile-view {
+    padding: 1rem 0;
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #666;
+            font-weight: 500;
+
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: #999;
+            }
+        }
+
+        .value {
+            font-weight: 600;
+            color: #333;
+
+            mat-chip {
+                mat-icon {
+                    margin-right: 0.25rem;
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
+    }
+}
+
+// Forms
+.profile-form,
+.password-form,
+.address-form {
+    padding: 1rem 0;
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .half-width {
+        flex: 1;
+    }
+
+    mat-form-field {
+        margin-bottom: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+
+        button {
+            padding: 0.75rem 2rem;
+
+            mat-icon,
+            mat-spinner {
+                margin-right: 0.5rem;
+            }
+        }
+    }
+}
+
+// Orders Table
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+
+    .orders-table {
+        width: 100%;
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        td {
+            padding: 1rem;
+        }
+
+        .total-amount {
+            color: #2196f3;
+            font-size: 1.1rem;
+        }
+
+        mat-chip {
+            font-size: 0.85rem;
+        }
+
+        button[mat-icon-button] {
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}
+
+// Addresses
+.addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .address-card {
+        padding: 1.5rem;
+
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+
+            >mat-icon {
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+                color: #2196f3;
+            }
+
+            .address-actions {
+                display: flex;
+                gap: 0.25rem;
+
+                button {
+                    mat-icon {
+                        font-size: 20px;
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+            }
+        }
+
+        .address-content {
+            p {
+                margin: 0.5rem 0;
+                color: #666;
+
+                &:first-child {
+                    color: #333;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+}
+
+.address-form-card {
+    padding: 2rem;
+    border: 2px dashed #e0e0e0;
+
+    &:hover {
+        border-color: #2196f3;
+    }
+}
+
+// Empty State
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+
+    mat-icon {
+        font-size: 80px;
+        width: 80px;
+        height: 80px;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    h3 {
+        margin: 1rem 0 0.5rem;
+        font-size: 1.5rem;
+        color: #666;
+    }
+
+    p {
+        margin: 0 0 2rem;
+        color: #999;
+    }
+
+    button {
+        mat-icon {
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .addresses-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-header {
+        .header-content {
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .avatar-section {
+            width: 100%;
+            justify-content: center;
+        }
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .form-row {
+        flex-direction: column;
+
+        .half-width {
+            width: 100%;
+        }
+    }
+
+    .form-actions {
+        flex-direction: column;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .table-container {
+        .orders-table {
+            font-size: 0.85rem;
+
+            td,
+            th {
+                padding: 0.5rem;
+            }
+        }
+    }
+
+    .addresses-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-header {
+        .user-info {
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+    }
+
+    .stats-grid {
+        .stat-card {
+            mat-icon {
+                font-size: 36px;
+                width: 36px;
+                height: 36px;
+            }
+
+            .stat-content {
+                h3 {
+                    font-size: 1.5rem;
+                }
+            }
+        }
+    }
+
+    .card-header {
+        h2 {
+            font-size: 1.25rem;
+        }
+    }
+}

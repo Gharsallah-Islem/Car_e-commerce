@@ -1,0 +1,468 @@
+<div class="checkout-container">
+    @if (!orderPlaced()) {
+    <!-- Checkout Header -->
+    <div class="checkout-header">
+        <h1>Finaliser ma commande</h1>
+        <button mat-button (click)="backToCart()" class="back-btn">
+            <mat-icon>arrow_back</mat-icon>
+            Retour au panier
+        </button>
+    </div>
+
+    <!-- Checkout Content -->
+    <div class="checkout-content">
+        <!-- Stepper Section -->
+        <div class="stepper-section">
+            <mat-stepper [linear]="true" #stepper>
+                <!-- Step 1: Shipping Information -->
+                <mat-step [stepControl]="shippingForm" label="Informations de livraison">
+                    <form [formGroup]="shippingForm">
+                        <h2>Adresse de livraison</h2>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Nom complet</mat-label>
+                                <input matInput formControlName="fullName" placeholder="Jean Dupont">
+                                <mat-icon matPrefix>person</mat-icon>
+                                @if (shippingForm.get('fullName')?.hasError('required')) {
+                                <mat-error>Le nom complet est requis</mat-error>
+                                }
+                                @if (shippingForm.get('fullName')?.hasError('minlength')) {
+                                <mat-error>Minimum 3 caractères</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="half-width">
+                                <mat-label>Email</mat-label>
+                                <input matInput type="email" formControlName="email" placeholder="jean@example.com">
+                                <mat-icon matPrefix>email</mat-icon>
+                                @if (shippingForm.get('email')?.hasError('required')) {
+                                <mat-error>L'email est requis</mat-error>
+                                }
+                                @if (shippingForm.get('email')?.hasError('email')) {
+                                <mat-error>Email invalide</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="half-width">
+                                <mat-label>Téléphone</mat-label>
+                                <input matInput type="tel" formControlName="phone" placeholder="0612345678">
+                                <mat-icon matPrefix>phone</mat-icon>
+                                @if (shippingForm.get('phone')?.hasError('required')) {
+                                <mat-error>Le téléphone est requis</mat-error>
+                                }
+                                @if (shippingForm.get('phone')?.hasError('pattern')) {
+                                <mat-error>Format: 10 chiffres</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Adresse ligne 1</mat-label>
+                                <input matInput formControlName="addressLine1" placeholder="123 Rue de la République">
+                                <mat-icon matPrefix>home</mat-icon>
+                                @if (shippingForm.get('addressLine1')?.hasError('required')) {
+                                <mat-error>L'adresse est requise</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Adresse ligne 2 (optionnel)</mat-label>
+                                <input matInput formControlName="addressLine2" placeholder="Appartement, étage...">
+                                <mat-icon matPrefix>location_city</mat-icon>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="half-width">
+                                <mat-label>Ville</mat-label>
+                                <input matInput formControlName="city" placeholder="Casablanca">
+                                <mat-icon matPrefix>location_on</mat-icon>
+                                @if (shippingForm.get('city')?.hasError('required')) {
+                                <mat-error>La ville est requise</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="half-width">
+                                <mat-label>Code postal</mat-label>
+                                <input matInput formControlName="postalCode" placeholder="20000">
+                                <mat-icon matPrefix>markunread_mailbox</mat-icon>
+                                @if (shippingForm.get('postalCode')?.hasError('required')) {
+                                <mat-error>Le code postal est requis</mat-error>
+                                }
+                                @if (shippingForm.get('postalCode')?.hasError('pattern')) {
+                                <mat-error>Format: 5 chiffres</mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Pays</mat-label>
+                                <input matInput formControlName="country" readonly>
+                                <mat-icon matPrefix>flag</mat-icon>
+                            </mat-form-field>
+                        </div>
+
+                        @if (currentUser()) {
+                        <div class="form-row">
+                            <mat-checkbox formControlName="saveAddress">
+                                Sauvegarder cette adresse pour les prochaines commandes
+                            </mat-checkbox>
+                        </div>
+                        }
+
+                        <div class="step-actions">
+                            <button mat-raised-button color="primary" matStepperNext [disabled]="shippingForm.invalid">
+                                Continuer vers le paiement
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        </div>
+                    </form>
+                </mat-step>
+
+                <!-- Step 2: Payment Method -->
+                <mat-step [stepControl]="paymentForm" label="Mode de paiement">
+                    <form [formGroup]="paymentForm">
+                        <h2>Choisissez votre mode de paiement</h2>
+
+                        <mat-radio-group formControlName="paymentMethod" class="payment-methods">
+                            <mat-card class="payment-option" (click)="onPaymentMethodChange('card')"
+                                [class.selected]="selectedPaymentMethod() === 'card'">
+                                <mat-radio-button value="card">
+                                    <div class="payment-content">
+                                        <div class="payment-header">
+                                            <mat-icon>credit_card</mat-icon>
+                                            <span>Carte bancaire</span>
+                                        </div>
+                                        <p>Paiement sécurisé par Stripe</p>
+                                        <div class="payment-badges">
+                                            <span class="badge">Visa</span>
+                                            <span class="badge">Mastercard</span>
+                                            <span class="badge stripe">Stripe</span>
+                                        </div>
+                                    </div>
+                                </mat-radio-button>
+                            </mat-card>
+
+                            <mat-card class="payment-option" (click)="onPaymentMethodChange('cash')"
+                                [class.selected]="selectedPaymentMethod() === 'cash'">
+                                <mat-radio-button value="cash">
+                                    <div class="payment-content">
+                                        <div class="payment-header">
+                                            <mat-icon>local_atm</mat-icon>
+                                            <span>Paiement à la livraison</span>
+                                        </div>
+                                        <p>Payez en espèces lors de la réception</p>
+                                    </div>
+                                </mat-radio-button>
+                            </mat-card>
+                        </mat-radio-group>
+
+                        <!-- Card Payment Details -->
+                        @if (selectedPaymentMethod() === 'card') {
+                        <div class="card-details">
+                            <h3>Informations de carte</h3>
+
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Nom du titulaire</mat-label>
+                                <input matInput formControlName="cardholderName" placeholder="Jean Dupont">
+                                <mat-icon matPrefix>person</mat-icon>
+                                @if (paymentForm.get('cardholderName')?.hasError('required')) {
+                                <mat-error>Le nom du titulaire est requis</mat-error>
+                                }
+                            </mat-form-field>
+
+                            <!-- Stripe Elements will be mounted here -->
+                            <div class="stripe-element-container">
+                                <label>Détails de la carte</label>
+                                <div id="card-element" class="stripe-element">
+                                    <!-- Stripe Card Element will be inserted here -->
+                                    <div class="stripe-placeholder">
+                                        <mat-icon>credit_card</mat-icon>
+                                        <span>Élément de paiement Stripe chargé ici</span>
+                                    </div>
+                                </div>
+                                <div id="card-errors" class="error-message"></div>
+                            </div>
+
+                            @if (currentUser()) {
+                            <mat-checkbox formControlName="saveCard">
+                                Sauvegarder cette carte pour les prochains achats
+                            </mat-checkbox>
+                            }
+                        </div>
+                        }
+
+                        <!-- Cash Payment Notes -->
+                        @if (selectedPaymentMethod() === 'cash') {
+                        <div class="cash-details">
+                            <div class="info-box">
+                                <mat-icon>info</mat-icon>
+                                <div>
+                                    <h4>Comment ça marche ?</h4>
+                                    <ul>
+                                        <li>Votre commande sera préparée et expédiée</li>
+                                        <li>Vous payez en espèces lors de la livraison</li>
+                                        <li>Le livreur vous remettra votre colis et la facture</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Notes pour le livreur (optionnel)</mat-label>
+                                <textarea matInput formControlName="cashNotes" rows="3"
+                                    placeholder="Instructions spéciales pour la livraison..."></textarea>
+                            </mat-form-field>
+                        </div>
+                        }
+
+                        <div class="step-actions">
+                            <button mat-button matStepperPrevious>
+                                <mat-icon>arrow_back</mat-icon>
+                                Retour
+                            </button>
+                            <button mat-raised-button color="primary" matStepperNext [disabled]="paymentForm.invalid">
+                                Continuer
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        </div>
+                    </form>
+                </mat-step>
+
+                <!-- Step 3: Review & Confirm -->
+                <mat-step label="Confirmation">
+                    <h2>Vérifiez votre commande</h2>
+
+                    <!-- Order Summary -->
+                    <div class="review-section">
+                        <h3>Récapitulatif</h3>
+
+                        <!-- Shipping Address -->
+                        <mat-card class="review-card">
+                            <div class="review-header">
+                                <mat-icon>local_shipping</mat-icon>
+                                <h4>Adresse de livraison</h4>
+                                <button mat-icon-button matStepperPrevious matTooltip="Modifier">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </div>
+                            <div class="review-content">
+                                <p><strong>{{ shippingForm.get('fullName')?.value }}</strong></p>
+                                <p>{{ shippingForm.get('addressLine1')?.value }}</p>
+                                @if (shippingForm.get('addressLine2')?.value) {
+                                <p>{{ shippingForm.get('addressLine2')?.value }}</p>
+                                }
+                                <p>{{ shippingForm.get('postalCode')?.value }} {{ shippingForm.get('city')?.value }}
+                                </p>
+                                <p>{{ shippingForm.get('country')?.value }}</p>
+                                <p><mat-icon inline>phone</mat-icon> {{ shippingForm.get('phone')?.value }}</p>
+                                <p><mat-icon inline>email</mat-icon> {{ shippingForm.get('email')?.value }}</p>
+                            </div>
+                        </mat-card>
+
+                        <!-- Payment Method -->
+                        <mat-card class="review-card">
+                            <div class="review-header">
+                                <mat-icon>payment</mat-icon>
+                                <h4>Mode de paiement</h4>
+                                <button mat-icon-button (click)="stepper.previous()" matTooltip="Modifier">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </div>
+                            <div class="review-content">
+                                @if (selectedPaymentMethod() === 'card') {
+                                <p><strong>Carte bancaire</strong></p>
+                                <p>{{ paymentForm.get('cardholderName')?.value }}</p>
+                                <p class="secure-badge">
+                                    <mat-icon>lock</mat-icon>
+                                    Paiement sécurisé par Stripe
+                                </p>
+                                } @else {
+                                <p><strong>Paiement à la livraison</strong></p>
+                                <p>Vous paierez en espèces lors de la réception</p>
+                                }
+                            </div>
+                        </mat-card>
+
+                        <!-- Order Items -->
+                        <mat-card class="review-card">
+                            <div class="review-header">
+                                <mat-icon>shopping_bag</mat-icon>
+                                <h4>Articles commandés ({{ cartItems().length }})</h4>
+                            </div>
+                            <div class="review-items">
+                                @for (item of cartItems(); track item.product.id) {
+                                <div class="review-item">
+                                    <img [src]="item.product.imageUrl || 'https://placehold.co/80/e0e0e0/757575'"
+                                        [alt]="item.product.name">
+                                    <div class="item-info">
+                                        <h5>{{ item.product.name }}</h5>
+                                        <p class="item-brand">{{ item.product.brand.name }}</p>
+                                        <p class="item-quantity">Quantité: {{ item.quantity }}</p>
+                                    </div>
+                                    <div class="item-price">
+                                        <span class="price">{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </mat-card>
+                    </div>
+
+                    <div class="step-actions">
+                        <button mat-button matStepperPrevious>
+                            <mat-icon>arrow_back</mat-icon>
+                            Retour
+                        </button>
+                        <button mat-raised-button color="primary" (click)="processPayment()"
+                            [disabled]="processingPayment()">
+                            @if (processingPayment()) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                            <span>Traitement en cours...</span>
+                            } @else {
+                            <ng-container>
+                                <mat-icon>shopping_bag</mat-icon>
+                                <span>Confirmer la commande</span>
+                            </ng-container>
+                            }
+                        </button>
+                    </div>
+                </mat-step>
+            </mat-stepper>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="summary-sidebar">
+            <mat-card>
+                <h3>Résumé de la commande</h3>
+                <mat-divider></mat-divider>
+
+                <div class="summary-items">
+                    @for (item of cartItems(); track item.product.id) {
+                    <div class="summary-item">
+                        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                        <span>{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                    </div>
+                    }
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="summary-totals">
+                    <div class="total-row">
+                        <span>Sous-total</span>
+                        <span>{{ subtotal() | number:'1.2-2' }} MAD</span>
+                    </div>
+                    <div class="total-row">
+                        <span>TVA (20%)</span>
+                        <span>{{ tax() | number:'1.2-2' }} MAD</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Livraison</span>
+                        @if (shipping() === 0) {
+                        <span class="free">GRATUIT</span>
+                        } @else {
+                        <span>{{ shipping() | number:'1.2-2' }} MAD</span>
+                        }
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="total-row grand-total">
+                        <span>Total</span>
+                        <span>{{ total() | number:'1.2-2' }} MAD</span>
+                    </div>
+                </div>
+
+                <div class="security-badges">
+                    <div class="badge">
+                        <mat-icon>lock</mat-icon>
+                        <span>Paiement sécurisé</span>
+                    </div>
+                    <div class="badge">
+                        <mat-icon>verified_user</mat-icon>
+                        <span>Données protégées</span>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+    } @else {
+    <!-- Order Confirmation -->
+    <div class="order-confirmation">
+        <mat-card class="confirmation-card">
+            <div class="success-icon">
+                <mat-icon>check_circle</mat-icon>
+            </div>
+            <h1>Commande confirmée !</h1>
+            <p class="order-number">Numéro de commande: <strong>{{ orderId() }}</strong></p>
+
+            <div class="confirmation-message">
+                <mat-icon>email</mat-icon>
+                <p>Un email de confirmation a été envoyé à <strong>{{ shippingForm.get('email')?.value }}</strong>
+                </p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="order-summary">
+                <h3>Détails de la commande</h3>
+                <div class="summary-row">
+                    <span>Total payé:</span>
+                    <span class="amount">{{ total() | number:'1.2-2' }} MAD</span>
+                </div>
+                <div class="summary-row">
+                    <span>Mode de paiement:</span>
+                    <span>{{ selectedPaymentMethod() === 'card' ? 'Carte bancaire' : 'Paiement à la livraison'
+                        }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Adresse de livraison:</span>
+                    <span>{{ shippingForm.get('city')?.value }}, {{ shippingForm.get('country')?.value }}</span>
+                </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="next-steps">
+                <h3>Et maintenant ?</h3>
+                <div class="step">
+                    <mat-icon>inventory_2</mat-icon>
+                    <div>
+                        <h4>Préparation</h4>
+                        <p>Nous préparons votre commande avec soin</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <mat-icon>local_shipping</mat-icon>
+                    <div>
+                        <h4>Expédition</h4>
+                        <p>Votre colis sera expédié sous 24-48h</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <mat-icon>home</mat-icon>
+                    <div>
+                        <h4>Livraison</h4>
+                        <p>Réception à l'adresse indiquée sous 3-5 jours</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirmation-actions">
+                <button mat-raised-button color="primary" (click)="viewOrder()">
+                    <mat-icon>receipt_long</mat-icon>
+                    Voir ma commande
+                </button>
+                <button mat-stroked-button (click)="continueShopping()">
+                    Continuer mes achats
+                </button>
+            </div>
+        </mat-card>
+    </div>
+    }
+</div>

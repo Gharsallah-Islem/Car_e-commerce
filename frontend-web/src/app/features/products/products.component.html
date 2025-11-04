@@ -1,0 +1,31 @@
+<section class="products-section">
+  <div class="container">
+    <h2>Produits en vedette</h2>
+
+    <div *ngIf="loading" class="loader">Chargement…</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <div class="grid" *ngIf="!loading && products.length">
+      <article class="card" *ngFor="let p of products">
+        <div class="thumb">
+          <img [src]="p.image" [alt]="p.name" />
+        </div>
+        <div class="body">
+          <h3>{{ p.name }}</h3>
+          <p class="brand">{{ p.brand }} • {{ p.category }}</p>
+          <p class="desc">{{ p.description }}</p>
+          <div class="meta">
+            <span class="price">{{ p.price | currency:'EUR' }}</span>
+            <span class="stock" [class.out]="p.stock === 0">{{ p.stock > 0 ? 'En stock' : 'Rupture' }}</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" (click)="addToCart(p)" [disabled]="p.stock === 0">Ajouter au panier</button>
+          <button class="btn ghost">Voir</button>
+        </div>
+      </article>
+    </div>
+
+    <div *ngIf="!loading && !products.length" class="empty">Aucun produit disponible.</div>
+  </div>
+</section>
