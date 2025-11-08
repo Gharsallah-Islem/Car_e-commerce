@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,6 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { LoadingService } from './core/services/loading.service';
 import { AuthService } from './core/services/auth.service';
 import { CartService } from './core/services/cart.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -48,6 +49,9 @@ export class AppComponent {
   // Search
   searchQuery = signal('');
 
+  // Hide navbar on admin routes
+  showNavbar = signal(true);
+
   // Auth state
   isLoggedIn = computed(() => this.authService.isAuthenticated());
   userName = computed(() => {
@@ -57,6 +61,16 @@ export class AppComponent {
 
   // Cart state
   cartItemCount = computed(() => this.cartService.cartItemCount());
+
+  constructor() {
+    // Listen to route changes to hide/show navbar
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const url = event.url;
+      this.showNavbar.set(!url.includes('/admin'));
+    });
+  }
 
   onSearch(): void {
     const query = this.searchQuery();

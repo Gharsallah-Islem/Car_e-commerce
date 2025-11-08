@@ -111,4 +111,45 @@ public interface UserService {
      * @return Count of users
      */
     Long countUsersByRole(String roleName);
+
+    /**
+     * Generate and send email verification code
+     * 
+     * @param email User email
+     * @return Generated verification code (for testing purposes)
+     */
+    String sendEmailVerification(String email);
+
+    /**
+     * Verify email with verification code
+     * 
+     * @param email User email
+     * @param code  Verification code
+     * @return true if verified successfully
+     */
+    boolean verifyEmail(String email, String code);
+
+    /**
+     * Resend email verification code
+     * 
+     * @param email User email
+     */
+    void resendEmailVerification(String email);
+
+    /**
+     * Generate and send password reset code
+     * 
+     * @param email User email
+     */
+    void sendPasswordResetCode(String email);
+
+    /**
+     * Reset password with reset code
+     * 
+     * @param email       User email
+     * @param code        Reset code
+     * @param newPassword New password
+     * @return true if reset successfully
+     */
+    boolean resetPassword(String email, String code, String newPassword);
 }

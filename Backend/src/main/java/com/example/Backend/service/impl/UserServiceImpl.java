@@ -5,6 +5,7 @@ import com.example.Backend.entity.Role;
 import com.example.Backend.entity.User;
 import com.example.Backend.repository.RoleRepository;
 import com.example.Backend.repository.UserRepository;
+import com.example.Backend.service.EmailService;
 import com.example.Backend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public User createUser(UserDTO userDTO) {
@@ -162,5 +165,117 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Long countUsersByRole(String roleName) {
         return userRepository.countByRoleName(roleName);
+    }
+
+    @Override
+    public String sendEmailVerification(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Generate 6-digit verification code
+        String verificationCode = generateVerificationCode();
+
+        // Set verification token and expiry (15 minutes from now)
+        user.setEmailVerificationToken(verificationCode);
+        user.setEmailVerificationTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        // Send verification email
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationCode);
+
+        return verificationCode; // Return for testing purposes
+    }
+
+    @Override
+    public boolean verifyEmail(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Check if code matches and is not expired
+        if (user.getEmailVerificationToken() == null) {
+            throw new IllegalStateException("No verification code found. Please request a new one.");
+        }
+
+        if (!user.getEmailVerificationToken().equals(code)) {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
+
+        if (user.getEmailVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Verification code has expired. Please request a new one.");
+        }
+
+        // Mark email as verified and clear the token
+        user.setIsEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationTokenExpiry(null);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public void resendEmailVerification(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        if (user.getIsEmailVerified()) {
+            throw new IllegalStateException("Email is already verified");
+        }
+
+        // Generate new verification code
+        sendEmailVerification(email);
+    }
+
+    @Override
+    public void sendPasswordResetCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Generate 6-digit reset code
+        String resetCode = generateVerificationCode();
+
+        // Set reset token and expiry (15 minutes from now)
+        user.setPasswordResetToken(resetCode);
+        user.setPasswordResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        // Send reset email
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), resetCode);
+    }
+
+    @Override
+    public boolean resetPassword(String email, String code, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        // Check if code matches and is not expired
+        if (user.getPasswordResetToken() == null) {
+            throw new IllegalStateException("No reset code found. Please request a new one.");
+        }
+
+        if (!user.getPasswordResetToken().equals(code)) {
+            throw new IllegalArgumentException("Invalid reset code");
+        }
+
+        if (user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Reset code has expired. Please request a new one.");
+        }
+
+        // Update password and clear the token
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiry(null);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    /**
+     * Generate a random 6-digit verification code
+     */
+    private String generateVerificationCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000); // Generates 6-digit number
+        return String.valueOf(code);
     }
 }

@@ -1,0 +1,90 @@
+<mat-toolbar class="admin-navbar">
+    <div class="navbar-content">
+        <!-- Left Section: Logo & Title -->
+        <div class="navbar-left">
+            <mat-icon class="logo-icon">admin_panel_settings</mat-icon>
+            <span class="brand-title">AutoShop Admin</span>
+            <span class="divider">|</span>
+            <span class="page-title">Tableau de bord</span>
+        </div>
+
+        <!-- Center Section: Quick Actions -->
+        <div class="navbar-center">
+            <button mat-button class="nav-link">
+                <mat-icon>dashboard</mat-icon>
+                Dashboard
+            </button>
+            <button mat-button class="nav-link">
+                <mat-icon>inventory_2</mat-icon>
+                Produits
+            </button>
+            <button mat-button class="nav-link">
+                <mat-icon>shopping_bag</mat-icon>
+                Commandes
+            </button>
+            <button mat-button class="nav-link">
+                <mat-icon>people</mat-icon>
+                Utilisateurs
+            </button>
+        </div>
+
+        <!-- Right Section: User Menu -->
+        <div class="navbar-right">
+            <!-- Notifications -->
+            <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="icon-button">
+                <mat-icon [matBadge]="3" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
+            </button>
+            <mat-menu #notificationsMenu="matMenu" class="notifications-menu">
+                <div class="menu-header">
+                    <h3>Notifications</h3>
+                </div>
+                <mat-divider></mat-divider>
+                <button mat-menu-item>
+                    <mat-icon>shopping_cart</mat-icon>
+                    <span>3 nouvelles commandes</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>warning</mat-icon>
+                    <span>5 produits en rupture</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>person_add</mat-icon>
+                    <span>2 nouveaux utilisateurs</span>
+                </button>
+            </mat-menu>
+
+            <!-- User Profile -->
+            @if (currentUser$ | async; as user) {
+            <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+                <mat-icon>account_circle</mat-icon>
+                <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #userMenu="matMenu" class="user-menu">
+                <div class="menu-header">
+                    <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+                    <p>{{ user.email }}</p>
+                </div>
+                <mat-divider></mat-divider>
+                <button mat-menu-item>
+                    <mat-icon>person</mat-icon>
+                    <span>Mon profil</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>settings</mat-icon>
+                    <span>Paramètres</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="goToHome()">
+                    <mat-icon>storefront</mat-icon>
+                    <span>Voir le site</span>
+                </button>
+                <button mat-menu-item (click)="logout()">
+                    <mat-icon>logout</mat-icon>
+                    <span>Déconnexion</span>
+                </button>
+            </mat-menu>
+            }
+        </div>
+    </div>
+</mat-toolbar>

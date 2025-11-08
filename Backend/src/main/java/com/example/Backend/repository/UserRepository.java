@@ -76,4 +76,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query("SELECT DISTINCT u FROM User u JOIN u.orders o WHERE o.createdAt >= :since")
     List<User> findActiveUsers(@Param("since") LocalDateTime since);
+
+    /**
+     * Find user by email verification token
+     */
+    Optional<User> findByEmailVerificationToken(String token);
+
+    /**
+     * Find user by password reset token
+     */
+    Optional<User> findByPasswordResetToken(String token);
 }

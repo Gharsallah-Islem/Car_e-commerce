@@ -1,6 +1,6 @@
 package com.example.Backend.controller;
 
-import com.example.Backend.dto.UserDTO;
+import com.example.Backend.dto.*;
 import com.example.Backend.entity.User;
 import com.example.Backend.security.JwtTokenProvider;
 import com.example.Backend.security.UserPrincipal;
@@ -37,12 +37,22 @@ public class AuthController {
                         loginIdentifier,
                         loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-
-        // Get user details
+        // Get user details to check email verification
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipal.getId());
+
+        // Check if email is verified (except for admin/super-admin)
+        if (!user.isAdmin() && !user.isSuperAdmin() && !user.getIsEmailVerified()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("emailVerified", false);
+            response.put("message",
+                    "Please verify your email before logging in. Check your inbox for the verification code.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", jwt);
@@ -69,30 +79,25 @@ public class AuthController {
         // Create the user
         User newUser = userService.createUser(userDTO);
 
-        // Auto-login the user after registration
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        newUser.getUsername(),
-                        userDTO.getPassword()));
+        // Send email verification
+        try {
+            userService.sendEmailVerification(newUser.getEmail());
+        } catch (Exception e) {
+            // Log error but don't fail registration
+            System.err.println("Failed to send verification email: " + e.getMessage());
+        }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-
-        // Prepare response with token and user data
+        // Prepare response
         Map<String, Object> response = new HashMap<>();
-        response.put("token", jwt);
-        response.put("tokenType", "Bearer");
+        response.put("success", true);
+        response.put("message",
+                "Registration successful! Please check your email to verify your account before logging in.");
 
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", newUser.getId());
         userData.put("username", newUser.getUsername());
         userData.put("email", newUser.getEmail());
-        userData.put("firstName", extractFirstName(newUser.getFullName()));
-        userData.put("lastName", extractLastName(newUser.getFullName()));
         userData.put("fullName", newUser.getFullName());
-        userData.put("phoneNumber", newUser.getPhone());
-        userData.put("address", newUser.getAddress());
-        userData.put("role", newUser.getRole().getName());
 
         response.put("user", userData);
 
@@ -130,6 +135,78 @@ public class AuthController {
         response.put("role", user.getRole().getName());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        try {
+            boolean verified = userService.verifyEmail(request.getEmail(), request.getCode());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", verified);
+            response.put("message", "Email verified successfully! You can now login.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        try {
+            userService.resendEmailVerification(request.getEmail());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Verification code resent successfully. Please check your email.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            userService.sendPasswordResetCode(request.getEmail());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password reset code sent to your email. Please check your inbox.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            boolean reset = userService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", reset);
+            response.put("message", "Password reset successfully! You can now login with your new password.");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @lombok.Data

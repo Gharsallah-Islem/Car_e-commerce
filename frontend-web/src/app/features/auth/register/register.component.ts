@@ -152,7 +152,10 @@ export class RegisterComponent {
         this.authService.register(registerData).subscribe({
             next: (response) => {
                 this.isLoading.set(false);
-                this.router.navigate(['/']);
+                // Redirect to email verification page with the email
+                this.router.navigate(['/auth/verify-email'], {
+                    queryParams: { email: registerData.email }
+                });
             },
             error: (error) => {
                 this.isLoading.set(false);

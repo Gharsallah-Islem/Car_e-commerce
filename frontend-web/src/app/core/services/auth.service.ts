@@ -64,11 +64,11 @@ export class AuthService {
     /**
      * Register new user
      */
-    register(userData: RegisterRequest): Observable<AuthResponse> {
-        return this.apiService.post<AuthResponse>('auth/register', userData).pipe(
+    register(userData: RegisterRequest): Observable<{ success: boolean, message: string, user: any }> {
+        return this.apiService.post<{ success: boolean, message: string, user: any }>('auth/register', userData).pipe(
             tap(response => {
-                this.handleAuthSuccess(response);
-                this.notificationService.success('Registration successful!');
+                // Don't auto-login anymore, user needs to verify email first
+                this.notificationService.success(response.message || 'Registration successful! Please check your email.');
             }),
             catchError(error => {
                 this.notificationService.error(error.error?.message || 'Registration failed');
@@ -259,21 +259,6 @@ export class AuthService {
     }
 
     /**
-     * Reset password with token
-     */
-    resetPassword(token: string, newPassword: string): Observable<void> {
-        return this.apiService.post<void>('auth/reset-password', { token, newPassword }).pipe(
-            tap(() => {
-                this.notificationService.success('Password reset successfully');
-            }),
-            catchError(error => {
-                this.notificationService.error('Failed to reset password');
-                return throwError(() => error);
-            })
-        );
-    }
-
-    /**
      * Handle successful authentication
      */
     private handleAuthSuccess(response: AuthResponse): void {
@@ -321,5 +306,73 @@ export class AuthService {
      */
     getToken(): string | null {
         return this.storageService.getToken();
+    }
+
+    /**
+     * Verify email with code
+     */
+    verifyEmail(email: string, code: string): Observable<{ success: boolean, message: string }> {
+        return this.apiService.post<{ success: boolean, message: string }>('auth/verify-email', { email, code }).pipe(
+            tap(response => {
+                if (response.success) {
+                    this.notificationService.success(response.message);
+                }
+            }),
+            catchError(error => {
+                this.notificationService.error(error.error?.message || 'Email verification failed');
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * Resend verification email
+     */
+    resendVerificationEmail(email: string): Observable<{ success: boolean, message: string }> {
+        return this.apiService.post<{ success: boolean, message: string }>('auth/resend-verification', { email }).pipe(
+            tap(response => {
+                if (response.success) {
+                    this.notificationService.success(response.message);
+                }
+            }),
+            catchError(error => {
+                this.notificationService.error(error.error?.message || 'Failed to resend verification email');
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * Request password reset
+     */
+    forgotPassword(email: string): Observable<{ success: boolean, message: string }> {
+        return this.apiService.post<{ success: boolean, message: string }>('auth/forgot-password', { email }).pipe(
+            tap(response => {
+                if (response.success) {
+                    this.notificationService.success(response.message);
+                }
+            }),
+            catchError(error => {
+                this.notificationService.error(error.error?.message || 'Failed to send reset code');
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * Reset password with code
+     */
+    resetPassword(email: string, code: string, newPassword: string): Observable<{ success: boolean, message: string }> {
+        return this.apiService.post<{ success: boolean, message: string }>('auth/reset-password', { email, code, newPassword }).pipe(
+            tap(response => {
+                if (response.success) {
+                    this.notificationService.success(response.message);
+                }
+            }),
+            catchError(error => {
+                this.notificationService.error(error.error?.message || 'Password reset failed');
+                return throwError(() => error);
+            })
+        );
     }
 }

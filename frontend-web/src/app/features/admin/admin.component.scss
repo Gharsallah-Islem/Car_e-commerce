@@ -3,61 +3,7 @@
     margin: 0 auto;
     padding: 2rem;
     background: #f5f5f5;
-    min-height: 100vh;
-}
-
-// Header
-.admin-header {
-    margin-bottom: 2rem;
-
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 2rem;
-        background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
-        border-radius: 12px;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .title-section {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-
-        >mat-icon {
-            font-size: 64px;
-            width: 64px;
-            height: 64px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        p {
-            margin: 0.25rem 0 0;
-            opacity: 0.9;
-            font-size: 1rem;
-        }
-    }
-
-    button {
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        border-color: rgba(255, 255, 255, 0.3);
-
-        mat-icon {
-            margin-right: 0.5rem;
-        }
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-    }
+    min-height: calc(100vh - 64px);
 }
 
 // Stats Grid

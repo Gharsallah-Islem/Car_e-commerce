@@ -1,0 +1,378 @@
+<div class="analytics-dashboard">
+    <!-- Loading Spinner -->
+    @if (loading) {
+    <div class="loading-container">
+        <mat-spinner diameter="60"></mat-spinner>
+        <p>Chargement des analyses...</p>
+    </div>
+    }
+
+    <!-- Dashboard Content -->
+    @if (!loading && dashboardStats) {
+    <div class="dashboard-content">
+        <!-- Header with Actions -->
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h1><mat-icon>insights</mat-icon> Tableau de bord Analytics</h1>
+                <p class="subtitle">Vue d'ensemble des performances de votre boutique</p>
+            </div>
+            <div class="header-actions">
+                <button mat-raised-button color="primary" (click)="refreshData()" [disabled]="refreshing">
+                    <mat-icon>refresh</mat-icon>
+                    {{ refreshing ? 'Actualisation...' : 'Actualiser' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <mat-card class="kpi-card revenue">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>payments</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Revenu Total</p>
+                        <h2 class="kpi-value">{{ dashboardStats.totalRevenue | number:'1.2-2' }} <span
+                                class="currency">MAD</span></h2>
+                        @if (dashboardStats.revenueGrowth) {
+                        <div class="kpi-growth" [class]="getGrowthColor(dashboardStats.revenueGrowth)">
+                            <mat-icon>{{ getGrowthIcon(dashboardStats.revenueGrowth) }}</mat-icon>
+                            <span>{{ formatPercentage(dashboardStats.revenueGrowth) }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </mat-card>
+
+            <mat-card class="kpi-card orders">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>shopping_cart</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Total Commandes</p>
+                        <h2 class="kpi-value">{{ dashboardStats.totalOrders }}</h2>
+                        @if (dashboardStats.ordersGrowth) {
+                        <div class="kpi-growth" [class]="getGrowthColor(dashboardStats.ordersGrowth)">
+                            <mat-icon>{{ getGrowthIcon(dashboardStats.ordersGrowth) }}</mat-icon>
+                            <span>{{ formatPercentage(dashboardStats.ordersGrowth) }}</span>
+                        </div>
+                        }
+                        @if (dashboardStats.pendingOrders > 0) {
+                        <p class="kpi-note">{{ dashboardStats.pendingOrders }} en attente</p>
+                        }
+                    </div>
+                </div>
+            </mat-card>
+
+            <mat-card class="kpi-card users">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>people</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Utilisateurs</p>
+                        <h2 class="kpi-value">{{ dashboardStats.totalUsers }}</h2>
+                        @if (dashboardStats.usersGrowth) {
+                        <div class="kpi-growth" [class]="getGrowthColor(dashboardStats.usersGrowth)">
+                            <mat-icon>{{ getGrowthIcon(dashboardStats.usersGrowth) }}</mat-icon>
+                            <span>{{ formatPercentage(dashboardStats.usersGrowth) }}</span>
+                        </div>
+                        }
+                        @if (dashboardStats.activeUsers) {
+                        <p class="kpi-note">{{ dashboardStats.activeUsers }} actifs</p>
+                        }
+                    </div>
+                </div>
+            </mat-card>
+
+            <mat-card class="kpi-card products">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>inventory_2</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Produits</p>
+                        <h2 class="kpi-value">{{ dashboardStats.totalProducts }}</h2>
+                        @if (dashboardStats.lowStockProducts > 0) {
+                        <p class="kpi-note warning">{{ dashboardStats.lowStockProducts }} en stock faible</p>
+                        }
+                    </div>
+                </div>
+            </mat-card>
+
+            <mat-card class="kpi-card conversion">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>trending_up</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Taux de Conversion</p>
+                        <h2 class="kpi-value">{{ formatPercentage(dashboardStats.conversionRate) }}</h2>
+                    </div>
+                </div>
+            </mat-card>
+
+            <mat-card class="kpi-card average-order">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <mat-icon>shopping_bag</mat-icon>
+                    </div>
+                    <div class="kpi-details">
+                        <p class="kpi-label">Panier Moyen</p>
+                        <h2 class="kpi-value">{{ dashboardStats.averageOrderValue | number:'1.2-2' }} <span
+                                class="currency">MAD</span></h2>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Sales Trend Chart -->
+            <mat-card class="chart-card full-width">
+                <mat-card-header>
+                    <mat-card-title>
+                        <mat-icon>show_chart</mat-icon>
+                        Évolution des Ventes
+                    </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    @if (salesChartMulti.length > 0) {
+                    <ngx-charts-line-chart [view]="view" [scheme]="colorScheme" [results]="salesChartMulti"
+                        [gradient]="gradient" [xAxis]="showXAxis" [yAxis]="showYAxis" [legend]="showLegend"
+                        [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
+                        [yAxisLabel]="yAxisLabel" [autoScale]="true" [timeline]="true">
+                    </ngx-charts-line-chart>
+                    } @else {
+                    <div class="no-data">
+                        <mat-icon>trending_up</mat-icon>
+                        <p>Aucune donnée disponible pour les 30 derniers jours</p>
+                    </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Category Performance & Order Status -->
+            <div class="charts-row">
+                <mat-card class="chart-card half-width">
+                    <mat-card-header>
+                        <mat-card-title>
+                            <mat-icon>pie_chart</mat-icon>
+                            Performance par Catégorie
+                        </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        @if (categoryChartData.length > 0) {
+                        <ngx-charts-pie-chart [view]="[400, 300]" [scheme]="colorScheme" [results]="categoryChartData"
+                            [legend]="showLegend" [explodeSlices]="false" [labels]="true" [doughnut]="false">
+                        </ngx-charts-pie-chart>
+                        } @else {
+                        <div class="no-data">
+                            <mat-icon>pie_chart</mat-icon>
+                            <p>Aucune donnée</p>
+                        </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="chart-card half-width">
+                    <mat-card-header>
+                        <mat-card-title>
+                            <mat-icon>donut_small</mat-icon>
+                            Statut des Commandes
+                        </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        @if (orderStatusChartData.length > 0) {
+                        <ngx-charts-pie-chart [view]="[400, 300]" [scheme]="colorScheme"
+                            [results]="orderStatusChartData" [legend]="showLegend" [explodeSlices]="false"
+                            [labels]="true" [doughnut]="true">
+                        </ngx-charts-pie-chart>
+                        } @else {
+                        <div class="no-data">
+                            <mat-icon>donut_small</mat-icon>
+                            <p>Aucune donnée</p>
+                        </div>
+                        }
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Customer Analytics -->
+        @if (customerAnalytics) {
+        <mat-card class="customer-analytics-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>people_alt</mat-icon>
+                    Analyses Clients
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="customer-stats-grid">
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>person</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Total Clients</p>
+                            <p class="stat-value">{{ customerAnalytics.totalCustomers }}</p>
+                        </div>
+                    </div>
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>person_add</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Nouveaux Aujourd'hui</p>
+                            <p class="stat-value">{{ customerAnalytics.newCustomersToday }}</p>
+                        </div>
+                    </div>
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>groups</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Cette Semaine</p>
+                            <p class="stat-value">{{ customerAnalytics.newCustomersThisWeek }}</p>
+                        </div>
+                    </div>
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>online_prediction</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Clients Actifs</p>
+                            <p class="stat-value">{{ customerAnalytics.activeCustomers }}</p>
+                        </div>
+                    </div>
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>repeat</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Taux de Rétention</p>
+                            <p class="stat-value">{{ formatPercentage(customerAnalytics.retentionRate) }}</p>
+                        </div>
+                    </div>
+                    <div class="customer-stat">
+                        <div class="stat-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+                        <div class="stat-info">
+                            <p class="stat-label">Valeur Vie Client</p>
+                            <p class="stat-value">{{ customerAnalytics.customerLifetimeValue | number:'1.2-2' }} MAD</p>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        }
+
+        <!-- Top Products Table -->
+        @if (topProducts.length > 0) {
+        <mat-card class="table-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>star</mat-icon>
+                    Top 5 Produits
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <table mat-table [dataSource]="topProducts" class="products-table">
+                    <ng-container matColumnDef="image">
+                        <th mat-header-cell *matHeaderCellDef>Image</th>
+                        <td mat-cell *matCellDef="let product">
+                            <img [src]="product.imageUrl" [alt]="product.productName" class="product-image">
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef>Produit</th>
+                        <td mat-cell *matCellDef="let product">{{ product.productName }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="category">
+                        <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+                        <td mat-cell *matCellDef="let product">
+                            <mat-chip>{{ product.category }}</mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="brand">
+                        <th mat-header-cell *matHeaderCellDef>Marque</th>
+                        <td mat-cell *matCellDef="let product">{{ product.brand }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="unitsSold">
+                        <th mat-header-cell *matHeaderCellDef>Unités Vendues</th>
+                        <td mat-cell *matCellDef="let product">
+                            <span class="units-sold">{{ product.unitsSold }}</span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="revenue">
+                        <th mat-header-cell *matHeaderCellDef>Revenu</th>
+                        <td mat-cell *matCellDef="let product">
+                            <span class="revenue">{{ product.revenue | number:'1.2-2' }} MAD</span>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="productsDisplayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: productsDisplayedColumns;"></tr>
+                </table>
+            </mat-card-content>
+        </mat-card>
+        }
+
+        <!-- Recent Activities -->
+        @if (recentActivities.length > 0) {
+        <mat-card class="activities-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>history</mat-icon>
+                    Activités Récentes
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="activities-list">
+                    @for (activity of recentActivities; track activity.timestamp) {
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-description">{{ activity.description }}</p>
+                            <div class="activity-meta">
+                                <span class="activity-user">{{ activity.userName }}</span>
+                                <span class="activity-time">{{ activity.timestamp | date:'medium' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </mat-card-content>
+        </mat-card>
+        }
+
+        <!-- Inventory Alerts -->
+        @if (inventoryAlerts.length > 0) {
+        <mat-card class="alerts-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>warning</mat-icon>
+                    Alertes de Stock
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="alerts-list">
+                    @for (alert of inventoryAlerts; track alert.productId) {
+                    <div class="alert-item" [class]="'severity-' + alert.severity.toLowerCase()">
+                        <mat-icon class="alert-icon">warning</mat-icon>
+                        <div class="alert-details">
+                            <p class="alert-product">{{ alert.productName }}</p>
+                            <p class="alert-info">
+                                Stock actuel: <strong>{{ alert.currentStock }}</strong>
+                                (Minimum: {{ alert.minimumStock }})
+                            </p>
+                        </div>
+                        <mat-chip [color]="getSeverityColor(alert.severity)">{{ alert.severity }}</mat-chip>
+                    </div>
+                    }
+                </div>
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+    }
+</div>

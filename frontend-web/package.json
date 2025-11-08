@@ -23,6 +23,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@stripe/stripe-js": "^8.2.0",
+    "@swimlane/ngx-charts": "^23.1.0",
     "chart.js": "^4.5.1",
     "jwt-decode": "^4.0.0",
     "ngx-echarts": "^20.0.2",

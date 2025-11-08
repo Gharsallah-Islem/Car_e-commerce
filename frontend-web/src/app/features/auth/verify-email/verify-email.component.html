@@ -1,0 +1,72 @@
+<div class="verify-container">
+    <div class="verify-card-wrapper">
+        <mat-card class="verify-card">
+            <mat-card-content>
+                <!-- Header -->
+                <div class="verify-header">
+                    <div class="icon-wrapper">
+                        <mat-icon class="verify-icon">mark_email_read</mat-icon>
+                    </div>
+                    <h1 class="title">Verify Your Email</h1>
+                    <p class="subtitle">
+                        We've sent a 6-digit verification code to<br>
+                        <strong>{{ email }}</strong>
+                    </p>
+                </div>
+
+                <!-- Verification Form -->
+                <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="verify-form">
+                    <!-- Code Input -->
+                    <mat-form-field appearance="outline" class="full-width code-input">
+                        <mat-label>Verification Code</mat-label>
+                        <input matInput formControlName="code" placeholder="000000" maxlength="6" autocomplete="off"
+                            class="code-field">
+                        <mat-icon matPrefix>pin</mat-icon>
+                        @if (codeControl?.invalid && codeControl?.touched) {
+                        <mat-error>{{ getCodeErrorMessage() }}</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <!-- Submit Button -->
+                    <button mat-raised-button color="primary" type="submit" class="verify-button"
+                        [disabled]="isLoading() || verifyForm.invalid">
+                        @if (isLoading()) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        <span>Verifying...</span>
+                        } @else {
+                        <span>Verify Email</span>
+                        }
+                    </button>
+                </form>
+
+                <!-- Resend Section -->
+                <div class="resend-section">
+                    <p class="resend-text">Didn't receive the code?</p>
+                    <button mat-button (click)="resendCode()" [disabled]="isResending()" class="resend-button">
+                        @if (isResending()) {
+                        <mat-spinner diameter="16"></mat-spinner>
+                        Sending...
+                        } @else {
+                        <mat-icon>refresh</mat-icon>
+                        Resend Code
+                        }
+                    </button>
+                </div>
+
+                <!-- Back to Login -->
+                <div class="back-link">
+                    <a routerLink="/auth/login" mat-button>
+                        <mat-icon>arrow_back</mat-icon>
+                        Back to Login
+                    </a>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Help Text -->
+        <div class="help-text">
+            <mat-icon>info</mat-icon>
+            <p>The verification code will expire in 15 minutes</p>
+        </div>
+    </div>
+</div>

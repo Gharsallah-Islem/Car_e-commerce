@@ -1,72 +1,16 @@
+<!-- Admin Navbar -->
+<app-admin-navbar></app-admin-navbar>
+
 <div class="admin-container">
-    <!-- Header -->
-    <div class="admin-header">
-        <div class="header-content">
-            <div class="title-section">
-                <mat-icon>admin_panel_settings</mat-icon>
-                <div>
-                    <h1>Tableau de bord Admin</h1>
-                    <p>Gestion de la boutique AutoShop</p>
-                </div>
-            </div>
-            <button mat-stroked-button routerLink="/">
-                <mat-icon>home</mat-icon>
-                Retour au site
-            </button>
-        </div>
-    </div>
-
-    <!-- Dashboard Stats -->
-    <div class="stats-grid">
-        <mat-card class="stat-card">
-            <div class="stat-icon revenue">
-                <mat-icon>payments</mat-icon>
-            </div>
-            <div class="stat-content">
-                <h3>{{ stats().totalRevenue | number:'1.2-2' }} MAD</h3>
-                <p>Revenu total</p>
-            </div>
-        </mat-card>
-
-        <mat-card class="stat-card">
-            <div class="stat-icon orders">
-                <mat-icon>shopping_bag</mat-icon>
-            </div>
-            <div class="stat-content">
-                <h3>{{ stats().totalOrders }}</h3>
-                <p>Commandes</p>
-                @if (stats().pendingOrders > 0) {
-                <span class="badge">{{ stats().pendingOrders }} en attente</span>
-                }
-            </div>
-        </mat-card>
-
-        <mat-card class="stat-card">
-            <div class="stat-icon products">
-                <mat-icon>inventory_2</mat-icon>
-            </div>
-            <div class="stat-content">
-                <h3>{{ stats().totalProducts }}</h3>
-                <p>Produits</p>
-                @if (stats().lowStockProducts > 0) {
-                <span class="badge warn">{{ stats().lowStockProducts }} stock faible</span>
-                }
-            </div>
-        </mat-card>
-
-        <mat-card class="stat-card">
-            <div class="stat-icon users">
-                <mat-icon>people</mat-icon>
-            </div>
-            <div class="stat-content">
-                <h3>{{ stats().totalUsers }}</h3>
-                <p>Utilisateurs</p>
-            </div>
-        </mat-card>
-    </div>
-
     <!-- Tabs -->
     <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
+
+        <!-- Analytics Tab -->
+        <mat-tab label="Analytics">
+            <div class="tab-content">
+                <app-analytics-dashboard></app-analytics-dashboard>
+            </div>
+        </mat-tab>
 
         <!-- Products Tab -->
         <mat-tab label="Produits">

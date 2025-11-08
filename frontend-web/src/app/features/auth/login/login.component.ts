@@ -106,6 +106,14 @@ export class LoginComponent {
             error: (error) => {
                 this.isLoading.set(false);
                 console.error('Login failed:', error);
+
+                // Check if it's an email verification error (403 status)
+                if (error.status === 403 && error.error?.emailVerified === false) {
+                    // Redirect to verify-email page
+                    this.router.navigate(['/auth/verify-email'], {
+                        queryParams: { email: credentials.email }
+                    });
+                }
             }
         });
     }

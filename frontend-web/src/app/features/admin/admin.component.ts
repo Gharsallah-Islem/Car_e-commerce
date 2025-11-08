@@ -21,7 +21,10 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import { Product, User, UserRole, ProductSpecification, VehicleCompatibility } from '../../core/models';
+import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
+import { AdminNavbarComponent } from './admin-navbar/admin-navbar.component';
 
 interface AdminOrder {
     id: string;
@@ -65,7 +68,9 @@ interface DashboardStats {
         MatTooltipModule,
         MatSlideToggleModule,
         MatPaginatorModule,
-        MatSortModule
+        MatSortModule,
+        AnalyticsDashboardComponent,
+        AdminNavbarComponent
     ],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.scss']
@@ -117,7 +122,8 @@ export class AdminComponent implements OnInit {
         private router: Router,
         private dialog: MatDialog,
         private authService: AuthService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) {
         this.initForms();
     }
@@ -163,18 +169,24 @@ export class AdminComponent implements OnInit {
 
     loadDashboardStats(): void {
         this.loading.set(true);
-        // Simulate API call
-        setTimeout(() => {
-            this.stats.set({
-                totalOrders: 1247,
-                totalRevenue: 458925.50,
-                totalProducts: 356,
-                totalUsers: 892,
-                pendingOrders: 23,
-                lowStockProducts: 12
-            });
-            this.loading.set(false);
-        }, 500);
+        this.analyticsService.getDashboardStatsWithGrowth().subscribe({
+            next: (data) => {
+                this.stats.set({
+                    totalOrders: data.totalOrders,
+                    totalRevenue: data.totalRevenue,
+                    totalProducts: data.totalProducts,
+                    totalUsers: data.totalUsers,
+                    pendingOrders: data.pendingOrders,
+                    lowStockProducts: data.lowStockProducts
+                });
+                this.loading.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading dashboard stats:', error);
+                this.notificationService.error('Erreur lors du chargement des statistiques');
+                this.loading.set(false);
+            }
+        });
     }
 
     loadProducts(): void {
