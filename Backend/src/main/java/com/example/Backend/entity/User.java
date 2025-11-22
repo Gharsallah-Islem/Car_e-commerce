@@ -61,6 +61,9 @@ public class User implements Serializable {
     @Column(name = "is_email_verified", nullable = false)
     private Boolean isEmailVerified = false;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     @Column(name = "email_verification_token")
     private String emailVerificationToken;
 

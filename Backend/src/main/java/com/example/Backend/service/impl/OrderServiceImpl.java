@@ -4,8 +4,10 @@ import com.example.Backend.dto.OrderDTO;
 import com.example.Backend.entity.*;
 import com.example.Backend.repository.*;
 import com.example.Backend.service.OrderService;
+import com.example.Backend.service.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final EmailService emailService;
 
     @Override
     public Order createOrderFromCart(UUID userId, OrderDTO orderDTO) {
@@ -79,6 +83,41 @@ public class OrderServiceImpl implements OrderService {
         // Clear cart
         cart.clearCart();
         cartRepository.save(cart);
+
+        // Refresh order with order items and products loaded
+        UUID orderId = savedOrder.getId();
+        Order refreshedOrder = orderRepository.findByIdWithItems(orderId);
+        if (refreshedOrder == null) {
+            // Fallback: use findById and manually load items
+            refreshedOrder = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new EntityNotFoundException("Order not found after creation"));
+            // Force load order items by accessing them
+            if (refreshedOrder.getOrderItems() != null) {
+                refreshedOrder.getOrderItems().size(); // This will trigger lazy loading
+                // Also force load products for each item
+                refreshedOrder.getOrderItems().forEach(item -> {
+                    if (item.getProduct() != null) {
+                        item.getProduct().getName(); // Trigger product loading
+                    }
+                });
+            }
+        }
+        savedOrder = refreshedOrder;
+
+        // Send order confirmation email
+        try {
+            log.info("Attempting to send order confirmation email for order: {}", savedOrder.getId());
+            if (savedOrder.getOrderItems() == null || savedOrder.getOrderItems().isEmpty()) {
+                log.warn("Order {} has no order items, skipping email", savedOrder.getId());
+            } else {
+                log.info("Order {} has {} items, sending email", savedOrder.getId(), savedOrder.getOrderItems().size());
+                emailService.sendOrderConfirmationEmail(savedOrder);
+                log.info("Order confirmation email sent successfully for order: {}", savedOrder.getId());
+            }
+        } catch (Exception e) {
+            // Log but don't fail the order
+            log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage(), e);
+        }
 
         return savedOrder;
     }

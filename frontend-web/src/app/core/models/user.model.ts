@@ -5,13 +5,14 @@ export enum UserRole {
 }
 
 export interface User {
-    id: number;
+    id: string;
     email: string;
     firstName: string;
     lastName: string;
     phoneNumber?: string;
     role: UserRole;
-    enabled: boolean;
+    isActive?: boolean;
+    enabled?: boolean; // Deprecated, use isActive
     provider?: string; // 'LOCAL' or 'GOOGLE'
     createdAt?: Date;
     updatedAt?: Date;

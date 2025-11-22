@@ -139,6 +139,20 @@ public class UserController {
     }
 
     /**
+     * Update user role
+     * PATCH /api/users/{id}/role
+     * Security: Super Admin only
+     */
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<User> updateUserRole(
+            @PathVariable UUID id,
+            @RequestParam String role) {
+        User updatedUser = userService.updateUserRole(id, role);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
      * Delete user by ID (Admin operation)
      * DELETE /api/users/{id}
      * Security: Super Admin only

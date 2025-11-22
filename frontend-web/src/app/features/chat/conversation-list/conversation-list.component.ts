@@ -43,9 +43,11 @@ export class ConversationListComponent implements OnInit, OnDestroy {
     this.chatService.getUserConversations().subscribe({
       next: (conversations) => {
         // Sort by most recent first
-        this.conversations = conversations.sort((a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
+        this.conversations = conversations.sort((a, b) => {
+          const dateA = typeof a.updatedAt === 'string' ? new Date(a.updatedAt) : a.updatedAt;
+          const dateB = typeof b.updatedAt === 'string' ? new Date(b.updatedAt) : b.updatedAt;
+          return dateB.getTime() - dateA.getTime();
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -86,13 +88,22 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   hasUnread(conversation: Conversation): boolean {
     // Check if conversation has unread messages
-    // Since we don't have unreadCount in Conversation, we'll check lastMessage
+    // Use unreadCount from ConversationDTO if available, otherwise check lastMessage
+    if (conversation.unreadCount !== undefined && conversation.unreadCount > 0) {
+      return true;
+    }
     return conversation.lastMessage ? !conversation.lastMessage.isRead : false;
   }
 
-  getFormattedTime(date: Date): string {
+  getFormattedTime(date: Date | string): string {
     const now = new Date();
-    const messageDate = new Date(date);
+    const messageDate = typeof date === 'string' ? new Date(date) : date;
+    
+    // Handle invalid dates
+    if (isNaN(messageDate.getTime())) {
+      return '';
+    }
+    
     const diffMs = now.getTime() - messageDate.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);

@@ -1,0 +1,250 @@
+.brand-management {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 0;
+
+    h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 500;
+    }
+
+    button {
+        mat-icon {
+            margin-right: 8px;
+        }
+    }
+}
+
+.search-container {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+    align-items: center;
+
+    .search-field {
+        flex: 1;
+        max-width: 500px;
+    }
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #666;
+
+    .spinner {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        animation: spin 1s linear infinite;
+        color: #3f51b5;
+    }
+
+    p {
+        margin-top: 16px;
+        font-size: 16px;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+
+    mat-icon {
+        font-size: 72px;
+        width: 72px;
+        height: 72px;
+        color: #ccc;
+        margin-bottom: 16px;
+    }
+
+    h3 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    p {
+        margin: 0 0 24px 0;
+        color: #666;
+    }
+}
+
+.brands-table {
+    width: 100%;
+    margin-top: 20px;
+
+    th {
+        font-weight: 600;
+        color: #333;
+    }
+
+    td {
+        padding: 12px 16px;
+    }
+
+    .brand-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+    }
+
+    .product-count {
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+}
+
+// Form Panel (Slide-in from right)
+.form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.form-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    max-width: 90vw;
+    background-color: white;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+
+        h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+    }
+
+    .brand-form {
+        padding: 24px;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        mat-form-field {
+            width: 100%;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: auto;
+            padding-top: 20px;
+
+            button mat-icon {
+                margin-right: 8px;
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .search-container {
+        flex-direction: column;
+
+        .search-field {
+            max-width: 100%;
+        }
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .form-panel {
+        width: 100%;
+    }
+}

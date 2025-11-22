@@ -63,6 +63,10 @@ export class AppComponent {
   cartItemCount = computed(() => this.cartService.cartItemCount());
 
   constructor() {
+    // Check initial route
+    const currentUrl = this.router.url;
+    this.showNavbar.set(!currentUrl.includes('/admin'));
+
     // Listen to route changes to hide/show navbar
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

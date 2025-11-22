@@ -1,7 +1,11 @@
 package com.example.Backend.service.impl;
 
 import com.example.Backend.dto.ProductDTO;
+import com.example.Backend.entity.Brand;
+import com.example.Backend.entity.Category;
 import com.example.Backend.entity.Product;
+import com.example.Backend.repository.BrandRepository;
+import com.example.Backend.repository.CategoryRepository;
 import com.example.Backend.repository.ProductRepository;
 import com.example.Backend.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +28,8 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
 
     @Override
     public Product createProduct(ProductDTO productDTO) {
@@ -31,8 +37,23 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
-        product.setCategory(productDTO.getCategory());
-        product.setBrand(productDTO.getBrand());
+
+        // Set Category
+        if (productDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDTO.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Category not found with id: " + productDTO.getCategoryId()));
+            product.setCategory(category);
+        }
+
+        // Set Brand
+        if (productDTO.getBrandId() != null) {
+            Brand brand = brandRepository.findById(productDTO.getBrandId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Brand not found with id: " + productDTO.getBrandId()));
+            product.setBrand(brand);
+        }
+
         product.setStock(productDTO.getStockQuantity());
         product.setImageUrl(productDTO.getImageUrl());
 
@@ -59,8 +80,23 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
-        product.setCategory(productDTO.getCategory());
-        product.setBrand(productDTO.getBrand());
+
+        // Update Category
+        if (productDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDTO.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Category not found with id: " + productDTO.getCategoryId()));
+            product.setCategory(category);
+        }
+
+        // Update Brand
+        if (productDTO.getBrandId() != null) {
+            Brand brand = brandRepository.findById(productDTO.getBrandId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Brand not found with id: " + productDTO.getBrandId()));
+            product.setBrand(brand);
+        }
+
         product.setStock(productDTO.getStockQuantity());
         product.setImageUrl(productDTO.getImageUrl());
 
@@ -101,16 +137,26 @@ public class ProductServiceImpl implements ProductService {
                 minPrice, maxPrice, pageable);
     }
 
+    // Removed - incompatible with new entity structure
+    // Use filterProducts with categoryId instead
     @Override
     @Transactional(readOnly = true)
     public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category);
+        // This method is deprecated - category is now an entity, not a string
+        return productRepository.findAll().stream()
+                .filter(p -> p.getCategory() != null && p.getCategory().getName().equals(category))
+                .collect(java.util.stream.Collectors.toList());
     }
 
+    // Removed - incompatible with new entity structure
+    // Use filterProducts with brandId instead
     @Override
     @Transactional(readOnly = true)
     public List<Product> getProductsByBrand(String brand) {
-        return productRepository.findByBrand(brand);
+        // This method is deprecated - brand is now an entity, not a string
+        return productRepository.findAll().stream()
+                .filter(p -> p.getBrand() != null && p.getBrand().getName().equals(brand))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
@@ -192,19 +238,17 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> filterProducts(Long categoryId, Long brandId, BigDecimal minPrice,
             BigDecimal maxPrice, String search, Boolean inStock, Pageable pageable) {
 
-        // Map category ID to category name
-        final String categoryName = categoryId != null ? mapCategoryIdToName(categoryId) : null;
-
-        // Map brand ID to brand name
-        final String brandName = brandId != null ? mapBrandIdToName(brandId) : null;
-
         // Get all products and filter in memory to avoid bytea issue
+        // Note: Ideally this should be done in the database with a dynamic query
+        // (Specification)
+        // But for now we update the in-memory filtering to use entity relationships
         List<Product> allProducts = productRepository.findAll();
 
         // Apply filters
         List<Product> filtered = allProducts.stream()
-                .filter(p -> categoryName == null || categoryName.equals(p.getCategory()))
-                .filter(p -> brandName == null || brandName.equals(p.getBrand()))
+                .filter(p -> categoryId == null
+                        || (p.getCategory() != null && p.getCategory().getId().equals(categoryId)))
+                .filter(p -> brandId == null || (p.getBrand() != null && p.getBrand().getId().equals(brandId)))
                 .filter(p -> minPrice == null || p.getPrice().compareTo(minPrice) >= 0)
                 .filter(p -> maxPrice == null || p.getPrice().compareTo(maxPrice) <= 0)
                 .filter(p -> search == null || p.getName().toLowerCase().contains(search.toLowerCase()))
@@ -219,7 +263,7 @@ public class ProductServiceImpl implements ProductService {
         // Apply pagination
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), filtered.size());
-        List<Product> pageContent = filtered.subList(start, end);
+        List<Product> pageContent = (start > end) ? java.util.Collections.emptyList() : filtered.subList(start, end);
 
         return new org.springframework.data.domain.PageImpl<>(
                 pageContent,
@@ -263,41 +307,5 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return products;
-    }
-
-    /**
-     * Map category ID to category name
-     */
-    private String mapCategoryIdToName(Long categoryId) {
-        Map<Long, String> categoryMap = new HashMap<>();
-        categoryMap.put(1L, "Engine Parts");
-        categoryMap.put(2L, "Brake Systems");
-        categoryMap.put(3L, "Suspension");
-        categoryMap.put(4L, "Electrical");
-        categoryMap.put(5L, "Body Parts");
-        categoryMap.put(6L, "Filters");
-        categoryMap.put(7L, "Exhaust");
-        categoryMap.put(8L, "Transmission");
-        categoryMap.put(9L, "Cooling System");
-        categoryMap.put(10L, "Interior");
-
-        return categoryMap.get(categoryId);
-    }
-
-    /**
-     * Map brand ID to brand name
-     */
-    private String mapBrandIdToName(Long brandId) {
-        Map<Long, String> brandMap = new HashMap<>();
-        brandMap.put(1L, "Bosch");
-        brandMap.put(2L, "Continental");
-        brandMap.put(3L, "Brembo");
-        brandMap.put(4L, "Bilstein");
-        brandMap.put(5L, "Denso");
-        brandMap.put(6L, "Mann-Filter");
-        brandMap.put(7L, "Akrapovic");
-        brandMap.put(8L, "ZF");
-
-        return brandMap.get(brandId);
     }
 }

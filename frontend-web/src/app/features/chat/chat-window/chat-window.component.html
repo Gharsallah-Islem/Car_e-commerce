@@ -25,18 +25,18 @@
 
     <!-- Messages Container -->
     <div class="messages-container" #messagesContainer>
-        <div class="loading-spinner" *ngIf="loading">
+        <div class="loading-spinner" *ngIf="loading()">
             <div class="spinner"></div>
             <p>Loading messages...</p>
         </div>
 
-        <div class="messages-list" *ngIf="!loading">
-            <app-message-bubble *ngFor="let message of messages; trackBy: trackByMessageId" [message]="message"
+        <div class="messages-list" *ngIf="!loading()">
+            <app-message-bubble *ngFor="let message of messages(); trackBy: trackByMessageId" [message]="message"
                 [isOwn]="isOwnMessage(message)" [showSenderName]="!isOwnMessage(message)"
                 (delete)="onDeleteMessage($event)">
             </app-message-bubble>
 
-            <div class="no-messages" *ngIf="messages.length === 0">
+            <div class="no-messages" *ngIf="messages().length === 0">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="#8696a0">
                     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
                 </svg>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Input Area -->
-    <app-message-input [disabled]="sending" (sendMessage)="onSendMessage($event)">
+    <app-message-input [disabled]="sending()" (sendMessage)="onSendMessage($event)">
     </app-message-input>
 </div>
 

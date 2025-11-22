@@ -191,7 +191,7 @@
             </div>
 
             <mat-card-content>
-                <div class="product-brand">{{ product.brand.name }}</div>
+                <div class="product-brand">{{ product.brand?.name || 'N/A' }}</div>
                 <h3 class="product-name" [routerLink]="['/products', product.id]">{{ product.name }}</h3>
                 <p class="product-description">{{ product.description }}</p>
 

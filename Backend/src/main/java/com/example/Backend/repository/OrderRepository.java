@@ -58,9 +58,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
         Page<Order> findByStatus(String status, Pageable pageable);
 
         /**
-         * Get order with items (fetch join)
+         * Get order with items and products (fetch join)
          */
-        @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems WHERE o.id = :orderId")
+        @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.orderItems oi LEFT JOIN FETCH oi.product WHERE o.id = :orderId")
         Order findByIdWithItems(@Param("orderId") UUID orderId);
 
         /**

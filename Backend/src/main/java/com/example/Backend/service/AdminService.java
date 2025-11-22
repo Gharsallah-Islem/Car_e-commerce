@@ -1,7 +1,7 @@
 package com.example.Backend.service;
 
 import com.example.Backend.dto.AdminDTO;
-import com.example.Backend.entity.Admin;
+import com.example.Backend.entity.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,41 +12,41 @@ public interface AdminService {
      * Create admin account
      * 
      * @param adminDTO Admin data
-     * @return Created admin
+     * @return Created admin user
      */
-    Admin createAdmin(AdminDTO adminDTO);
+    User createAdmin(AdminDTO adminDTO);
 
     /**
      * Get admin by ID
      * 
      * @param adminId Admin ID
-     * @return Admin entity
+     * @return Admin user entity
      */
-    Admin getAdminById(UUID adminId);
+    User getAdminById(UUID adminId);
 
     /**
      * Get admin by username
      * 
      * @param username Admin username
-     * @return Admin entity
+     * @return Admin user entity
      */
-    Admin getAdminByUsername(String username);
+    User getAdminByUsername(String username);
 
     /**
      * Get all admins
      * 
-     * @return List of admins
+     * @return List of admin users
      */
-    List<Admin> getAllAdmins();
+    List<User> getAllAdmins();
 
     /**
      * Update admin
      * 
      * @param adminId  Admin ID
      * @param adminDTO Updated admin data
-     * @return Updated admin
+     * @return Updated admin user
      */
-    Admin updateAdmin(UUID adminId, AdminDTO adminDTO);
+    User updateAdmin(UUID adminId, AdminDTO adminDTO);
 
     /**
      * Delete admin
@@ -58,23 +58,23 @@ public interface AdminService {
     /**
      * Get active admins
      * 
-     * @return List of active admins
+     * @return List of active admin users
      */
-    List<Admin> getActiveAdmins();
+    List<User> getActiveAdmins();
 
     /**
-     * Activate admin account
+     * Activate user account (Generic)
      * 
-     * @param adminId Admin ID
-     * @return Updated admin
+     * @param userId User ID
+     * @return Updated user
      */
-    Admin activateAdmin(UUID adminId);
+    User activateUser(UUID userId);
 
     /**
-     * Deactivate admin account
+     * Deactivate user account (Generic)
      * 
-     * @param adminId Admin ID
-     * @return Updated admin
+     * @param userId User ID
+     * @return Updated user
      */
-    Admin deactivateAdmin(UUID adminId);
+    User deactivateUser(UUID userId);
 }

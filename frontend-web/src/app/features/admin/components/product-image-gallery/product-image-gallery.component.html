@@ -1,0 +1,97 @@
+<div class="image-gallery-dialog">
+    <h2 mat-dialog-title>
+        <mat-icon>collections</mat-icon>
+        Galerie d'images - {{ data.productName }}
+    </h2>
+
+    <mat-dialog-content>
+        @if (loading()) {
+        <div class="loading-container">
+            <mat-icon class="spinner">autorenew</mat-icon>
+            <p>Chargement des images...</p>
+        </div>
+        } @else {
+        <!-- Add Image Form -->
+        @if (showAddForm()) {
+        <div class="add-image-form">
+            <form [formGroup]="imageForm" (ngSubmit)="addImage()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>URL de l'image</mat-label>
+                    <input matInput formControlName="imageUrl" placeholder="https://example.com/image.jpg">
+                    @if (imageForm.get('imageUrl')?.hasError('required')) {
+                    <mat-error>L'URL est requise</mat-error>
+                    }
+                    @if (imageForm.get('imageUrl')?.hasError('pattern')) {
+                    <mat-error>L'URL doit commencer par http:// ou https://</mat-error>
+                    }
+                </mat-form-field>
+                <div class="form-actions">
+                    <button mat-button type="button" (click)="showAddForm.set(false)">Annuler</button>
+                    <button mat-raised-button color="primary" type="submit" [disabled]="imageForm.invalid">
+                        <mat-icon>add</mat-icon>
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+        } @else {
+        <button mat-raised-button color="primary" (click)="showAddForm.set(true)" class="add-button">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Ajouter une image
+        </button>
+        }
+
+        <!-- Images Grid -->
+        @if (images().length === 0) {
+        <div class="empty-state">
+            <mat-icon>image_not_supported</mat-icon>
+            <p>Aucune image pour ce produit</p>
+            <p class="hint">Ajoutez des images pour améliorer la présentation du produit</p>
+        </div>
+        } @else {
+        <div class="images-grid" cdkDropList (cdkDropListDropped)="onDrop($event)">
+            @for (image of images(); track image.id) {
+            <div class="image-card" cdkDrag>
+                <div class="drag-handle" cdkDragHandle>
+                    <mat-icon>drag_indicator</mat-icon>
+                </div>
+
+                <img [src]="image.imageUrl" [alt]="'Product image ' + $index" class="product-image">
+
+                @if (image.isPrimary) {
+                <div class="primary-badge">
+                    <mat-icon>star</mat-icon>
+                    Principale
+                </div>
+                }
+
+                <div class="image-actions">
+                    @if (!image.isPrimary) {
+                    <button mat-icon-button (click)="setPrimary(image.id!)" matTooltip="Définir comme principale">
+                        <mat-icon>star_border</mat-icon>
+                    </button>
+                    }
+                    <button mat-icon-button color="warn" (click)="deleteImage(image.id!)" matTooltip="Supprimer">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+
+                <div class="image-order">
+                    {{ $index + 1 }}
+                </div>
+            </div>
+            }
+        </div>
+
+        <p class="hint">
+            <mat-icon>info</mat-icon>
+            Glissez-déposez les images pour les réorganiser
+        </p>
+        }
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-raised-button (click)="close()">Fermer</button>
+    </mat-dialog-actions>
+</div>

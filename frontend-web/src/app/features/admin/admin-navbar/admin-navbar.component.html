@@ -10,29 +10,46 @@
 
         <!-- Center Section: Quick Actions -->
         <div class="navbar-center">
-            <button mat-button class="nav-link">
+            <a mat-button class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
                 <mat-icon>dashboard</mat-icon>
-                Dashboard
-            </button>
-            <button mat-button class="nav-link">
+                Analytics
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/inventory" routerLinkActive="active">
+                <mat-icon>inventory</mat-icon>
+                Inventaire
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/delivery" routerLinkActive="active">
+                <mat-icon>local_shipping</mat-icon>
+                Livraisons
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/products" routerLinkActive="active">
                 <mat-icon>inventory_2</mat-icon>
                 Produits
-            </button>
-            <button mat-button class="nav-link">
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/categories" routerLinkActive="active">
+                <mat-icon>category</mat-icon>
+                Catégories
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/brands" routerLinkActive="active">
+                <mat-icon>label</mat-icon>
+                Marques
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/orders" routerLinkActive="active">
                 <mat-icon>shopping_bag</mat-icon>
                 Commandes
-            </button>
-            <button mat-button class="nav-link">
+            </a>
+            <a mat-button class="nav-link" routerLink="/admin/users" routerLinkActive="active">
                 <mat-icon>people</mat-icon>
                 Utilisateurs
-            </button>
+            </a>
         </div>
 
         <!-- Right Section: User Menu -->
         <div class="navbar-right">
             <!-- Notifications -->
             <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="icon-button">
-                <mat-icon [matBadge]="3" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
+                <mat-icon [matBadge]="3" matBadgeColor="warn" matBadgeSize="small" aria-hidden="false"
+                    aria-label="Notifications">notifications</mat-icon>
             </button>
             <mat-menu #notificationsMenu="matMenu" class="notifications-menu">
                 <div class="menu-header">

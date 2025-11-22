@@ -37,14 +37,15 @@ export interface ChatMessage {
 }
 
 /**
- * Conversation - matches backend Conversation entity
- * Backend: c:\...\Backend\entity\Conversation.java
+ * Conversation - matches backend ConversationDTO
+ * Backend: c:\...\Backend\dto\ConversationDTO.java
  */
 export interface Conversation {
     id: string;  // UUID from backend
     userId: string;  // UUID - owner of conversation
     title?: string;
     isActive: boolean;
+    unreadCount?: number;  // Number of unread messages
     messages?: ChatMessage[];  // Populated when needed
     lastMessage?: ChatMessage;
     createdAt: Date;

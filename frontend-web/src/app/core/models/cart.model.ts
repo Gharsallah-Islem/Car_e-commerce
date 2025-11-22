@@ -1,7 +1,7 @@
 import { Product } from './product.model';
 
 export interface Cart {
-    id?: number;
+    id?: string;
     items: CartItem[];
     totalAmount: number;
     totalItems: number;
@@ -10,7 +10,7 @@ export interface Cart {
 }
 
 export interface CartItem {
-    id?: number;
+    id?: string;
     product: Product;
     quantity: number;
     price: number; // Price at the time of adding to cart
@@ -18,12 +18,12 @@ export interface CartItem {
 }
 
 export interface AddToCartRequest {
-    productId: number;
+    productId: string;
     quantity: number;
 }
 
 export interface UpdateCartItemRequest {
-    cartItemId: number;
+    cartItemId: string;
     quantity: number;
 }
 

@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/services/auth.service';
+import { AdminNavigationService } from '../../../core/services/admin-navigation.service';
 
 @Component({
     selector: 'app-admin-navbar',
@@ -28,15 +29,20 @@ import { AuthService } from '../../../core/services/auth.service';
 export class AdminNavbarComponent {
     private authService = inject(AuthService);
     private router = inject(Router);
+    private adminNavService = inject(AdminNavigationService);
 
     currentUser$ = this.authService.currentUser$;
 
     logout() {
         this.authService.logout();
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
     }
 
     goToHome() {
         this.router.navigate(['/']);
+    }
+
+    navigateTo(section: string) {
+        this.adminNavService.navigateToTab(section);
     }
 }

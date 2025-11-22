@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   ChatMessage,
@@ -29,7 +30,9 @@ export class ChatService {
    * POST /api/chat/support
    */
   startSupportChat(): Observable<Conversation> {
-    return this.http.post<Conversation>(`${this.apiUrl}/support`, {});
+    return this.http.post<Conversation>(`${this.apiUrl}/support`, {}).pipe(
+      map((conversation: Conversation) => this.parseConversation(conversation))
+    );
   }
 
   /**
@@ -40,6 +43,8 @@ export class ChatService {
     return this.http.post<Conversation>(
       `${this.apiUrl}/conversations/${userId}`,
       {}
+    ).pipe(
+      map((conversation: Conversation) => this.parseConversation(conversation))
     );
   }
 
@@ -48,7 +53,11 @@ export class ChatService {
    * GET /api/chat/conversations
    */
   getUserConversations(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(`${this.apiUrl}/conversations`);
+    return this.http.get<Conversation[]>(`${this.apiUrl}/conversations`).pipe(
+      map((conversations: Conversation[]) => 
+        conversations.map(conv => this.parseConversation(conv))
+      )
+    );
   }
 
   /**
@@ -58,6 +67,8 @@ export class ChatService {
   getConversationById(conversationId: string): Observable<Conversation> {
     return this.http.get<Conversation>(
       `${this.apiUrl}/conversations/${conversationId}`
+    ).pipe(
+      map((conversation: Conversation) => this.parseConversation(conversation))
     );
   }
 
@@ -82,6 +93,12 @@ export class ChatService {
     return this.http.get<Page<ChatMessage>>(
       `${this.apiUrl}/conversations/${conversationId}/messages`,
       { params }
+    ).pipe(
+      // Parse dates from backend LocalDateTime strings
+      map((page: Page<ChatMessage>) => ({
+        ...page,
+        content: page.content.map(msg => this.parseMessage(msg))
+      }))
     );
   }
 
@@ -101,6 +118,8 @@ export class ChatService {
     return this.http.get<ChatMessage[]>(
       `${this.apiUrl}/conversations/${conversationId}/messages/recent`,
       { params }
+    ).pipe(
+      map((messages: ChatMessage[]) => messages.map(msg => this.parseMessage(msg)))
     );
   }
 
@@ -115,6 +134,8 @@ export class ChatService {
     return this.http.post<ChatMessage>(
       `${this.apiUrl}/conversations/${conversationId}/messages`,
       request
+    ).pipe(
+      map((message: ChatMessage) => this.parseMessage(message))
     );
   }
 
@@ -202,6 +223,43 @@ export class ChatService {
   getAllActiveConversations(): Observable<Conversation[]> {
     return this.http.get<Conversation[]>(
       `${this.apiUrl}/support/conversations`
+    ).pipe(
+      map((conversations: Conversation[]) => 
+        conversations.map(conv => this.parseConversation(conv))
+      )
     );
+  }
+
+  /**
+   * Parse message from backend - handles date conversion from LocalDateTime string
+   */
+  private parseMessage(message: any): ChatMessage {
+    return {
+      ...message,
+      createdAt: typeof message.createdAt === 'string' 
+        ? new Date(message.createdAt) 
+        : message.createdAt,
+      id: message.id?.toString() || message.id,
+      conversationId: message.conversationId?.toString() || message.conversationId || message.conversation?.id?.toString(),
+      senderId: message.senderId?.toString() || message.senderId
+    };
+  }
+
+  /**
+   * Parse conversation from backend - handles date conversion
+   */
+  private parseConversation(conversation: any): Conversation {
+    return {
+      ...conversation,
+      id: conversation.id?.toString() || conversation.id,
+      userId: conversation.userId?.toString() || conversation.user?.id?.toString() || conversation.userId,
+      createdAt: typeof conversation.createdAt === 'string' 
+        ? new Date(conversation.createdAt) 
+        : conversation.createdAt,
+      updatedAt: typeof conversation.updatedAt === 'string' 
+        ? new Date(conversation.updatedAt) 
+        : conversation.updatedAt,
+      lastMessage: conversation.lastMessage ? this.parseMessage(conversation.lastMessage) : undefined
+    };
   }
 }

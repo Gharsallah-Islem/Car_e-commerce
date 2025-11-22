@@ -44,11 +44,15 @@
                     <p class="resend-text">Didn't receive the code?</p>
                     <button mat-button (click)="resendCode()" [disabled]="isResending()" class="resend-button">
                         @if (isResending()) {
-                        <mat-spinner diameter="16"></mat-spinner>
-                        Sending...
+                        <ng-container>
+                            <mat-spinner diameter="16"></mat-spinner>
+                            <span>Sending...</span>
+                        </ng-container>
                         } @else {
-                        <mat-icon>refresh</mat-icon>
-                        Resend Code
+                        <ng-container>
+                            <mat-icon>refresh</mat-icon>
+                            <span>Resend Code</span>
+                        </ng-container>
                         }
                     </button>
                 </div>

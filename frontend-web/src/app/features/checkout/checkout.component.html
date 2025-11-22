@@ -13,7 +13,7 @@
     <div class="checkout-content">
         <!-- Stepper Section -->
         <div class="stepper-section">
-            <mat-stepper [linear]="true" #stepper>
+            <mat-stepper [linear]="true" #stepper (selectionChange)="onStepperSelectionChange($event)">
                 <!-- Step 1: Shipping Information -->
                 <mat-step [stepControl]="shippingForm" label="Informations de livraison">
                     <form [formGroup]="shippingForm">
@@ -178,17 +178,17 @@
                                 }
                             </mat-form-field>
 
-                            <!-- Stripe Elements will be mounted here -->
+                            <!-- Stripe Card Element -->
                             <div class="stripe-element-container">
                                 <label>Détails de la carte</label>
                                 <div id="card-element" class="stripe-element">
                                     <!-- Stripe Card Element will be inserted here -->
-                                    <div class="stripe-placeholder">
-                                        <mat-icon>credit_card</mat-icon>
-                                        <span>Élément de paiement Stripe chargé ici</span>
-                                    </div>
                                 </div>
                                 <div id="card-errors" class="error-message"></div>
+                                <p class="stripe-info">
+                                    <mat-icon inline>lock</mat-icon>
+                                    Paiement sécurisé par Stripe
+                                </p>
                             </div>
 
                             @if (currentUser()) {
@@ -303,7 +303,7 @@
                                         [alt]="item.product.name">
                                     <div class="item-info">
                                         <h5>{{ item.product.name }}</h5>
-                                        <p class="item-brand">{{ item.product.brand.name }}</p>
+                                        <p class="item-brand">{{ item.product.brand?.name || 'N/A' }}</p>
                                         <p class="item-quantity">Quantité: {{ item.quantity }}</p>
                                     </div>
                                     <div class="item-price">

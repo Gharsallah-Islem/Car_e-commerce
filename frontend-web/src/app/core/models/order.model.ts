@@ -12,19 +12,40 @@ export enum OrderStatus {
 }
 
 export interface Order {
-    id: number;
-    orderNumber: string;
-    userId: number;
-    items: OrderItem[];
+    id: string;
+    orderNumber?: string;
+    user: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        fullName?: string;
+        username?: string;
+    };
+    orderItems: Array<{
+        id?: string;
+        product: {
+            id: string;
+            name: string;
+            imageUrl?: string;
+            sku?: string;
+        };
+        quantity: number;
+        price: number;
+    }>;
+    items?: OrderItem[]; // Alias for orderItems
+    totalPrice: number;
+    totalAmount?: number; // Alias for totalPrice
     status: OrderStatus;
-    totalAmount: number;
-    shippingAddress: Address;
+    shippingAddress?: Address;
     billingAddress?: Address;
     paymentId?: string;
     trackingNumber?: string;
     notes?: string;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt?: Date;
     deliveredAt?: Date;
 }
 

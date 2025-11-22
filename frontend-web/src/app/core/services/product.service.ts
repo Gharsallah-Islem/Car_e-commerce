@@ -107,4 +107,24 @@ export class ProductService {
             limit: limit.toString()
         });
     }
+    /**
+     * Create a new product (Admin only)
+     */
+    createProduct(productData: any): Observable<Product> {
+        return this.apiService.post<Product>(this.endpoint, productData);
+    }
+
+    /**
+     * Update an existing product (Admin only)
+     */
+    updateProduct(id: number | string, productData: any): Observable<Product> {
+        return this.apiService.put<Product>(`${this.endpoint}/${id}`, productData);
+    }
+
+    /**
+     * Delete a product (Admin only)
+     */
+    deleteProduct(id: number | string): Observable<void> {
+        return this.apiService.delete<void>(`${this.endpoint}/${id}`);
+    }
 }

@@ -92,9 +92,9 @@ export class CartService {
 
         if (token) {
             // Authenticated user - add via API
-            // Convert productId to string for backend UUID
+            // Backend expects UUID string
             const backendRequest = {
-                productId: String(request.productId),
+                productId: request.productId,
                 quantity: request.quantity
             };
             return this.apiService.post<Cart>('cart/items', backendRequest).pipe(
@@ -120,8 +120,6 @@ export class CartService {
         const token = this.storageService.getToken();
 
         if (token) {
-            // Backend uses productId in path - extract from cartItemId which is actually productId
-            // Convert to string for backend UUID
             return this.apiService.put<Cart>(`cart/items/${request.cartItemId}`, { quantity: request.quantity }).pipe(
                 tap(cart => {
                     this.updateCartState(cart);
@@ -140,11 +138,10 @@ export class CartService {
     /**
      * Remove item from cart
      */
-    removeFromCart(cartItemId: number): Observable<Cart> {
+    removeFromCart(cartItemId: string): Observable<Cart> {
         const token = this.storageService.getToken();
 
         if (token) {
-            // Backend expects productId but we'll use the cartItemId for now
             return this.apiService.delete<Cart>(`cart/items/${cartItemId}`).pipe(
                 tap(cart => {
                     this.updateCartState(cart);
@@ -260,7 +257,7 @@ export class CartService {
                     // In real scenario, fetch product details from backend
                     // For now, create a placeholder
                     const newItem: CartItem = {
-                        id: Date.now(),
+                        id: Date.now().toString(), // Use string ID
                         product: { id: request.productId } as any, // Placeholder
                         quantity: request.quantity,
                         price: 0, // Should fetch from product
@@ -319,7 +316,7 @@ export class CartService {
     /**
      * Remove from localStorage cart
      */
-    private removeFromLocalCart(cartItemId: number): Observable<Cart> {
+    private removeFromLocalCart(cartItemId: string): Observable<Cart> {
         return new Observable(observer => {
             try {
                 const cart = this.storageService.getCart();

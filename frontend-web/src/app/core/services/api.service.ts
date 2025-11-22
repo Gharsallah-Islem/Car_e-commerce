@@ -39,8 +39,9 @@ export class ApiService {
     /**
      * PATCH request
      */
-    patch<T>(endpoint: string, body: any): Observable<T> {
-        return this.http.patch<T>(`${this.API_URL}/${endpoint}`, body);
+    patch<T>(endpoint: string, body: any, params?: any): Observable<T> {
+        const httpParams = this.buildParams(params);
+        return this.http.patch<T>(`${this.API_URL}/${endpoint}`, body, { params: httpParams });
     }
 
     /**

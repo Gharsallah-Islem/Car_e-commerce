@@ -1,7 +1,7 @@
 package com.example.Backend.controller;
 
 import com.example.Backend.dto.AdminDTO;
-import com.example.Backend.entity.Admin;
+import com.example.Backend.entity.User;
 import com.example.Backend.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +27,8 @@ public class AdminController {
      */
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Admin> createAdmin(@Valid @RequestBody AdminDTO adminDTO) {
-        Admin admin = adminService.createAdmin(adminDTO);
+    public ResponseEntity<User> createAdmin(@Valid @RequestBody AdminDTO adminDTO) {
+        User admin = adminService.createAdmin(adminDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(admin);
     }
 
@@ -37,8 +37,8 @@ public class AdminController {
      * GET /api/admin/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Admin> getAdmin(@PathVariable UUID id) {
-        Admin admin = adminService.getAdminById(id);
+    public ResponseEntity<User> getAdmin(@PathVariable UUID id) {
+        User admin = adminService.getAdminById(id);
         return ResponseEntity.ok(admin);
     }
 
@@ -47,8 +47,8 @@ public class AdminController {
      * GET /api/admin/username/{username}
      */
     @GetMapping("/username/{username}")
-    public ResponseEntity<Admin> getAdminByUsername(@PathVariable String username) {
-        Admin admin = adminService.getAdminByUsername(username);
+    public ResponseEntity<User> getAdminByUsername(@PathVariable String username) {
+        User admin = adminService.getAdminByUsername(username);
         return ResponseEntity.ok(admin);
     }
 
@@ -57,8 +57,8 @@ public class AdminController {
      * GET /api/admin
      */
     @GetMapping
-    public ResponseEntity<List<Admin>> getAllAdmins() {
-        List<Admin> admins = adminService.getAllAdmins();
+    public ResponseEntity<List<User>> getAllAdmins() {
+        List<User> admins = adminService.getAllAdmins();
         return ResponseEntity.ok(admins);
     }
 
@@ -67,8 +67,8 @@ public class AdminController {
      * GET /api/admin/active
      */
     @GetMapping("/active")
-    public ResponseEntity<List<Admin>> getActiveAdmins() {
-        List<Admin> admins = adminService.getActiveAdmins();
+    public ResponseEntity<List<User>> getActiveAdmins() {
+        List<User> admins = adminService.getActiveAdmins();
         return ResponseEntity.ok(admins);
     }
 
@@ -78,11 +78,11 @@ public class AdminController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Admin> updateAdmin(
+    public ResponseEntity<User> updateAdmin(
             @PathVariable UUID id,
             @Valid @RequestBody AdminDTO adminDTO) {
 
-        Admin admin = adminService.updateAdmin(id, adminDTO);
+        User admin = adminService.updateAdmin(id, adminDTO);
         return ResponseEntity.ok(admin);
     }
 
@@ -98,24 +98,24 @@ public class AdminController {
     }
 
     /**
-     * Activate admin account (SUPER_ADMIN only)
-     * PATCH /api/admin/{id}/activate
+     * Activate user account (Generic)
+     * PATCH /api/admin/users/{id}/activate
      */
-    @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Admin> activateAdmin(@PathVariable UUID id) {
-        Admin admin = adminService.activateAdmin(id);
-        return ResponseEntity.ok(admin);
+    @PatchMapping("/users/{id}/activate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<User> activateUser(@PathVariable UUID id) {
+        User user = adminService.activateUser(id);
+        return ResponseEntity.ok(user);
     }
 
     /**
-     * Deactivate admin account (SUPER_ADMIN only)
-     * PATCH /api/admin/{id}/deactivate
+     * Deactivate user account (Generic)
+     * PATCH /api/admin/users/{id}/deactivate
      */
-    @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Admin> deactivateAdmin(@PathVariable UUID id) {
-        Admin admin = adminService.deactivateAdmin(id);
-        return ResponseEntity.ok(admin);
+    @PatchMapping("/users/{id}/deactivate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<User> deactivateUser(@PathVariable UUID id) {
+        User user = adminService.deactivateUser(id);
+        return ResponseEntity.ok(user);
     }
 }

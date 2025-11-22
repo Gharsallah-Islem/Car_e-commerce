@@ -1,5 +1,7 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -33,8 +35,9 @@ public class Order implements Serializable {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"password", "vehicles", "cart", "orders", "reclamations", "emailVerificationToken", "passwordResetToken"})
     private User user;
 
     @NotNull(message = "Total price is required")
@@ -77,6 +80,7 @@ public class Order implements Serializable {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Delivery delivery;
 
     // Order status constants

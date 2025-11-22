@@ -22,11 +22,11 @@ public class ProductDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     private BigDecimal price;
 
-    @NotBlank(message = "Category is required")
-    private String category;
+    private Long categoryId;
+    private String category; // Keep for backward compatibility or display
 
-    @NotBlank(message = "Brand is required")
-    private String brand;
+    private Long brandId;
+    private String brand; // Keep for backward compatibility or display
 
     @NotNull(message = "Stock quantity is required")
     @Min(value = 0, message = "Stock cannot be negative")

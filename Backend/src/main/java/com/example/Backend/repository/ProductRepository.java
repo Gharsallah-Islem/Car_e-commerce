@@ -21,37 +21,29 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))")
         List<Product> findByNameContaining(@Param("name") String name);
 
-        /**
-         * Find products by category
-         */
-        List<Product> findByCategory(String category);
+        // Removed - incompatible with new entity structure
+        // List<Product> findByCategory(String category);
+        // List<Product> findByBrand(String brand);
+        // List<Product> findByBrandAndModel(String brand, String model);
 
         /**
-         * Find products by brand
-         */
-        List<Product> findByBrand(String brand);
-
-        /**
-         * Find products by brand and model
-         */
-        List<Product> findByBrandAndModel(String brand, String model);
-
-        /**
-         * Find products compatible with specific vehicle
+         * Find products compatible with specific vehicle - DEPRECATED
+         * Use filterProducts instead
          */
         @Query("SELECT p FROM Product p WHERE " +
-                        "p.brand = :brand AND p.model = :model AND p.year = :year")
+                        "p.brand.name = :brand AND p.model = :model AND p.year = :year")
         List<Product> findCompatibleProducts(@Param("brand") String brand,
                         @Param("model") String model,
                         @Param("year") Integer year);
 
         /**
-         * Advanced search with multiple filters
+         * Advanced search with multiple filters - DEPRECATED
+         * Use filterProducts instead
          */
         @Query("SELECT p FROM Product p WHERE " +
                         "(:searchTerm IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
-                        "(:category IS NULL OR p.category = :category) AND " +
-                        "(:brand IS NULL OR p.brand = :brand) AND " +
+                        "(:category IS NULL OR p.category.name = :category) AND " +
+                        "(:brand IS NULL OR p.brand.name = :brand) AND " +
                         "(:model IS NULL OR p.model = :model) AND " +
                         "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
                         "(:maxPrice IS NULL OR p.price <= :maxPrice)")
@@ -100,31 +92,44 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         Page<Product> findFeaturedProducts(Pageable pageable);
 
         /**
-         * Get distinct categories
+         * Get distinct categories - returns category names
          */
-        @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category IS NOT NULL ORDER BY p.category")
+        @Query("SELECT DISTINCT p.category.name FROM Product p WHERE p.category IS NOT NULL ORDER BY p.category.name")
         List<String> findDistinctCategories();
 
         /**
-         * Get distinct brands
+         * Get distinct brands - returns brand names
          */
-        @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.brand IS NOT NULL ORDER BY p.brand")
+        @Query("SELECT DISTINCT p.brand.name FROM Product p WHERE p.brand IS NOT NULL ORDER BY p.brand.name")
         List<String> findDistinctBrands();
 
         /**
          * Get distinct models for a brand
          */
-        @Query("SELECT DISTINCT p.model FROM Product p WHERE p.brand = :brand AND p.model IS NOT NULL ORDER BY p.model")
+        @Query("SELECT DISTINCT p.model FROM Product p WHERE p.brand.name = :brand AND p.model IS NOT NULL ORDER BY p.model")
         List<String> findDistinctModelsByBrand(@Param("brand") String brand);
 
         /**
-         * Count products by category
+         * Count products by category - DEPRECATED, use countByCategoryId
          */
-        Long countByCategory(String category);
+        @Query("SELECT COUNT(p) FROM Product p WHERE p.category.name = :category")
+        Long countByCategory(@Param("category") String category);
 
         /**
          * Count products in stock
          */
         @Query("SELECT COUNT(p) FROM Product p WHERE p.stock > 0")
         Long countInStock();
+
+        /**
+         * Count products by brand ID
+         */
+        @Query("SELECT COUNT(p) FROM Product p WHERE p.brand.id = :brandId")
+        long countByBrandId(@Param("brandId") Long brandId);
+
+        /**
+         * Count products by category ID
+         */
+        @Query("SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId")
+        long countByCategoryId(@Param("categoryId") Long categoryId);
 }

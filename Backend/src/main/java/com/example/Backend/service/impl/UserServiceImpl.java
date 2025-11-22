@@ -270,6 +270,16 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public User updateUserRole(UUID id, String roleName) {
+        User user = getUserById(id);
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found: " + roleName));
+
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
     /**
      * Generate a random 6-digit verification code
      */

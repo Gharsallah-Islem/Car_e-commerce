@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +17,12 @@ import { CartService } from '../../core/services/cart.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartItem, User } from '../../core/models';
+import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { Renderer2, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+
+declare var Stripe: any;
 
 interface Address {
     fullName: string;
@@ -48,7 +54,7 @@ interface Address {
     templateUrl: './checkout.component.html',
     styleUrls: ['./checkout.component.scss']
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
     // Forms
     shippingForm!: FormGroup;
     paymentForm!: FormGroup;
@@ -63,6 +69,10 @@ export class CheckoutComponent implements OnInit {
 
     // Payment method
     selectedPaymentMethod = signal<'card' | 'cash'>('card');
+
+    // Stripe
+    private stripe: any;
+    private cardElement: any;
 
     // Computed values
     subtotal = computed(() => {
@@ -95,12 +105,18 @@ export class CheckoutComponent implements OnInit {
         private router: Router,
         private cartService: CartService,
         private authService: AuthService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private http: HttpClient,
+        private renderer: Renderer2,
+        @Inject(DOCUMENT) private document: Document
     ) {
         this.initForms();
     }
 
     ngOnInit(): void {
+        // Initialize Stripe (but don't mount element yet)
+        this.initializeStripe();
+
         // Check if user is authenticated
         this.authService.currentUser$.subscribe(user => {
             this.currentUser.set(user);
@@ -123,6 +139,84 @@ export class CheckoutComponent implements OnInit {
                 this.router.navigate(['/cart']);
             }
         });
+    }
+
+    initializeStripe(): void {
+        // Check if Stripe is loaded
+        if (typeof Stripe === 'undefined') {
+            console.error('Stripe.js is not loaded. Please check your index.html');
+            return;
+        }
+
+        // Initialize Stripe with real publishable key
+        if (!environment.stripePublicKey) {
+            console.error('Stripe public key is not configured');
+            return;
+        }
+
+        console.log('Initializing Stripe with key:', environment.stripePublicKey.substring(0, 20) + '...');
+        this.stripe = Stripe(environment.stripePublicKey);
+
+        // Create card element with more visible styling
+        const elements = this.stripe.elements();
+        this.cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            }
+        });
+
+        // Set up event handlers (but don't mount yet)
+        this.cardElement.on('change', (event: any) => {
+            const displayError = document.getElementById('card-errors');
+            if (displayError) {
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            }
+        });
+    }
+
+    mountStripeElement(): void {
+        if (!this.cardElement) {
+            console.error('Stripe card element not initialized');
+            return;
+        }
+
+        // Unmount if already mounted
+        try {
+            this.cardElement.unmount();
+        } catch (e) {
+            // Element might not be mounted yet, that's okay
+        }
+
+        // Wait for DOM to be ready and element to be visible
+        setTimeout(() => {
+            const cardElementContainer = document.getElementById('card-element');
+            if (cardElementContainer) {
+                try {
+                    this.cardElement.mount('#card-element');
+                    console.log('✓ Stripe element mounted successfully');
+                } catch (error) {
+                    console.error('✗ Stripe mount error:', error);
+                }
+            } else {
+                console.error('✗ Card element container #card-element not found in DOM');
+            }
+        }, 300);
     }
 
     initForms(): void {
@@ -160,6 +254,15 @@ export class CheckoutComponent implements OnInit {
         }
     }
 
+    onStepperSelectionChange(event: any): void {
+        // When payment step (step index 1) is selected and card payment is chosen, mount Stripe element
+        if (event.selectedIndex === 1 && this.selectedPaymentMethod() === 'card') {
+            setTimeout(() => {
+                this.mountStripeElement();
+            }, 200);
+        }
+    }
+
     onPaymentMethodChange(method: 'card' | 'cash'): void {
         this.selectedPaymentMethod.set(method);
         this.paymentForm.patchValue({ paymentMethod: method });
@@ -167,8 +270,20 @@ export class CheckoutComponent implements OnInit {
         // Update validators based on payment method
         if (method === 'card') {
             this.paymentForm.get('cardholderName')?.setValidators([Validators.required]);
+            // Mount Stripe element when card payment is selected
+            setTimeout(() => {
+                this.mountStripeElement();
+            }, 200);
         } else {
             this.paymentForm.get('cardholderName')?.clearValidators();
+            // Unmount Stripe element when switching away from card
+            if (this.cardElement) {
+                try {
+                    this.cardElement.unmount();
+                } catch (e) {
+                    // Ignore unmount errors
+                }
+            }
         }
         this.paymentForm.get('cardholderName')?.updateValueAndValidity();
     }
@@ -198,24 +313,67 @@ export class CheckoutComponent implements OnInit {
     }
 
     async processStripePayment(): Promise<void> {
-        // Simulate Stripe payment processing
-        // In production, integrate with Stripe API
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // Simulate successful payment
-                this.completeOrder('ORD-' + Date.now());
-                resolve();
-            }, 2000);
-        });
+        try {
+            // Create payment method from card element
+            const { error, paymentMethod } = await this.stripe.createPaymentMethod({
+                type: 'card',
+                card: this.cardElement,
+                billing_details: {
+                    name: this.paymentForm.get('cardholderName')?.value,
+                    email: this.shippingForm.get('email')?.value,
+                    address: {
+                        line1: this.shippingForm.get('addressLine1')?.value,
+                        city: this.shippingForm.get('city')?.value,
+                        postal_code: this.shippingForm.get('postalCode')?.value,
+                        country: 'MA'
+                    }
+                }
+            });
+
+            if (error) {
+                this.notificationService.error(error.message || 'Erreur de paiement');
+                this.processingPayment.set(false);
+                return;
+            }
+
+            // Create order in backend
+            await this.createOrderInBackend('STRIPE', paymentMethod.id);
+
+        } catch (error: any) {
+            console.error('Payment error:', error);
+            this.notificationService.error('Erreur lors du traitement du paiement');
+            this.processingPayment.set(false);
+        }
     }
 
     async processCashPayment(): Promise<void> {
-        // Process cash on delivery order
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                this.completeOrder('ORD-' + Date.now());
-                resolve();
-            }, 1000);
+        try {
+            // Create order in backend with cash payment
+            await this.createOrderInBackend('CASH_ON_DELIVERY', null);
+        } catch (error: any) {
+            console.error('Order creation error:', error);
+            this.notificationService.error('Erreur lors de la création de la commande');
+            this.processingPayment.set(false);
+        }
+    }
+
+    async createOrderInBackend(paymentMethod: string, paymentIntentId: string | null): Promise<void> {
+        const orderData = {
+            shippingAddress: `${this.shippingForm.get('addressLine1')?.value}, ${this.shippingForm.get('city')?.value}, ${this.shippingForm.get('postalCode')?.value}`,
+            paymentMethod: paymentMethod,
+            notes: this.paymentForm.get('cashNotes')?.value || ''
+        };
+
+        this.http.post<any>(`${environment.apiUrl}/orders`, orderData).subscribe({
+            next: (order) => {
+                this.completeOrder(order.id);
+                this.notificationService.success('Commande créée avec succès!');
+            },
+            error: (error) => {
+                console.error('Backend order creation failed:', error);
+                this.notificationService.error('Erreur lors de la création de la commande');
+                this.processingPayment.set(false);
+            }
         });
     }
 
@@ -252,5 +410,17 @@ export class CheckoutComponent implements OnInit {
 
     viewOrder(): void {
         this.router.navigate(['/profile/orders', this.orderId()]);
+    }
+
+    ngOnDestroy(): void {
+        // Clean up Stripe element when component is destroyed
+        if (this.cardElement) {
+            try {
+                this.cardElement.unmount();
+                this.cardElement.destroy();
+            } catch (e) {
+                // Ignore cleanup errors
+            }
+        }
     }
 }

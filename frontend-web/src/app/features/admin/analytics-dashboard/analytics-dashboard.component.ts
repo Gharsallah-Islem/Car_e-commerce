@@ -12,7 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { NgxEchartsModule, provideEchartsCore } from 'ngx-echarts';
+import { EChartsOption } from 'echarts';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import {
     DashboardStats,
@@ -41,8 +42,9 @@ import {
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
-        NgxChartsModule
+        NgxEchartsModule
     ],
+    providers: [provideEchartsCore({ echarts: () => import('echarts') })],
     templateUrl: './analytics-dashboard.component.html',
     styleUrls: ['./analytics-dashboard.component.scss']
 })
@@ -63,6 +65,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     loading = true;
     refreshing = false;
 
+    // Expose Math to template
+    Math = Math;
+
     // Date range form
     dateRangeForm = new FormGroup({
         startDate: new FormControl<Date>(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
@@ -73,25 +78,16 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     productsDisplayedColumns: string[] = ['image', 'name', 'category', 'brand', 'unitsSold', 'revenue'];
     activitiesDisplayedColumns: string[] = ['type', 'description', 'userName', 'timestamp'];
 
-    // Chart data
-    salesChartMulti: any[] = [];
-    categoryChartData: any[] = [];
-    orderStatusChartData: any[] = [];
+    // ECharts options
+    revenueChartOption: EChartsOption = {};
+    categoryChartOption: EChartsOption = {};
+    orderStatusChartOption: EChartsOption = {};
 
-    // Chart options
-    view: [number, number] = [700, 300];
-    showXAxis = true;
-    showYAxis = true;
-    gradient = false;
-    showLegend = true;
-    showXAxisLabel = true;
-    showYAxisLabel = true;
-    xAxisLabel = 'Date';
-    yAxisLabel = 'Revenu (MAD)';
-    colorScheme: any = {
-        domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
-    };
-    cardColor = '#232837';
+    // Sparkline options for KPI cards
+    revenueSparklineOption: EChartsOption = {};
+    ordersSparklineOption: EChartsOption = {};
+    usersSparklineOption: EChartsOption = {};
+    productsSparklineOption: EChartsOption = {};
 
     constructor(private analyticsService: AnalyticsService) { }
 
@@ -135,10 +131,11 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
                     this.inventoryAlerts = data.alerts;
                     this.salesChartData = data.salesChart;
 
-                    // Prepare chart data
-                    this.prepareSalesChartData();
-                    this.prepareCategoryChartData();
-                    this.prepareOrderStatusChartData();
+                    // Prepare ECharts
+                    this.prepareRevenueChart();
+                    this.prepareCategoryChart();
+                    this.prepareOrderStatusChart();
+                    this.prepareSparklines();
 
                     this.loading = false;
                 },
@@ -150,45 +147,228 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Prepare sales chart data for ngx-charts
+     * Prepare revenue area chart
      */
-    prepareSalesChartData(): void {
-        this.salesChartMulti = [
-            {
-                name: 'Revenu',
-                series: this.salesChartData.map(item => ({
-                    name: new Date(item.date),
-                    value: item.revenue
-                }))
+    prepareRevenueChart(): void {
+        const dates = this.salesChartData.map(item => new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+        const revenues = this.salesChartData.map(item => item.revenue);
+
+        this.revenueChartOption = {
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '10%',
+                containLabel: true
             },
-            {
-                name: 'Commandes',
-                series: this.salesChartData.map(item => ({
-                    name: new Date(item.date),
-                    value: item.orders * 100 // Scale for visibility
-                }))
+            xAxis: {
+                type: 'category',
+                data: dates,
+                boundaryGap: false,
+                axisLine: { lineStyle: { color: '#e5e5e5' } },
+                axisLabel: { color: '#666', fontSize: 11 }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { lineStyle: { color: '#f5f5f5' } },
+                axisLabel: { color: '#666', fontSize: 11, formatter: '{value} TND' }
+            },
+            series: [{
+                data: revenues,
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 6,
+                lineStyle: { color: '#0070f3', width: 2 },
+                itemStyle: { color: '#0070f3' },
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(0, 112, 243, 0.2)' },
+                            { offset: 1, color: 'rgba(0, 112, 243, 0.0)' }
+                        ]
+                    }
+                }
+            }],
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: '#fff',
+                borderColor: '#e5e5e5',
+                borderWidth: 1,
+                textStyle: { color: '#000' },
+                formatter: (params: any) => {
+                    const param = params[0];
+                    return `${param.name}<br/><strong>${param.value.toLocaleString('fr-TN')} TND</strong>`;
+                }
             }
-        ];
+        };
     }
 
     /**
-     * Prepare category chart data
+     * Prepare category horizontal bar chart
      */
-    prepareCategoryChartData(): void {
-        this.categoryChartData = this.categoryPerformance.map(cat => ({
-            name: cat.categoryName,
-            value: cat.revenue
-        }));
+    prepareCategoryChart(): void {
+        const categories = this.categoryPerformance.map(cat => cat.categoryName);
+        const revenues = this.categoryPerformance.map(cat => cat.revenue);
+
+        this.categoryChartOption = {
+            grid: {
+                left: '20%',
+                right: '10%',
+                bottom: '3%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { lineStyle: { color: '#f5f5f5' } },
+                axisLabel: { color: '#666', fontSize: 11 }
+            },
+            yAxis: {
+                type: 'category',
+                data: categories,
+                axisLine: { lineStyle: { color: '#e5e5e5' } },
+                axisLabel: { color: '#666', fontSize: 12 }
+            },
+            series: [{
+                data: revenues,
+                type: 'bar',
+                barWidth: '60%',
+                itemStyle: {
+                    color: '#0070f3',
+                    borderRadius: [0, 4, 4, 0]
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c} TND',
+                    color: '#666',
+                    fontSize: 11
+                }
+            }],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                backgroundColor: '#fff',
+                borderColor: '#e5e5e5',
+                borderWidth: 1,
+                textStyle: { color: '#000' }
+            }
+        };
     }
 
     /**
-     * Prepare order status chart data
+     * Prepare order status donut chart
      */
-    prepareOrderStatusChartData(): void {
-        this.orderStatusChartData = this.orderStatusDistribution.map(status => ({
+    prepareOrderStatusChart(): void {
+        const data = this.orderStatusDistribution.map(status => ({
             name: this.getStatusLabel(status.status),
             value: status.count
         }));
+
+        this.orderStatusChartOption = {
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: '#fff',
+                borderColor: '#e5e5e5',
+                borderWidth: 1,
+                textStyle: { color: '#000' },
+                formatter: '{b}: <strong>{c}</strong> ({d}%)'
+            },
+            legend: {
+                bottom: '0%',
+                left: 'center',
+                textStyle: { color: '#666', fontSize: 12 }
+            },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['50%', '45%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 8,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                label: { show: false },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                },
+                data: data,
+                color: ['#0070f3', '#7928ca', '#ff0080', '#00dfd8', '#f5a623']
+            }]
+        };
+    }
+
+    /**
+     * Prepare sparkline charts for KPI cards
+     */
+    prepareSparklines(): void {
+        const last7Days = this.salesChartData.slice(-7);
+        const revenues = last7Days.map(item => item.revenue);
+        const orders = last7Days.map(item => item.orders);
+
+        // Revenue sparkline
+        this.revenueSparklineOption = this.createSparkline(revenues, '#10b981');
+
+        // Orders sparkline
+        this.ordersSparklineOption = this.createSparkline(orders, '#0070f3');
+
+        // Users sparkline (mock data for now)
+        this.usersSparklineOption = this.createSparkline([120, 132, 101, 134, 90, 230, 210], '#8b5cf6');
+
+        // Products sparkline (mock data for now)
+        this.productsSparklineOption = this.createSparkline([220, 182, 191, 234, 290, 330, 310], '#f59e0b');
+    }
+
+    /**
+     * Create a sparkline chart
+     */
+    private createSparkline(data: number[], color: string): EChartsOption {
+        return {
+            grid: {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            },
+            xAxis: {
+                type: 'category',
+                show: false,
+                boundaryGap: false
+            },
+            yAxis: {
+                type: 'value',
+                show: false
+            },
+            series: [{
+                data: data,
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { color: color, width: 1.5 },
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: color + '40' },
+                            { offset: 1, color: color + '00' }
+                        ]
+                    }
+                }
+            }]
+        };
     }
 
     /**
@@ -295,9 +475,11 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
      * Format currency
      */
     formatCurrency(value: number): string {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('fr-TN', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'TND',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         }).format(value);
     }
 
@@ -321,6 +503,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
      */
     getGrowthColor(growth?: number): string {
         if (!growth) return '';
-        return growth > 0 ? 'success' : 'error';
+        return growth > 0 ? 'positive' : 'negative';
     }
 }

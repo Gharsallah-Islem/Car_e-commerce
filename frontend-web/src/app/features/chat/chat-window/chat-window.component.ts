@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../../core/services/chat.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ChatMessage, Conversation } from '../../../core/models/chat.model';
 import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
@@ -14,6 +15,7 @@ import { MessageInputComponent } from '../message-input/message-input.component'
 })
 export class ChatWindowComponent implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
+  private authService = inject(AuthService);
 
   @Input() set conversationId(id: string | undefined) {
     if (id !== this._conversationId) {
@@ -23,7 +25,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         this.loadMessages();
         this.startPolling();
       } else {
-        this.messages = [];
+        this.messages.set([]);
       }
     }
   }
@@ -35,21 +37,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
   private _conversationId?: string;
-  messages: ChatMessage[] = [];
-  loading = false;
-  sending = false;
+  messages = signal<ChatMessage[]>([]);
+  loading = signal(false);
+  sending = signal(false);
 
   // 🔑 Polling variables
   private pollingInterval?: any;
   private lastPollTimestamp?: Date;
 
-  // Get current user ID (you'll need to inject AuthService)
-  private currentUserId?: string;
+  // Get current user ID from AuthService
+  currentUserId = computed(() => {
+    const user = this.authService.currentUser();
+    // Convert user ID to string to match backend UUID strings
+    if (!user?.id) return undefined;
+    return user.id.toString();
+  });
 
   ngOnInit(): void {
-    // TODO: Get current user ID from AuthService
-    // this.currentUserId = this.authService.getCurrentUser()?.id;
-    this.currentUserId = 'temp-user-id'; // Placeholder
+    // AuthService already provides current user via signals
+    // The currentUserId computed will automatically update when user changes
   }
 
   ngOnDestroy(): void {
@@ -59,19 +65,28 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   loadMessages(): void {
     if (!this._conversationId) return;
 
-    this.loading = true;
+    this.loading.set(true);
     this.chatService.getConversationMessages(this._conversationId, 0, 50)
       .subscribe({
         next: (page) => {
-          this.messages = page.content;
-          this.lastPollTimestamp = new Date();
-          this.loading = false;
+          const parsedMessages = page.content.map(msg => this.parseMessage(msg));
+          this.messages.set(parsedMessages);
+          
+          // Set last poll timestamp to the most recent message time
+          if (parsedMessages.length > 0) {
+            const lastMessage = parsedMessages[parsedMessages.length - 1];
+            this.lastPollTimestamp = new Date(lastMessage.createdAt);
+          } else {
+            this.lastPollTimestamp = new Date();
+          }
+          
+          this.loading.set(false);
           this.scrollToBottom();
           this.markAllAsRead();
         },
         error: (err) => {
           console.error('Failed to load messages:', err);
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -90,17 +105,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         next: (newMessages) => {
           if (newMessages && newMessages.length > 0) {
             console.log(`📨 Received ${newMessages.length} new message(s)`);
-            this.messages.push(...newMessages);
-            this.lastPollTimestamp = new Date();
+            const parsedMessages = newMessages.map(msg => this.parseMessage(msg));
+            this.messages.update(current => [...current, ...parsedMessages]);
+            
+            // Update timestamp to the most recent message
+            const lastMessage = parsedMessages[parsedMessages.length - 1];
+            this.lastPollTimestamp = new Date(lastMessage.createdAt);
+            
             this.scrollToBottom();
             this.markAllAsRead();
           }
         },
         error: (err) => {
-          console.error('Polling error:', err);
+          // Silently handle polling errors to avoid console spam
+          if (err.status !== 0) { // Don't log network errors (CORS, etc)
+            console.error('Polling error:', err);
+          }
         }
       });
-    }, 3000); // Poll every 3 seconds
+    }, 3000); // Poll every 3 seconds (like WhatsApp)
   }
 
   stopPolling(): void {
@@ -113,21 +136,22 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   onSendMessage(content: string): void {
     if (!this._conversationId || !content.trim()) return;
 
-    this.sending = true;
+    this.sending.set(true);
     const request = { content: content.trim() };
 
     this.chatService.sendMessage(this._conversationId, request)
       .subscribe({
         next: (message) => {
-          this.messages.push(message);
-          this.lastPollTimestamp = new Date();
-          this.sending = false;
+          const parsedMessage = this.parseMessage(message);
+          this.messages.update(current => [...current, parsedMessage]);
+          this.lastPollTimestamp = new Date(parsedMessage.createdAt);
+          this.sending.set(false);
           this.scrollToBottom();
         },
         error: (err) => {
           console.error('Failed to send message:', err);
           alert('Failed to send message. Please try again.');
-          this.sending = false;
+          this.sending.set(false);
         }
       });
   }
@@ -144,14 +168,22 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   markAllAsRead(): void {
     if (!this._conversationId) return;
 
-    const unreadMessages = this.messages.filter(m =>
+    const currentMessages = this.messages();
+    const unreadMessages = currentMessages.filter(m =>
       !m.isRead && !this.isOwnMessage(m)
     );
 
     if (unreadMessages.length > 0) {
       this.chatService.markAllAsRead(this._conversationId).subscribe({
         next: () => {
-          unreadMessages.forEach(m => m.isRead = true);
+          // Update read status in messages
+          this.messages.update(msgs => 
+            msgs.map(msg => 
+              !msg.isRead && !this.isOwnMessage(msg) 
+                ? { ...msg, isRead: true }
+                : msg
+            )
+          );
         },
         error: (err) => {
           console.error('Failed to mark messages as read:', err);
@@ -161,13 +193,16 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   isOwnMessage(message: ChatMessage): boolean {
-    return message.senderId === this.currentUserId;
+    const userId = this.currentUserId();
+    return userId !== undefined && message.senderId === userId;
   }
 
   onDeleteMessage(messageId: string): void {
+    if (!messageId) return;
+    
     this.chatService.deleteMessage(messageId).subscribe({
       next: () => {
-        this.messages = this.messages.filter(m => m.id !== messageId);
+        this.messages.update(msgs => msgs.filter(m => m.id !== messageId));
       },
       error: (err) => {
         console.error('Failed to delete message:', err);
@@ -183,7 +218,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       this.chatService.archiveConversation(this._conversationId).subscribe({
         next: () => {
           this._conversationId = undefined;
-          this.messages = [];
+          this.messages.set([]);
           this.stopPolling();
           alert('Conversation archived.');
         },
@@ -209,5 +244,20 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   trackByMessageId(index: number, message: ChatMessage): string | undefined {
     return message.id;
+  }
+
+  /**
+   * Parse message from backend - handles date conversion from LocalDateTime string
+   */
+  private parseMessage(message: any): ChatMessage {
+    return {
+      ...message,
+      createdAt: typeof message.createdAt === 'string' 
+        ? new Date(message.createdAt) 
+        : message.createdAt,
+      id: message.id?.toString() || message.id,
+      conversationId: message.conversationId?.toString() || message.conversationId,
+      senderId: message.senderId?.toString() || message.senderId
+    };
   }
 }

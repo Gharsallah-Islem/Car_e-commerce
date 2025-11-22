@@ -1,0 +1,147 @@
+<div class="category-management">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>
+                <div class="header-container">
+                    <h2>Gestion des Catégories</h2>
+                    <button mat-raised-button color="primary" (click)="openForm()">
+                        <mat-icon>add</mat-icon>
+                        Nouvelle Catégorie
+                    </button>
+                </div>
+            </mat-card-title>
+        </mat-card-header>
+
+        <mat-divider></mat-divider>
+
+        <mat-card-content>
+            <!-- Search Bar -->
+            <div class="search-container">
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Rechercher une catégorie</mat-label>
+                    <input matInput [(ngModel)]="searchQuery" (keyup.enter)="applySearch()"
+                        placeholder="Nom ou description...">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+                <button mat-raised-button (click)="applySearch()">Rechercher</button>
+                <button mat-button (click)="searchQuery.set(''); loadCategories()">Réinitialiser</button>
+            </div>
+
+            <!-- Categories Table -->
+            @if (loading()) {
+            <div class="loading-container">
+                <mat-icon class="spinner">autorenew</mat-icon>
+                <p>Chargement des catégories...</p>
+            </div>
+            } @else if (categories().length === 0) {
+            <div class="empty-state">
+                <mat-icon>category</mat-icon>
+                <h3>Aucune catégorie</h3>
+                <p>Commencez par créer votre première catégorie de produits</p>
+                <button mat-raised-button color="primary" (click)="openForm()">
+                    <mat-icon>add</mat-icon>
+                    Créer une catégorie
+                </button>
+            </div>
+            } @else {
+            <table mat-table [dataSource]="getFilteredCategories()" class="categories-table">
+                <!-- ID Column -->
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef>ID</th>
+                    <td mat-cell *matCellDef="let category">{{ category.id }}</td>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nom</th>
+                    <td mat-cell *matCellDef="let category">
+                        <strong>{{ category.name }}</strong>
+                    </td>
+                </ng-container>
+
+                <!-- Description Column -->
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Description</th>
+                    <td mat-cell *matCellDef="let category">
+                        {{ category.description || 'N/A' }}
+                    </td>
+                </ng-container>
+
+                <!-- Product Count Column -->
+                <ng-container matColumnDef="productCount">
+                    <th mat-header-cell *matHeaderCellDef>Produits</th>
+                    <td mat-cell *matCellDef="let category">
+                        <span class="product-count">{{ category.products?.length || 0 }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let category">
+                        <button mat-icon-button color="primary" (click)="openForm(category)" matTooltip="Modifier">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteCategory(category)" matTooltip="Supprimer">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <!-- Pagination -->
+            <mat-paginator [length]="totalCategories()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+                [pageSizeOptions]="[5, 10, 25, 50]" (page)="handlePageEvent($event)" showFirstLastButtons>
+            </mat-paginator>
+            }
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Category Form (Slide-in Panel) -->
+    @if (showForm()) {
+    <div class="form-overlay" (click)="closeForm()"></div>
+    <div class="form-panel">
+        <div class="form-header">
+            <h3>{{ editingCategory() ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}</h3>
+            <button mat-icon-button (click)="closeForm()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="category-form">
+            <mat-form-field appearance="outline">
+                <mat-label>Nom de la catégorie</mat-label>
+                <input matInput formControlName="name" placeholder="Ex: Freinage, Moteur..." required>
+                @if (categoryForm.get('name')?.hasError('required')) {
+                <mat-error>Le nom est requis</mat-error>
+                }
+                @if (categoryForm.get('name')?.hasError('minlength')) {
+                <mat-error>Le nom doit contenir au moins 2 caractères</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" rows="4"
+                    placeholder="Description de la catégorie..."></textarea>
+                @if (categoryForm.get('description')?.hasError('maxlength')) {
+                <mat-error>La description ne peut pas dépasser 500 caractères</mat-error>
+                }
+            </mat-form-field>
+
+            <div class="form-actions">
+                <button mat-button type="button" (click)="closeForm()">Annuler</button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="categoryForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    {{ editingCategory() ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+    }
+</div>

@@ -48,7 +48,7 @@
                     <h3 [routerLink]="['/products', item.product.id]" class="item-name">
                         {{ item.product.name }}
                     </h3>
-                    <p class="item-brand">{{ item.product.brand.name }}</p>
+                    <p class="item-brand">{{ item.product.brand?.name || 'N/A' }}</p>
                     <p class="item-ref">Référence: {{ item.product.sku }}</p>
 
                     @if (item.product.stock > 0) {

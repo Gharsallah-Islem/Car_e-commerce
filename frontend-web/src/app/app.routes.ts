@@ -37,11 +37,54 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
 
-    // Admin route (protected)
+    // Admin routes (protected with child routes)
     {
         path: 'admin',
-        loadComponent: () => import('./features/admin/admin.component').then(m => m.AdminComponent),
-        canActivate: [authGuard]
+        loadComponent: () => import('./features/admin/components/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+        canActivate: [authGuard],
+        children: [
+            {
+                path: '',
+                redirectTo: 'dashboard',
+                pathMatch: 'full'
+            },
+            {
+                path: 'dashboard',
+                loadComponent: () => import('./features/admin/components/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+            },
+            {
+                path: 'products',
+                loadComponent: () => import('./features/admin/components/product-management/product-management.component').then(m => m.ProductManagementComponent)
+            },
+            {
+                path: 'categories',
+                loadComponent: () => import('./features/admin/components/category-management/category-management.component').then(m => m.CategoryManagementComponent)
+            },
+            {
+                path: 'brands',
+                loadComponent: () => import('./features/admin/components/brand-management/brand-management.component').then(m => m.BrandManagementComponent)
+            },
+            {
+                path: 'orders',
+                loadComponent: () => import('./features/admin/components/order-management/order-management.component').then(m => m.OrderManagementComponent)
+            },
+            {
+                path: 'orders/:id',
+                loadComponent: () => import('./features/admin/components/order-details/order-details.component').then(m => m.OrderDetailsComponent)
+            },
+            {
+                path: 'users',
+                loadComponent: () => import('./features/admin/components/user-management/user-management.component').then(m => m.UserManagementComponent)
+            },
+            {
+                path: 'inventory',
+                loadComponent: () => import('./features/admin/inventory-management/inventory-management.component').then(m => m.InventoryManagementComponent)
+            },
+            {
+                path: 'delivery',
+                loadComponent: () => import('./features/admin/delivery-management/delivery-management.component').then(m => m.DeliveryManagementComponent)
+            }
+        ]
     },
 
     // AI Mechanic route

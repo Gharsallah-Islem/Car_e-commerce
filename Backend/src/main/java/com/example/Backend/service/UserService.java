@@ -152,4 +152,13 @@ public interface UserService {
      * @return true if reset successfully
      */
     boolean resetPassword(String email, String code, String newPassword);
+
+    /**
+     * Update user role
+     * 
+     * @param id       User ID
+     * @param roleName New role name
+     * @return Updated user
+     */
+    User updateUserRole(UUID id, String roleName);
 }

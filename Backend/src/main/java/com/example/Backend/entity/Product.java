@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products", indexes = {
-        @Index(name = "idx_products_brand_model_year", columnList = "brand, model, year")
+        @Index(name = "idx_products_brand_model_year", columnList = "brand_id, model, year")
 })
 @Data
 @NoArgsConstructor
@@ -49,8 +49,9 @@ public class Product implements Serializable {
     @Column(name = "stock", nullable = false)
     private Integer stock = 0;
 
-    @Column(name = "brand", length = 100)
-    private String brand;
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
     @Column(name = "model", length = 100)
     private String model;
@@ -73,8 +74,13 @@ public class Product implements Serializable {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
-    @Column(name = "category", length = 100)
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductImage> images = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
