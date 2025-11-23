@@ -1,0 +1,12 @@
+ id |     name     
+----+--------------
+  5 | Carrosserie
+  8 | Éclairage
+  4 | Électrique
+  6 | Filtration
+  1 | Freinage
+  2 | Moteur
+  3 | Suspension
+  7 | Transmission
+(8 rows)
+

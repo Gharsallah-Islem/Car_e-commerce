@@ -1,4 +1,4 @@
-<div class="cart-container">
+﻿<div class="cart-container">
     <div class="cart-header">
         <h1>Mon Panier</h1>
         <button mat-stroked-button [routerLink]="['/products']" class="continue-shopping">
@@ -82,18 +82,18 @@
                 <div class="item-price">
                     @if (item.product.discount && item.product.discount > 0) {
                     <div class="price-with-discount">
-                        <span class="original-price">{{ item.product.price | number:'1.2-2' }} MAD</span>
-                        <span class="discounted-price">{{ getItemPrice(item) | number:'1.2-2' }} MAD</span>
+                        <span class="original-price">{{ item.product.price | number:'1.2-2' }} TND</span>
+                        <span class="discounted-price">{{ getItemPrice(item) | number:'1.2-2' }} TND</span>
                         <span class="discount-badge">-{{ item.product.discount }}%</span>
                     </div>
                     } @else {
-                    <span class="current-price">{{ item.product.price | number:'1.2-2' }} MAD</span>
+                    <span class="current-price">{{ item.product.price | number:'1.2-2' }} TND</span>
                     }
                 </div>
 
                 <div class="item-total">
                     <label>Total</label>
-                    <span class="total-price">{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                    <span class="total-price">{{ getItemTotal(item) | number:'1.2-2' }} TND</span>
                 </div>
 
                 <div class="item-actions">
@@ -143,12 +143,12 @@
                 <div class="price-breakdown">
                     <div class="price-row">
                         <span>Sous-total</span>
-                        <span>{{ subtotal() | number:'1.2-2' }} MAD</span>
+                        <span>{{ subtotal() | number:'1.2-2' }} TND</span>
                     </div>
 
                     <div class="price-row">
                         <span>TVA (20%)</span>
-                        <span>{{ tax() | number:'1.2-2' }} MAD</span>
+                        <span>{{ tax() | number:'1.2-2' }} TND</span>
                     </div>
 
                     <div class="price-row">
@@ -156,21 +156,21 @@
                         @if (shipping() === 0) {
                         <span class="free-shipping">GRATUIT</span>
                         } @else {
-                        <span>{{ shipping() | number:'1.2-2' }} MAD</span>
+                        <span>{{ shipping() | number:'1.2-2' }} TND</span>
                         }
                     </div>
 
                     @if (shipping() > 0) {
                     <div class="shipping-info">
                         <mat-icon>info</mat-icon>
-                        <span>Livraison gratuite à partir de 500 MAD</span>
+                        <span>Livraison gratuite à partir de 500 TND</span>
                     </div>
                     }
 
                     @if (discount() > 0) {
                     <div class="price-row discount-row">
                         <span>Réduction</span>
-                        <span class="discount-amount">-{{ discount() | number:'1.2-2' }} MAD</span>
+                        <span class="discount-amount">-{{ discount() | number:'1.2-2' }} TND</span>
                     </div>
                     }
 
@@ -178,12 +178,12 @@
 
                     <div class="price-row total-row">
                         <span>Total</span>
-                        <span class="total-amount">{{ total() | number:'1.2-2' }} MAD</span>
+                        <span class="total-amount">{{ total() | number:'1.2-2' }} TND</span>
                     </div>
                 </div>
 
                 <button mat-raised-button color="primary" class="checkout-btn" (click)="proceedToCheckout()"
-                    [disabled]="isEmpty()">
+                    [disabled]="isEmpty() || hasInvalidQuantities()">
                     <mat-icon>shopping_bag</mat-icon>
                     Procéder au paiement
                 </button>

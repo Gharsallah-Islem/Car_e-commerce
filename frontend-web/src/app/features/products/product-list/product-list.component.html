@@ -59,8 +59,8 @@
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Rechercher</mat-label>
                     <mat-icon matPrefix>search</mat-icon>
-                    <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()"
-                        placeholder="Nom du produit...">
+                    <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                        (keyup.enter)="onSearch()" placeholder="Nom du produit...">
                     @if (searchQuery()) {
                     <button matSuffix mat-icon-button (click)="searchQuery.set(''); onSearch()">
                         <mat-icon>close</mat-icon>
@@ -107,16 +107,16 @@
                     <div class="price-inputs">
                         <mat-form-field appearance="outline" class="price-input">
                             <mat-label>Min</mat-label>
-                            <input matInput type="number" [(ngModel)]="priceRange().min"
-                                (change)="onPriceRangeChange()">
-                            <span matSuffix>€</span>
+                            <input matInput type="number" [ngModel]="priceRange().min"
+                                (ngModelChange)="updatePriceRange('min', $event)">
+                            <span matSuffix>TND</span>
                         </mat-form-field>
                         <span class="separator">-</span>
                         <mat-form-field appearance="outline" class="price-input">
                             <mat-label>Max</mat-label>
-                            <input matInput type="number" [(ngModel)]="priceRange().max"
-                                (change)="onPriceRangeChange()">
-                            <span matSuffix>€</span>
+                            <input matInput type="number" [ngModel]="priceRange().max"
+                                (ngModelChange)="updatePriceRange('max', $event)">
+                            <span matSuffix>TND</span>
                         </mat-form-field>
                     </div>
                 </div>
@@ -212,11 +212,11 @@
                 <div class="product-footer">
                     <div class="price-section">
                         @if (product.discount && product.discount > 0) {
-                        <span class="original-price">{{ product.price }}€</span>
+                        <span class="original-price">{{ product.price }} TND</span>
                         <span class="discounted-price">{{ product.price * (1 - product.discount / 100) | number:'1.2-2'
-                            }}€</span>
+                            }} TND</span>
                         } @else {
-                        <span class="price">{{ product.price }}€</span>
+                        <span class="price">{{ product.price }} TND</span>
                         }
                     </div>
 

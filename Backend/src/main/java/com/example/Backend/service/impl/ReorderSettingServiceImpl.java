@@ -30,56 +30,57 @@ public class ReorderSettingServiceImpl implements ReorderSettingService {
     private final ReorderSettingRepository reorderSettingRepository;
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
+    private final com.example.Backend.service.PurchaseOrderService purchaseOrderService;
 
     @Override
     public ReorderSetting createReorderSetting(ReorderSettingDTO dto) {
         log.info("Creating reorder setting for product: {}", dto.getProductId());
-        
+
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        
+
         // Check if setting already exists
         Optional<ReorderSetting> existing = reorderSettingRepository.findByProductId(dto.getProductId());
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Reorder setting already exists for this product");
         }
-        
+
         ReorderSetting setting = new ReorderSetting();
         setting.setProduct(product);
         setting.setReorderPoint(dto.getReorderPoint());
         setting.setReorderQuantity(dto.getReorderQuantity());
         setting.setAutoReorder(dto.getAutoReorder() != null ? dto.getAutoReorder() : false);
         setting.setIsEnabled(true);
-        
+
         if (dto.getPreferredSupplierId() != null) {
             Supplier supplier = supplierRepository.findById(dto.getPreferredSupplierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
             setting.setPreferredSupplier(supplier);
         }
-        
+
         return reorderSettingRepository.save(setting);
     }
 
     @Override
     public ReorderSetting updateReorderSetting(UUID id, ReorderSettingDTO dto) {
         log.info("Updating reorder setting: {}", id);
-        
+
         ReorderSetting setting = getById(id);
-        
+
         setting.setReorderPoint(dto.getReorderPoint());
         setting.setReorderQuantity(dto.getReorderQuantity());
         if (dto.getAutoReorder() != null) {
             setting.setAutoReorder(dto.getAutoReorder());
         }
-        
+
         if (dto.getPreferredSupplierId() != null) {
             Supplier supplier = supplierRepository.findById(dto.getPreferredSupplierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
             setting.setPreferredSupplier(supplier);
         }
-        
+
         setting.setUpdatedAt(LocalDateTime.now());
-        
+
         return reorderSettingRepository.save(setting);
     }
 
@@ -111,7 +112,7 @@ public class ReorderSettingServiceImpl implements ReorderSettingService {
     @Override
     public void deleteReorderSetting(UUID id) {
         log.info("Deleting reorder setting: {}", id);
-        
+
         ReorderSetting setting = getById(id);
         reorderSettingRepository.delete(setting);
     }
@@ -119,17 +120,38 @@ public class ReorderSettingServiceImpl implements ReorderSettingService {
     @Override
     public void checkAndTriggerAutoReorders() {
         log.info("Checking for products that need auto-reorder");
-        
+
         List<ReorderSetting> belowReorderPoint = getProductsBelowReorderPoint();
-        
+
         for (ReorderSetting setting : belowReorderPoint) {
             if (setting.getAutoReorder() && setting.getPreferredSupplier() != null) {
-                log.info("Auto-reorder triggered for product: {} from supplier: {}", 
-                        setting.getProduct().getName(), 
+                log.info("Auto-reorder triggered for product: {} from supplier: {}",
+                        setting.getProduct().getName(),
                         setting.getPreferredSupplier().getName());
-                
-                // TODO: Create purchase order automatically
-                // This would integrate with PurchaseOrderService
+
+                // Create Purchase Order DTO
+                com.example.Backend.dto.PurchaseOrderDTO poDTO = new com.example.Backend.dto.PurchaseOrderDTO();
+                poDTO.setSupplierId(setting.getPreferredSupplier().getId());
+                poDTO.setOrderDate(java.time.LocalDate.now());
+                poDTO.setExpectedDelivery(java.time.LocalDate.now().plusDays(7)); // Default 7 days delivery
+                poDTO.setStatus("DRAFT");
+                poDTO.setNotes("Auto-generated reorder for low stock product: " + setting.getProduct().getName());
+
+                // Create Item DTO
+                com.example.Backend.dto.PurchaseOrderDTO.PurchaseOrderItemDTO itemDTO = new com.example.Backend.dto.PurchaseOrderDTO.PurchaseOrderItemDTO();
+                itemDTO.setProductId(setting.getProduct().getId());
+                itemDTO.setQuantity(setting.getReorderQuantity());
+                itemDTO.setUnitPrice(setting.getProduct().getPrice().doubleValue());
+
+                poDTO.setItems(java.util.Collections.singletonList(itemDTO));
+
+                // Create Purchase Order
+                try {
+                    purchaseOrderService.createPurchaseOrder(poDTO);
+                    log.info("Successfully created auto-reorder PO for product: {}", setting.getProduct().getName());
+                } catch (Exception e) {
+                    log.error("Failed to create auto-reorder PO for product: {}", setting.getProduct().getName(), e);
+                }
             }
         }
     }

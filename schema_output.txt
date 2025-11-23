@@ -1,0 +1,309 @@
+      table_name      
+----------------------
+ admins
+ brands
+ cart_items
+ carts
+ categories
+ conversations
+ deliveries
+ messages
+ order_items
+ orders
+ payments
+ product_images
+ products
+ purchase_order_items
+ purchase_orders
+ reclamations
+ recommendations
+ reorder_settings
+ reports
+ roles
+ stock_alerts
+ stock_movements
+ super_admins
+ supplier_products
+ suppliers
+ users
+ vehicles
+(27 rows)
+
+      table_name      |           column_name           |          data_type          | character_maximum_length | is_nullable |   column_default   
+----------------------+---------------------------------+-----------------------------+--------------------------+-------------+--------------------
+ admins               | id                              | uuid                        |                          | NO          | 
+ admins               | created_at                      | timestamp without time zone |                          | YES         | 
+ admins               | email                           | character varying           |                      255 | NO          | 
+ admins               | full_name                       | character varying           |                      255 | YES         | 
+ admins               | is_active                       | boolean                     |                          | NO          | 
+ admins               | password                        | character varying           |                      255 | NO          | 
+ admins               | permissions                     | text                        |                          | YES         | 
+ admins               | updated_at                      | timestamp without time zone |                          | YES         | 
+ admins               | username                        | character varying           |                      100 | NO          | 
+ brands               | id                              | bigint                      |                          | NO          | 
+ brands               | country                         | character varying           |                      255 | YES         | 
+ brands               | description                     | text                        |                          | YES         | 
+ brands               | logo_url                        | character varying           |                      255 | YES         | 
+ brands               | name                            | character varying           |                      255 | NO          | 
+ cart_items           | id                              | uuid                        |                          | NO          | 
+ cart_items           | created_at                      | timestamp without time zone |                          | YES         | 
+ cart_items           | quantity                        | integer                     |                          | NO          | 
+ cart_items           | cart_id                         | uuid                        |                          | NO          | 
+ cart_items           | product_id                      | uuid                        |                          | NO          | 
+ carts                | id                              | uuid                        |                          | NO          | 
+ carts                | created_at                      | timestamp without time zone |                          | YES         | 
+ carts                | updated_at                      | timestamp without time zone |                          | YES         | 
+ carts                | user_id                         | uuid                        |                          | NO          | 
+ categories           | id                              | bigint                      |                          | NO          | 
+ categories           | description                     | text                        |                          | YES         | 
+ categories           | name                            | character varying           |                      255 | NO          | 
+ conversations        | id                              | uuid                        |                          | NO          | 
+ conversations        | created_at                      | timestamp without time zone |                          | YES         | 
+ conversations        | is_active                       | boolean                     |                          | NO          | 
+ conversations        | title                           | character varying           |                      255 | YES         | 
+ conversations        | updated_at                      | timestamp without time zone |                          | YES         | 
+ conversations        | user_id                         | uuid                        |                          | NO          | 
+ deliveries           | id                              | uuid                        |                          | NO          | 
+ deliveries           | actual_delivery                 | timestamp without time zone |                          | YES         | 
+ deliveries           | address                         | text                        |                          | YES         | 
+ deliveries           | created_at                      | timestamp without time zone |                          | YES         | 
+ deliveries           | current_location                | text                        |                          | YES         | 
+ deliveries           | delivery_notes                  | text                        |                          | YES         | 
+ deliveries           | driver_name                     | character varying           |                      255 | YES         | 
+ deliveries           | driver_phone                    | character varying           |                       20 | YES         | 
+ deliveries           | estimated_delivery              | timestamp without time zone |                          | YES         | 
+ deliveries           | pickup_time                     | timestamp without time zone |                          | YES         | 
+ deliveries           | status                          | character varying           |                       50 | NO          | 
+ deliveries           | tracking_number                 | character varying           |                      255 | NO          | 
+ deliveries           | updated_at                      | timestamp without time zone |                          | YES         | 
+ deliveries           | order_id                        | uuid                        |                          | NO          | 
+ messages             | id                              | uuid                        |                          | NO          | 
+ messages             | attachment_url                  | character varying           |                      255 | YES         | 
+ messages             | content                         | text                        |                          | NO          | 
+ messages             | created_at                      | timestamp without time zone |                          | YES         | 
+ messages             | is_read                         | boolean                     |                          | NO          | 
+ messages             | sender_id                       | uuid                        |                          | YES         | 
+ messages             | sender_type                     | character varying           |                       50 | NO          | 
+ messages             | conversation_id                 | uuid                        |                          | NO          | 
+ order_items          | id                              | uuid                        |                          | NO          | 
+ order_items          | price                           | numeric                     |                          | NO          | 
+ order_items          | quantity                        | integer                     |                          | NO          | 
+ order_items          | order_id                        | uuid                        |                          | NO          | 
+ order_items          | product_id                      | uuid                        |                          | NO          | 
+ orders               | id                              | uuid                        |                          | NO          | 
+ orders               | created_at                      | timestamp without time zone |                          | YES         | 
+ orders               | delivered_at                    | timestamp without time zone |                          | YES         | 
+ orders               | delivery_address                | text                        |                          | YES         | 
+ orders               | notes                           | text                        |                          | YES         | 
+ orders               | payment_method                  | character varying           |                       50 | YES         | 
+ orders               | payment_status                  | character varying           |                       50 | YES         | 
+ orders               | status                          | character varying           |                       50 | NO          | 
+ orders               | total_price                     | numeric                     |                          | NO          | 
+ orders               | tracking_number                 | character varying           |                      255 | YES         | 
+ orders               | updated_at                      | timestamp without time zone |                          | YES         | 
+ orders               | user_id                         | uuid                        |                          | NO          | 
+ payments             | id                              | uuid                        |                          | NO          | 
+ payments             | amount                          | numeric                     |                          | NO          | 
+ payments             | card_brand                      | character varying           |                       50 | YES         | 
+ payments             | card_last4                      | character varying           |                        4 | YES         | 
+ payments             | created_at                      | timestamp without time zone |                          | YES         | 
+ payments             | currency                        | character varying           |                        3 | NO          | 
+ payments             | failure_message                 | text                        |                          | YES         | 
+ payments             | metadata                        | text                        |                          | YES         | 
+ payments             | payment_method                  | character varying           |                       50 | YES         | 
+ payments             | receipt_url                     | character varying           |                      500 | YES         | 
+ payments             | refund_amount                   | numeric                     |                          | YES         | 
+ payments             | refund_reason                   | text                        |                          | YES         | 
+ payments             | refunded_at                     | timestamp without time zone |                          | YES         | 
+ payments             | status                          | character varying           |                       50 | NO          | 
+ payments             | stripe_payment_intent_id        | character varying           |                      255 | NO          | 
+ payments             | updated_at                      | timestamp without time zone |                          | YES         | 
+ payments             | order_id                        | uuid                        |                          | NO          | 
+ payments             | user_id                         | uuid                        |                          | NO          | 
+ product_images       | id                              | uuid                        |                          | NO          | 
+ product_images       | created_at                      | timestamp without time zone |                          | YES         | 
+ product_images       | display_order                   | integer                     |                          | YES         | 
+ product_images       | image_url                       | character varying           |                      500 | NO          | 
+ product_images       | is_primary                      | boolean                     |                          | YES         | 
+ product_images       | product_id                      | uuid                        |                          | NO          | 
+ products             | id                              | uuid                        |                          | NO          | 
+ products             | brand                           | character varying           |                      100 | YES         | 
+ products             | category                        | character varying           |                      100 | YES         | 
+ products             | compatibility                   | text                        |                          | YES         | 
+ products             | created_at                      | timestamp without time zone |                          | YES         | 
+ products             | description                     | text                        |                          | YES         | 
+ products             | image_url                       | text                        |                          | YES         | 
+ products             | model                           | character varying           |                      100 | YES         | 
+ products             | name                            | character varying           |                      255 | NO          | 
+ products             | price                           | numeric                     |                          | NO          | 
+ products             | stock                           | integer                     |                          | NO          | 
+ products             | updated_at                      | timestamp without time zone |                          | YES         | 
+ products             | year                            | integer                     |                          | YES         | 
+ products             | brand_id                        | bigint                      |                          | YES         | 
+ products             | category_id                     | bigint                      |                          | YES         | 
+ purchase_order_items | id                              | uuid                        |                          | NO          | 
+ purchase_order_items | notes                           | text                        |                          | YES         | 
+ purchase_order_items | quantity                        | integer                     |                          | NO          | 
+ purchase_order_items | received_quantity               | integer                     |                          | YES         | 
+ purchase_order_items | subtotal                        | numeric                     |                          | NO          | 
+ purchase_order_items | unit_price                      | numeric                     |                          | NO          | 
+ purchase_order_items | product_id                      | uuid                        |                          | NO          | 
+ purchase_order_items | purchase_order_id               | uuid                        |                          | NO          | 
+ purchase_orders      | id                              | uuid                        |                          | NO          | 
+ purchase_orders      | actual_delivery_date            | date                        |                          | YES         | 
+ purchase_orders      | approved_by                     | character varying           |                      255 | YES         | 
+ purchase_orders      | created_at                      | timestamp without time zone |                          | NO          | 
+ purchase_orders      | created_by                      | character varying           |                      255 | YES         | 
+ purchase_orders      | discount_amount                 | numeric                     |                          | YES         | 
+ purchase_orders      | expected_delivery_date          | date                        |                          | YES         | 
+ purchase_orders      | grand_total                     | numeric                     |                          | NO          | 
+ purchase_orders      | notes                           | text                        |                          | YES         | 
+ purchase_orders      | order_date                      | date                        |                          | NO          | 
+ purchase_orders      | po_number                       | character varying           |                      255 | NO          | 
+ purchase_orders      | received_by                     | character varying           |                      255 | YES         | 
+ purchase_orders      | shipping_cost                   | numeric                     |                          | YES         | 
+ purchase_orders      | status                          | character varying           |                      255 | NO          | 
+ purchase_orders      | tax_amount                      | numeric                     |                          | YES         | 
+ purchase_orders      | total_amount                    | numeric                     |                          | NO          | 
+ purchase_orders      | updated_at                      | timestamp without time zone |                          | YES         | 
+ purchase_orders      | supplier_id                     | uuid                        |                          | NO          | 
+ reclamations         | id                              | uuid                        |                          | NO          | 
+ reclamations         | attachment_url                  | character varying           |                      255 | YES         | 
+ reclamations         | created_at                      | timestamp without time zone |                          | YES         | 
+ reclamations         | description                     | text                        |                          | NO          | 
+ reclamations         | resolved_at                     | timestamp without time zone |                          | YES         | 
+ reclamations         | response                        | text                        |                          | YES         | 
+ reclamations         | status                          | character varying           |                       50 | NO          | 
+ reclamations         | subject                         | character varying           |                      255 | NO          | 
+ reclamations         | updated_at                      | timestamp without time zone |                          | YES         | 
+ reclamations         | user_id                         | uuid                        |                          | NO          | 
+ recommendations      | id                              | uuid                        |                          | NO          | 
+ recommendations      | ai_response                     | text                        |                          | YES         | 
+ recommendations      | confidence_score                | double precision            |                          | YES         | 
+ recommendations      | created_at                      | timestamp without time zone |                          | YES         | 
+ recommendations      | image_url                       | text                        |                          | YES         | 
+ recommendations      | suggested_products              | text                        |                          | YES         | 
+ recommendations      | symptoms                        | text                        |                          | YES         | 
+ recommendations      | user_id                         | uuid                        |                          | NO          | 
+ reorder_settings     | id                              | uuid                        |                          | NO          | 
+ reorder_settings     | auto_reorder                    | boolean                     |                          | NO          | 
+ reorder_settings     | created_at                      | timestamp without time zone |                          | NO          | 
+ reorder_settings     | is_enabled                      | boolean                     |                          | NO          | 
+ reorder_settings     | last_alert_sent                 | timestamp without time zone |                          | YES         | 
+ reorder_settings     | last_reorder_date               | timestamp without time zone |                          | YES         | 
+ reorder_settings     | lead_time_days                  | integer                     |                          | YES         | 
+ reorder_settings     | maximum_stock                   | integer                     |                          | YES         | 
+ reorder_settings     | minimum_stock                   | integer                     |                          | YES         | 
+ reorder_settings     | notes                           | text                        |                          | YES         | 
+ reorder_settings     | reorder_point                   | integer                     |                          | NO          | 
+ reorder_settings     | reorder_quantity                | integer                     |                          | NO          | 
+ reorder_settings     | updated_at                      | timestamp without time zone |                          | YES         | 
+ reorder_settings     | preferred_supplier_id           | uuid                        |                          | YES         | 
+ reorder_settings     | product_id                      | uuid                        |                          | NO          | 
+ reports              | id                              | uuid                        |                          | NO          | 
+ reports              | created_at                      | timestamp without time zone |                          | YES         | 
+ reports              | data                            | text                        |                          | YES         | 
+ reports              | description                     | text                        |                          | YES         | 
+ reports              | file_url                        | character varying           |                      255 | YES         | 
+ reports              | generated_by                    | uuid                        |                          | YES         | 
+ reports              | report_type                     | character varying           |                      100 | NO          | 
+ reports              | title                           | character varying           |                      255 | YES         | 
+ roles                | id                              | integer                     |                          | NO          | 
+ roles                | name                            | character varying           |                       50 | NO          | 
+ stock_alerts         | id                              | uuid                        |                          | NO          | uuid_generate_v4()
+ stock_alerts         | product_id                      | uuid                        |                          | NO          | 
+ stock_alerts         | threshold                       | integer                     |                          | NO          | 5
+ stock_alerts         | alert_date                      | timestamp without time zone |                          | YES         | CURRENT_TIMESTAMP
+ stock_movements      | id                              | uuid                        |                          | NO          | 
+ stock_movements      | movement_date                   | timestamp without time zone |                          | NO          | 
+ stock_movements      | movement_type                   | character varying           |                      255 | NO          | 
+ stock_movements      | new_stock                       | integer                     |                          | NO          | 
+ stock_movements      | notes                           | text                        |                          | YES         | 
+ stock_movements      | performed_by                    | character varying           |                      255 | YES         | 
+ stock_movements      | previous_stock                  | integer                     |                          | NO          | 
+ stock_movements      | quantity                        | integer                     |                          | NO          | 
+ stock_movements      | reference_id                    | uuid                        |                          | YES         | 
+ stock_movements      | reference_type                  | character varying           |                      255 | YES         | 
+ stock_movements      | product_id                      | uuid                        |                          | NO          | 
+ super_admins         | id                              | uuid                        |                          | NO          | 
+ super_admins         | created_at                      | timestamp without time zone |                          | YES         | 
+ super_admins         | email                           | character varying           |                      255 | NO          | 
+ super_admins         | full_name                       | character varying           |                      255 | YES         | 
+ super_admins         | is_active                       | boolean                     |                          | NO          | 
+ super_admins         | password                        | character varying           |                      255 | NO          | 
+ super_admins         | updated_at                      | timestamp without time zone |                          | YES         | 
+ super_admins         | username                        | character varying           |                      100 | NO          | 
+ supplier_products    | supplier_id                     | uuid                        |                          | NO          | 
+ supplier_products    | product_id                      | uuid                        |                          | NO          | 
+ suppliers            | id                              | uuid                        |                          | NO          | 
+ suppliers            | address                         | character varying           |                      255 | YES         | 
+ suppliers            | city                            | character varying           |                      255 | YES         | 
+ suppliers            | company_name                    | character varying           |                      255 | YES         | 
+ suppliers            | contact_person                  | character varying           |                      255 | YES         | 
+ suppliers            | country                         | character varying           |                      255 | YES         | 
+ suppliers            | created_at                      | timestamp without time zone |                          | NO          | 
+ suppliers            | email                           | character varying           |                      255 | YES         | 
+ suppliers            | is_active                       | boolean                     |                          | NO          | 
+ suppliers            | name                            | character varying           |                      255 | NO          | 
+ suppliers            | notes                           | text                        |                          | YES         | 
+ suppliers            | payment_terms                   | character varying           |                      255 | YES         | 
+ suppliers            | phone                           | character varying           |                      255 | YES         | 
+ suppliers            | postal_code                     | character varying           |                      255 | YES         | 
+ suppliers            | rating                          | double precision            |                          | YES         | 
+ suppliers            | tax_id                          | character varying           |                      255 | YES         | 
+ suppliers            | updated_at                      | timestamp without time zone |                          | YES         | 
+ suppliers            | website                         | character varying           |                      255 | YES         | 
+ users                | id                              | uuid                        |                          | NO          | 
+ users                | address                         | text                        |                          | YES         | 
+ users                | created_at                      | timestamp without time zone |                          | YES         | 
+ users                | email                           | character varying           |                      255 | NO          | 
+ users                | full_name                       | character varying           |                      255 | YES         | 
+ users                | password                        | character varying           |                      255 | NO          | 
+ users                | phone                           | character varying           |                       20 | YES         | 
+ users                | updated_at                      | timestamp without time zone |                          | YES         | 
+ users                | username                        | character varying           |                      100 | NO          | 
+ users                | role_id                         | integer                     |                          | NO          | 
+ users                | email_verification_token        | character varying           |                      255 | YES         | 
+ users                | email_verification_token_expiry | timestamp without time zone |                          | YES         | 
+ users                | password_reset_token            | character varying           |                      255 | YES         | 
+ users                | password_reset_token_expiry     | timestamp without time zone |                          | YES         | 
+ users                | is_email_verified               | boolean                     |                          | NO          | true
+ users                | is_active                       | boolean                     |                          | NO          | true
+ vehicles             | id                              | uuid                        |                          | NO          | 
+ vehicles             | brand                           | character varying           |                      100 | NO          | 
+ vehicles             | created_at                      | timestamp without time zone |                          | YES         | 
+ vehicles             | model                           | character varying           |                      100 | NO          | 
+ vehicles             | year                            | integer                     |                          | NO          | 
+ vehicles             | user_id                         | uuid                        |                          | NO          | 
+(244 rows)
+
+      table_name      |      column_name      | foreign_table_name | foreign_column_name 
+----------------------+-----------------------+--------------------+---------------------
+ cart_items           | cart_id               | carts              | id
+ cart_items           | product_id            | products           | id
+ carts                | user_id               | users              | id
+ conversations        | user_id               | users              | id
+ deliveries           | order_id              | orders             | id
+ messages             | conversation_id       | conversations      | id
+ order_items          | order_id              | orders             | id
+ order_items          | product_id            | products           | id
+ orders               | user_id               | users              | id
+ payments             | order_id              | orders             | id
+ payments             | user_id               | users              | id
+ product_images       | product_id            | products           | id
+ products             | brand_id              | brands             | id
+ products             | category_id           | categories         | id
+ purchase_order_items | product_id            | products           | id
+ purchase_order_items | purchase_order_id     | purchase_orders    | id
+ purchase_orders      | supplier_id           | suppliers          | id
+ reclamations         | user_id               | users              | id
+ recommendations      | user_id               | users              | id
+ reorder_settings     | preferred_supplier_id | suppliers          | id
+ reorder_settings     | product_id            | products           | id
+ stock_movements      | product_id            | products           | id
+ supplier_products    | product_id            | products           | id
+ supplier_products    | supplier_id           | suppliers          | id
+ users                | role_id               | roles              | id
+ vehicles             | user_id               | users              | id
+(26 rows)
+

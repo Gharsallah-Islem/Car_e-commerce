@@ -1,0 +1,60 @@
+                  id                  |              name               | price  | stock | brand_name | category_name |      model      | year |                                                                                                                                                                                                                                                                         compatibility                                                                                                                                                                                                                                                                         
+--------------------------------------+---------------------------------+--------+-------+------------+---------------+-----------------+------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ a4444444-4444-4444-4444-444444444443 | 12V Car Battery 60Ah            | 125.00 |    45 | Bosch      | Électrique    | S4 005          | 2022 | {models=[{id=1, brand={models=[{id=1, model=, year=2024}, {id=2, brand=brand=Toyota, model=, year=2024}, {id=3, brand=model=, model=, year=2024}, {id=4, brand=year=2024}, model=, year=2024}, {id=5, brand={id=2, model=, year=2024}, {id=6, brand=brand=Honda, model=, year=2024}, {id=7, brand=model=, model=, year=2024}, {id=8, brand=year=2024}, model=, year=2024}, {id=9, brand={id=3, model=, year=2024}, {id=10, brand=brand=Nissan, model=, year=2024}, {id=11, brand=model=, model=, year=2024}, {id=12, brand=year=2024}]}, model=, year=2024}]}
+ a1111111-1111-1111-1111-111111111112 | Engine Oil Filter               |  12.50 |   200 | Valeo      | Filtration    | W 712/75        | 2019 | {models=[{id=1, brand=Honda, model=Civic, year=2024}, {id=2, brand=Accord, model=, year=2024}]}
+ a7777777-7777-7777-7777-777777777773 | Exhaust Flex Pipe               |  65.00 |    75 |            |               | 265-863         | 2021 | Volkswagen Jetta, Beetle
+ a7777777-7777-7777-7777-777777777772 | Catalytic Converter             | 485.00 |    20 |            |               | 16469           | 2019 | Toyota Tacoma, Tundra
+ a7777777-7777-7777-7777-777777777771 | Performance Muffler             | 235.00 |    40 |            |               | 14832           | 2020 | Honda Civic Si
+ a6666666-6666-6666-6666-666666666664 | ATF Transmission Fluid 4L       |  38.50 |   165 |            |               | Transmax        | 2021 | Universal
+ a6666666-6666-6666-6666-666666666663 | Synthetic Motor Oil 5L          |  45.00 |   300 |            |               | 120766          | 2022 | Universal
+ a6666666-6666-6666-6666-666666666662 | Fuel Filter                     |  16.75 |   185 |            |               | 33962           | 2020 | Chevrolet Silverado, GMC Sierra
+ a6666666-6666-6666-6666-666666666661 | Performance Air Filter          |  59.99 |   110 |            |               | 33-2304         | 2021 | Universal - Performance
+ a5555555-5555-5555-5555-555555555553 | Engine Thermostat               |  22.50 |   150 |            |               | RT1167          | 2021 | Ford Mustang, F-150
+ a5555555-5555-5555-5555-555555555552 | Aluminum Radiator               | 395.00 |    30 |            |               | MMRAD-WRA-07    | 2019 | Jeep Wrangler, Grand Cherokee
+ a5555555-5555-5555-5555-555555555551 | Radiator Hose Kit               |  35.99 |    95 |            |               | 22037           | 2020 | Hyundai Elantra, Sonata
+ a4444444-4444-4444-4444-444444444444 | Alternator 120A                 | 285.00 |    35 |            |               | 439553          | 2020 | Ford, Chevrolet
+ a4444444-4444-4444-4444-444444444442 | Fog Light Bulbs (Pair)          |  28.50 |   220 |            |               | H11             | 2021 | Universal
+ a4444444-4444-4444-4444-444444444441 | LED Headlight Bulbs H7          |  65.00 |   180 |            |               | X-treme Ultinon | 2022 | Universal
+ a3333333-3333-3333-3333-333333333334 | Front Strut Assembly            | 215.00 |    55 |            |               | SR4114          | 2021 | Subaru Outback, Forester
+ a3333333-3333-3333-3333-333333333333 | Steering Rack Assembly          | 425.00 |    25 |            |               | JRP1354         | 2020 | Mazda 3, 6
+ a3333333-3333-3333-3333-333333333332 | Lower Ball Joint                |  42.99 |   160 |            |               | K500241         | 2019 | Nissan Altima, Maxima
+ a3333333-3333-3333-3333-333333333331 | Front Shock Absorber Set        | 185.00 |    70 |            |               | 5891            | 2020 | Honda CR-V, Pilot
+ a2222222-2222-2222-2222-222222222224 | Brake Pads (Rear)               |  75.00 |   140 |            |               | 2355401         | 2021 | Volkswagen Golf, Passat
+ a2222222-2222-2222-2222-222222222223 | Brake Fluid 1L                  |  15.99 |   250 |            |               | TYP 200         | 2022 | Audi A4, A6
+ a2222222-2222-2222-2222-222222222222 | Brake Disc Rotors (Pair)        | 145.00 |    90 |            |               | BD126395E       | 2019 | Mercedes C-Class, E-Class
+ a2222222-2222-2222-2222-222222222221 | Ceramic Brake Pads (Front)      |  95.50 |   118 |            |               | P06037N         | 2020 | BMW 3 Series, 5 Series
+ a1111111-1111-1111-1111-111111111115 | Timing Belt Kit                 | 125.00 |    57 |            |               | T295            | 2018 | Ford F-150, Explorer
+ a1111111-1111-1111-1111-111111111111 | Platinum Spark Plugs Set (4pcs) |  45.99 |   148 |            |               | FR7DC+          | 2020 | Toyota Corolla, Camry
+ a1111111-1111-1111-1111-111111111114 | Ignition Coil                   |  89.99 |    79 |            |               | 673-1301        | 2020 | Toyota RAV4, Highlander
+ a1111111-1111-1111-1111-111111111113 | Engine Air Filter               |  18.75 |   175 |            |               | A3139C          | 2021 | Chevrolet Malibu, Cruze
+(27 rows)
+
+ id |  country  |    description     | logo_url |    name     
+----+-----------+--------------------+----------+-------------
+  1 | Allemagne | Marque Bosch       |          | Bosch
+  3 | Italie    | Marque Brembo      |          | Brembo
+  8 | Allemagne | Marque Continental |          | Continental
+  7 | Allemagne | Marque Hella       |          | Hella
+  5 | Allemagne | Marque Mann-Filter |          | Mann-Filter
+  4 | Japon     | Marque NGK         |          | NGK
+  6 | Allemagne | Marque Sachs       |          | Sachs
+  2 | France    | Marque Valeo       |          | Valeo
+(8 rows)
+
+ id |      description       |     name     
+----+------------------------+--------------
+  5 | Catégorie Carrosserie  | Carrosserie
+  8 | Catégorie Éclairage    | Éclairage
+  4 | Catégorie Électrique   | Électrique
+  6 | Catégorie Filtration   | Filtration
+  1 | Catégorie Freinage     | Freinage
+  2 | Catégorie Moteur       | Moteur
+  3 | Catégorie Suspension   | Suspension
+  7 | Catégorie Transmission | Transmission
+(8 rows)
+
+ total_products | products_with_brand | products_with_category 
+----------------+---------------------+------------------------
+             27 |                   2 |                      2
+(1 row)
+

@@ -55,9 +55,12 @@ export interface StockMovement {
 export interface ReorderSetting {
     id: string;
     product: any;
+    productId?: string;
+    supplierId?: string;
     reorderPoint: number;
     reorderQuantity: number;
     supplier?: Supplier;
+    autoReorder?: boolean;
     isEnabled: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -248,8 +251,12 @@ export class InventoryService {
         return this.http.delete<void>(`${this.apiUrl}/reorder-settings/${id}`);
     }
 
-    checkAutoReorders(): Observable<void> {
+    triggerAutoReorder(): Observable<void> {
         return this.http.post<void>(`${this.apiUrl}/reorder-settings/check-auto-reorders`, {});
+    }
+
+    checkAutoReorders(): Observable<void> {
+        return this.triggerAutoReorder();
     }
 
     // ==================== STATISTICS ====================

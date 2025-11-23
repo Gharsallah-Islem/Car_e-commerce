@@ -20,6 +20,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { NotificationService } from '../../../core/services/notification.service';
 import { InventoryService, Supplier, PurchaseOrder, StockMovement, ReorderSetting, InventoryStats } from '../../../core/services/inventory.service';
@@ -50,7 +51,8 @@ import { InventoryService, Supplier, PurchaseOrder, StockMovement, ReorderSettin
         MatPaginatorModule,
         MatSortModule,
         MatMenuModule,
-        MatBadgeModule
+        MatBadgeModule,
+        MatSlideToggleModule
     ],
     templateUrl: './inventory-management.component.html',
     styleUrls: ['./inventory-management.component.scss']
@@ -79,20 +81,84 @@ export class InventoryManagementComponent implements OnInit {
     // Suppliers
     suppliers = signal<Supplier[]>([]);
     editingSupplier = signal<Supplier | null>(null);
-    supplierColumns: string[] = ['name', 'contact', 'email', 'phone', 'products', 'orders', 'rating', 'status', 'actions'];
+    supplierSearchQuery = signal<string>('');
+    supplierColumns: string[] = ['name', 'contact', 'address', 'productsCount', 'status', 'actions'];
+
+    filteredSuppliers = computed(() => {
+        const query = this.supplierSearchQuery().toLowerCase();
+        if (!query) return this.suppliers();
+        return this.suppliers().filter(s =>
+            s.name.toLowerCase().includes(query) ||
+            s.email?.toLowerCase().includes(query) ||
+            s.phone?.toLowerCase().includes(query)
+        );
+    });
 
     // Purchase Orders
     purchaseOrders = signal<PurchaseOrder[]>([]);
     editingPO = signal<PurchaseOrder | null>(null);
-    poColumns: string[] = ['orderNumber', 'supplier', 'orderDate', 'expectedDelivery', 'status', 'items', 'total', 'actions'];
+    poSearchQuery = signal<string>('');
+    poStatusFilter = signal<string>('ALL');
+    purchaseOrderColumns: string[] = ['orderNumber', 'supplier', 'orderDate', 'expectedDate', 'totalAmount', 'status', 'actions'];
+
+    filteredPurchaseOrders = computed(() => {
+        let filtered = this.purchaseOrders();
+
+        // Apply status filter
+        if (this.poStatusFilter() !== 'ALL') {
+            filtered = filtered.filter(po => po.status === this.poStatusFilter());
+        }
+
+        // Apply search
+        const query = this.poSearchQuery().toLowerCase();
+        if (query) {
+            filtered = filtered.filter(po =>
+                po.poNumber?.toLowerCase().includes(query) ||
+                po.supplier?.name?.toLowerCase().includes(query)
+            );
+        }
+
+        return filtered;
+    });
 
     // Stock Movements
     stockMovements = signal<StockMovement[]>([]);
-    movementColumns: string[] = ['date', 'product', 'type', 'quantity', 'reason', 'reference', 'performedBy', 'actions'];
+    movementSearchQuery = signal<string>('');
+    movementTypeFilter = signal<string>('ALL');
+    movementColumns: string[] = ['date', 'product', 'type', 'quantity', 'reference', 'notes', 'user'];
+
+    filteredStockMovements = computed(() => {
+        let filtered = this.stockMovements();
+
+        // Apply type filter
+        if (this.movementTypeFilter() !== 'ALL') {
+            filtered = filtered.filter(m => m.movementType === this.movementTypeFilter());
+        }
+
+        // Apply search
+        const query = this.movementSearchQuery().toLowerCase();
+        if (query) {
+            filtered = filtered.filter(m =>
+                m.product?.name?.toLowerCase().includes(query) ||
+                m.referenceId?.toLowerCase().includes(query)
+            );
+        }
+
+        return filtered;
+    });
 
     // Reorder Settings
     reorderSettings = signal<ReorderSetting[]>([]);
+    reorderSearchQuery = signal<string>('');
     reorderColumns: string[] = ['product', 'currentStock', 'reorderPoint', 'reorderQuantity', 'supplier', 'autoReorder', 'status', 'actions'];
+
+    filteredReorderSettings = computed(() => {
+        const query = this.reorderSearchQuery().toLowerCase();
+        if (!query) return this.reorderSettings();
+        return this.reorderSettings().filter((r: ReorderSetting) =>
+            r.product?.name?.toLowerCase().includes(query)
+        );
+    });
 
     // Pagination
     pageSize = signal<number>(10);
@@ -473,8 +539,226 @@ export class InventoryManagementComponent implements OnInit {
         this.pageIndex.set(event.pageIndex);
     }
 
+
+
+    // Actions
+    checkAutoReorders(): void {
+        this.loading.set(true);
+        this.inventoryService.triggerAutoReorder().subscribe({
+            next: () => {
+                this.notificationService.success('Vérification du réapprovisionnement terminée');
+                this.loadPurchaseOrders(); // Reload to see new auto-generated POs
+                this.loading.set(false);
+            },
+            error: (error) => {
+                console.error('Error triggering auto-reorder:', error);
+                this.notificationService.error('Erreur lors de la vérification du réapprovisionnement');
+                this.loading.set(false);
+            }
+        });
+    }
+
+    filterOrders(status: string): void {
+        // Client-side filtering for now, or reload from backend
+        if (status === 'ALL') {
+            this.loadPurchaseOrders();
+        } else {
+            // Ideally call backend with status filter
+            this.loading.set(true);
+            this.inventoryService.getPurchaseOrders(0, 100).subscribe({ // Fetch more for filtering
+                next: (response) => {
+                    const filtered = response.content.filter(po => po.status === status);
+                    this.purchaseOrders.set(filtered);
+                    this.loading.set(false);
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.loading.set(false);
+                }
+            });
+        }
+    }
+
+    applyFilter(event: Event): void {
+        const filterValue = (event.target as HTMLInputElement).value;
+        // TODO: Implement backend search or client-side filter
+        console.log('Filtering suppliers:', filterValue);
+    }
+
+    applyMovementFilter(event: Event): void {
+        const filterValue = (event.target as HTMLInputElement).value;
+        // TODO: Implement backend search or client-side filter
+        console.log('Filtering movements:', filterValue);
+    }
+
+    viewOrderDetails(po: PurchaseOrder): void {
+        // TODO: Navigate to details or open dialog
+        console.log('View details for PO:', po);
+    }
+
+    toggleAutoReorder(setting: ReorderSetting, checked: boolean): void {
+        // Update just the auto-reorder flag
+        const updateData = { ...setting, autoReorder: checked };
+        // We need a specific endpoint or use the update endpoint
+        // Assuming updateReorderSetting exists and takes partial or full DTO
+        // casting to any to bypass strict DTO check for this quick fix
+        this.inventoryService.updateReorderSetting(setting.id, updateData as any).subscribe({
+            next: () => {
+                this.reorderSettings.update(settings =>
+                    settings.map(s => s.id === setting.id ? { ...s, autoReorder: checked } : s)
+                );
+                this.notificationService.success('Paramètre mis à jour');
+            },
+            error: (err) => {
+                this.notificationService.error('Erreur lors de la mise à jour');
+                // Revert toggle
+                this.reorderSettings.update(settings => [...settings]);
+            }
+        });
+    }
+
+    deleteReorderSetting(id: string): void {
+        if (confirm('Supprimer ce paramètre ?')) {
+            this.inventoryService.deleteReorderSetting(id).subscribe({
+                next: () => {
+                    this.reorderSettings.update(s => s.filter(item => item.id !== id));
+                    this.notificationService.success('Paramètre supprimé');
+                },
+                error: (err) => this.notificationService.error('Erreur lors de la suppression')
+            });
+        }
+    }
+
     exportToCSV(type: string): void {
         this.notificationService.info(`Export ${type} en cours...`);
-        // Implement CSV export logic
+        let data: any[] = [];
+        let filename = `export-${type}-${new Date().toISOString().split('T')[0]}.csv`;
+
+        switch (type) {
+            case 'inventory':
+                // Export current inventory (products + stock)
+                // Need a service method for this, or use loaded data
+                break;
+            case 'movements':
+                data = this.stockMovements();
+                break;
+            case 'orders':
+                data = this.purchaseOrders();
+                break;
+        }
+
+        if (data.length > 0) {
+            const headers = Object.keys(data[0]).join(',');
+            const csvContent = data.map(row => Object.values(row).join(',')).join('\n');
+            const blob = new Blob([headers + '\n' + csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            this.notificationService.success('Export terminé');
+        }
+    }
+
+    // Helper Methods
+    getStatusLabel(status: string): string {
+        const labels: { [key: string]: string } = {
+            'DRAFT': 'Brouillon',
+            'PENDING': 'En attente',
+            'RECEIVED': 'Reçu',
+            'CANCELLED': 'Annulé'
+        };
+        return labels[status] || status;
+    }
+
+    getMovementIcon(type: string): string {
+        const icons: { [key: string]: string } = {
+            'IN': 'arrow_downward',
+            'OUT': 'arrow_upward',
+            'ADJUSTMENT': 'tune'
+        };
+        return icons[type] || 'help';
+    }
+
+    getMovementLabel(type: string): string {
+        const labels: { [key: string]: string } = {
+            'IN': 'Entrée',
+            'OUT': 'Sortie',
+            'ADJUSTMENT': 'Ajustement'
+        };
+        return labels[type] || type;
+    }
+
+    // Dialog Methods
+    openSupplierDialog(): void {
+        // TODO: Implement proper MatDialog
+        this.supplierForm.reset();
+    }
+
+    openPurchaseOrderDialog(): void {
+        // TODO: Implement proper MatDialog
+        this.purchaseOrderForm.reset({ orderDate: new Date() });
+    }
+
+    openStockMovementDialog(): void {
+        // TODO: Implement proper MatDialog
+        this.stockMovementForm.reset({ type: 'IN' });
+    }
+
+    openReorderSettingDialog(): void {
+        // TODO: Implement proper MatDialog
+        this.reorderSettingForm.reset({ autoReorder: false });
+    }
+
+    // Edit Methods
+    editSupplier(supplier: Supplier): void {
+        this.editingSupplier.set(supplier);
+        this.supplierForm.patchValue(supplier);
+        // TODO: Open dialog or show inline form
+    }
+
+    editPurchaseOrder(po: PurchaseOrder): void {
+        this.editingPO.set(po);
+        this.purchaseOrderForm.patchValue(po);
+        // TODO: Open dialog or show inline form
+    }
+
+    editReorderSetting(setting: ReorderSetting): void {
+        this.reorderSettingForm.patchValue({
+            productId: setting.productId,
+            reorderPoint: setting.reorderPoint,
+            reorderQuantity: setting.reorderQuantity,
+            supplierId: setting.supplierId,
+            autoReorder: setting.autoReorder
+        });
+        // TODO: Open dialog or show inline form
+    }
+
+    // View Methods
+    viewPurchaseOrder(po: PurchaseOrder): void {
+        // TODO: Navigate to details or open dialog
+        console.log('View details for PO:', po);
+    }
+
+    // Receive/Delete Methods
+    receivePurchaseOrder(po: PurchaseOrder): void {
+        if (confirm('Marquer cette commande comme reçue ?')) {
+            // TODO: Call backend to update status
+            this.notificationService.success('Commande marquée comme reçue');
+            this.loadPurchaseOrders();
+        }
+    }
+
+    deletePurchaseOrder(id: string): void {
+        if (confirm('Supprimer cette commande ?')) {
+            this.inventoryService.deletePurchaseOrder(id).subscribe({
+                next: () => {
+                    this.purchaseOrders.update(pos => pos.filter(po => po.id !== id));
+                    this.notificationService.success('Commande supprimée');
+                },
+                error: (err) => this.notificationService.error('Erreur lors de la suppression')
+            });
+        }
     }
 }

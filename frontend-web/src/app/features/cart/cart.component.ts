@@ -67,6 +67,15 @@ export class CartComponent implements OnInit {
         return !items || items.length === 0;
     });
 
+    // Check if all cart items have valid quantities
+    hasInvalidQuantities = computed(() => {
+        const items = this.cartItems();
+        return items.some(item =>
+            item.quantity <= 0 ||
+            item.quantity > item.product.stock
+        );
+    });
+
     constructor(
         private router: Router,
         private cartService: CartService,
@@ -185,6 +194,19 @@ export class CartComponent implements OnInit {
     }
 
     proceedToCheckout(): void {
+        // Check if any item has invalid quantity
+        if (this.hasInvalidQuantities()) {
+            this.notificationService.error('Veuillez corriger les quantités invalides avant de continuer');
+            return;
+        }
+
+        // Check if any item is out of stock
+        const outOfStockItems = this.cartItems().filter(item => item.product.stock <= 0);
+        if (outOfStockItems.length > 0) {
+            this.notificationService.error('Certains articles ne sont plus en stock. Veuillez les retirer du panier.');
+            return;
+        }
+
         this.router.navigate(['/checkout']);
     }
 

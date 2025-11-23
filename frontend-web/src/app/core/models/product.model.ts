@@ -6,8 +6,8 @@ export interface Product {
     stock: number;
     imageUrl?: string;
     images?: string[];
-    category: Category;
-    brand: Brand;
+    category?: Category;
+    brand?: Brand;
     compatibility?: VehicleCompatibility[];
     compatibilityString?: string; // Simple string from backend (e.g., "Toyota Corolla, Camry")
     specifications?: ProductSpecification[];

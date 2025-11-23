@@ -155,6 +155,30 @@ public class ProductController {
     }
 
     /**
+     * Get related products (same category, excluding current product)
+     * GET /api/products/{id}/related?limit=4
+     * Security: Public endpoint
+     */
+    @GetMapping("/{id}/related")
+    public ResponseEntity<List<Product>> getRelatedProducts(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "4") int limit) {
+        Product currentProduct = productService.getProductById(id);
+
+        // Get products from the same category, excluding the current product
+        List<Product> relatedProducts = productService.getAllProducts().stream()
+                .filter(p -> !p.getId().equals(id)) // Exclude current product
+                .filter(p -> currentProduct.getCategory() != null &&
+                        p.getCategory() != null &&
+                        p.getCategory().getId().equals(currentProduct.getCategory().getId())) // Same category
+                .filter(p -> p.isInStock()) // Only in-stock products
+                .limit(limit)
+                .collect(java.util.stream.Collectors.toList());
+
+        return ResponseEntity.ok(relatedProducts);
+    }
+
+    /**
      * Get products by category
      * GET /api/products/category/{category}
      * Security: Public endpoint

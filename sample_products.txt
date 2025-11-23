@@ -1,0 +1,9 @@
+              name               | brand_varchar |  brand_fk   | category_varchar | category_fk 
+---------------------------------+---------------+-------------+------------------+-------------
+ Ignition Coil                   | Denso         | Denso       | Engine           | Engine
+ Timing Belt Kit                 | Gates         | Gates       | Engine           | Engine
+ Engine Air Filter               | ACDelco       | ACDelco     | Engine           | Engine
+ Platinum Spark Plugs Set (4pcs) | Bosch         | Bosch       | Engine           | Engine
+ Engine Oil Filter               | Mann-Filter   | Mann-Filter | Engine           | Engine
+(5 rows)
+

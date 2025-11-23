@@ -48,13 +48,13 @@
 
                             <mat-form-field appearance="outline" class="half-width">
                                 <mat-label>Téléphone</mat-label>
-                                <input matInput type="tel" formControlName="phone" placeholder="0612345678">
+                                <input matInput type="tel" formControlName="phone" placeholder="12345678">
                                 <mat-icon matPrefix>phone</mat-icon>
                                 @if (shippingForm.get('phone')?.hasError('required')) {
                                 <mat-error>Le téléphone est requis</mat-error>
                                 }
                                 @if (shippingForm.get('phone')?.hasError('pattern')) {
-                                <mat-error>Format: 10 chiffres</mat-error>
+                                <mat-error>Format: 8 chiffres</mat-error>
                                 }
                             </mat-form-field>
                         </div>
@@ -81,7 +81,7 @@
                         <div class="form-row">
                             <mat-form-field appearance="outline" class="half-width">
                                 <mat-label>Ville</mat-label>
-                                <input matInput formControlName="city" placeholder="Casablanca">
+                                <input matInput formControlName="city" placeholder="Tunis">
                                 <mat-icon matPrefix>location_on</mat-icon>
                                 @if (shippingForm.get('city')?.hasError('required')) {
                                 <mat-error>La ville est requise</mat-error>
@@ -90,13 +90,13 @@
 
                             <mat-form-field appearance="outline" class="half-width">
                                 <mat-label>Code postal</mat-label>
-                                <input matInput formControlName="postalCode" placeholder="20000">
+                                <input matInput formControlName="postalCode" placeholder="1000">
                                 <mat-icon matPrefix>markunread_mailbox</mat-icon>
                                 @if (shippingForm.get('postalCode')?.hasError('required')) {
                                 <mat-error>Le code postal est requis</mat-error>
                                 }
                                 @if (shippingForm.get('postalCode')?.hasError('pattern')) {
-                                <mat-error>Format: 5 chiffres</mat-error>
+                                <mat-error>Format: 4 chiffres</mat-error>
                                 }
                             </mat-form-field>
                         </div>
@@ -307,7 +307,7 @@
                                         <p class="item-quantity">Quantité: {{ item.quantity }}</p>
                                     </div>
                                     <div class="item-price">
-                                        <span class="price">{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                                        <span class="price">{{ getItemTotal(item) | number:'1.2-2' }} TND</span>
                                     </div>
                                 </div>
                                 }
@@ -347,7 +347,7 @@
                     @for (item of cartItems(); track item.product.id) {
                     <div class="summary-item">
                         <span>{{ item.product.name }} × {{ item.quantity }}</span>
-                        <span>{{ getItemTotal(item) | number:'1.2-2' }} MAD</span>
+                        <span>{{ getItemTotal(item) | number:'1.2-2' }} TND</span>
                     </div>
                     }
                 </div>
@@ -357,24 +357,24 @@
                 <div class="summary-totals">
                     <div class="total-row">
                         <span>Sous-total</span>
-                        <span>{{ subtotal() | number:'1.2-2' }} MAD</span>
+                        <span>{{ subtotal() | number:'1.2-2' }} TND</span>
                     </div>
                     <div class="total-row">
                         <span>TVA (20%)</span>
-                        <span>{{ tax() | number:'1.2-2' }} MAD</span>
+                        <span>{{ tax() | number:'1.2-2' }} TND</span>
                     </div>
                     <div class="total-row">
                         <span>Livraison</span>
                         @if (shipping() === 0) {
                         <span class="free">GRATUIT</span>
                         } @else {
-                        <span>{{ shipping() | number:'1.2-2' }} MAD</span>
+                        <span>{{ shipping() | number:'1.2-2' }} TND</span>
                         }
                     </div>
                     <mat-divider></mat-divider>
                     <div class="total-row grand-total">
                         <span>Total</span>
-                        <span>{{ total() | number:'1.2-2' }} MAD</span>
+                        <span>{{ total() | number:'1.2-2' }} TND</span>
                     </div>
                 </div>
 
@@ -413,12 +413,11 @@
                 <h3>Détails de la commande</h3>
                 <div class="summary-row">
                     <span>Total payé:</span>
-                    <span class="amount">{{ total() | number:'1.2-2' }} MAD</span>
+                    <span class="amount">{{ total() | number:'1.2-2' }} TND</span>
                 </div>
                 <div class="summary-row">
                     <span>Mode de paiement:</span>
-                    <span>{{ selectedPaymentMethod() === 'card' ? 'Carte bancaire' : 'Paiement à la livraison'
-                        }}</span>
+                    <span>{{ selectedPaymentMethod() === 'card' ? 'Carte bancaire' : 'Paiement à la livraison' }}</span>
                 </div>
                 <div class="summary-row">
                     <span>Adresse de livraison:</span>

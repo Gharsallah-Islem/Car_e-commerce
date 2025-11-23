@@ -224,12 +224,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         this.shippingForm = this.fb.group({
             fullName: ['', [Validators.required, Validators.minLength(3)]],
             email: ['', [Validators.required, Validators.email]],
-            phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+            phone: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
             addressLine1: ['', [Validators.required, Validators.minLength(5)]],
             addressLine2: [''],
             city: ['', [Validators.required]],
-            postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{5}$/)]],
-            country: ['Maroc', [Validators.required]],
+            postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{4}$/)]],
+            country: ['Tunisie', [Validators.required]],
             saveAddress: [false]
         });
 

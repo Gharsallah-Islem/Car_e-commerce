@@ -1,0 +1,14 @@
+  category  
+------------
+ Brakes
+ Cooling
+ Electrical
+ Engine
+ Exhaust
+ Filters
+ Fluids
+ Lighting
+ Steering
+ Suspension
+(10 rows)
+

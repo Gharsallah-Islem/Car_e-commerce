@@ -252,6 +252,14 @@ export class ProductListComponent implements OnInit {
         return brand?.name || '';
     }
 
+    updatePriceRange(type: 'min' | 'max', value: number): void {
+        this.priceRange.update(range => ({
+            ...range,
+            [type]: value
+        }));
+        this.onPriceRangeChange();
+    }
+
     toggleViewMode(): void {
         this.viewMode.update(mode => mode === 'grid' ? 'list' : 'grid');
     }

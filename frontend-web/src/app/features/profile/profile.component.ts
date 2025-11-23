@@ -108,7 +108,7 @@ export class ProfileComponent implements OnInit {
             firstName: ['', [Validators.required, Validators.minLength(2)]],
             lastName: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
-            phoneNumber: ['', [Validators.pattern(/^[0-9]{10}$/)]]
+            phoneNumber: ['', [Validators.pattern(/^[0-9]{8}$/)]]
         });
 
         // Password form
@@ -124,8 +124,8 @@ export class ProfileComponent implements OnInit {
         this.addressForm = this.fb.group({
             street: ['', [Validators.required, Validators.minLength(5)]],
             city: ['', [Validators.required]],
-            postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{5}$/)]],
-            country: ['Maroc', [Validators.required]]
+            postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{4}$/)]],
+            country: ['Tunisie', [Validators.required]]
         });
     }
 
@@ -206,15 +206,15 @@ export class ProfileComponent implements OnInit {
                     id: 1,
                     street: '123 Rue Mohammed V',
                     city: 'Casablanca',
-                    postalCode: '20000',
-                    country: 'Maroc'
+                    postalCode: '1000',
+                    country: 'Tunisie'
                 },
                 {
                     id: 2,
                     street: '456 Avenue Hassan II',
                     city: 'Rabat',
-                    postalCode: '10000',
-                    country: 'Maroc'
+                    postalCode: '1000',
+                    country: 'Tunisie'
                 }
             ];
             this.addresses.set(mockAddresses);
@@ -276,7 +276,7 @@ export class ProfileComponent implements OnInit {
         };
 
         this.addresses.update(addresses => [...addresses, newAddress]);
-        this.addressForm.reset({ country: 'Maroc' });
+        this.addressForm.reset({ country: 'Tunisie' });
         this.notificationService.success('Adresse ajoutée avec succès');
     }
 
@@ -299,7 +299,7 @@ export class ProfileComponent implements OnInit {
                 )
             );
             this.editingAddress.set(null);
-            this.addressForm.reset({ country: 'Maroc' });
+            this.addressForm.reset({ country: 'Tunisie' });
             this.notificationService.success('Adresse mise à jour avec succès');
         }
     }
@@ -315,7 +315,7 @@ export class ProfileComponent implements OnInit {
 
     cancelAddressEdit(): void {
         this.editingAddress.set(null);
-        this.addressForm.reset({ country: 'Maroc' });
+        this.addressForm.reset({ country: 'Tunisie' });
     }
 
     viewOrderDetails(orderId: string): void {
