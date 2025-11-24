@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { NotificationService } from '../../core/services/notification.service';
+import { ChatService } from '../../core/services/chat.service';
 import { Router } from '@angular/router';
 
 interface IdentificationResult {
@@ -60,7 +61,7 @@ interface ChatMessage {
     templateUrl: './ai-mechanic.component.html',
     styleUrls: ['./ai-mechanic.component.scss']
 })
-export class AiMechanicComponent implements OnInit {
+export class AiMechanicComponent implements OnInit, OnDestroy {
     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
     @ViewChild('chatContainer') chatContainer!: ElementRef<HTMLDivElement>;
 
@@ -77,17 +78,22 @@ export class AiMechanicComponent implements OnInit {
     userMessage = signal<string>('');
     chatLoading = signal<boolean>(false);
 
+    // Real backend integration
+    private conversationId: string | null = null;
+    private pollingInterval: any;
+
     // Suggested questions
     suggestedQuestions = [
-        'Comment changer mes plaquettes de frein ?',
-        'Quel type d\'huile moteur dois-je utiliser ?',
-        'Comment diagnostiquer un problème de démarrage ?',
-        'Quels sont les signes d\'usure des amortisseurs ?',
-        'Comment entretenir ma batterie ?'
+        'I need brake pads for my car',
+        'Do you have oil filters in stock?',
+        'What brake discs do you recommend?',
+        'I need help choosing car parts',
+        'Show me your best deals'
     ];
 
     constructor(
         private notificationService: NotificationService,
+        private chatService: ChatService,
         private router: Router
     ) { }
 
@@ -95,16 +101,52 @@ export class AiMechanicComponent implements OnInit {
         this.initializeChat();
     }
 
+    ngOnDestroy(): void {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+        }
+    }
+
     initializeChat(): void {
-        // Welcome message
-        this.chatMessages.set([
-            {
-                id: '1',
-                text: 'Bonjour ! Je suis votre assistant mécanique virtuel. Comment puis-je vous aider aujourd\'hui ? Vous pouvez me poser des questions sur l\'entretien automobile, le diagnostic de problèmes, ou me montrer une photo d\'une pièce pour l\'identifier.',
-                sender: 'ai',
-                timestamp: new Date()
+        // Start real conversation with backend
+        this.chatService.startSupportChat().subscribe({
+            next: (conversation) => {
+                this.conversationId = conversation.id;
+                console.log('✅ AI Conversation started:', this.conversationId);
+
+                // Welcome message
+                this.chatMessages.set([
+                    {
+                        id: '1',
+                        text: 'Bonjour ! Je suis votre assistant mécanique virtuel alimenté par IA Gemini. Comment puis-je vous aider aujourd\'hui ? Vous pouvez me poser des questions sur l\'entretien automobile, le diagnostic de problèmes, ou les pièces détachées disponibles en stock.',
+                        sender: 'ai',
+                        timestamp: new Date()
+                    }
+                ]);
+
+                // Start polling for new messages
+                // this.startPolling(); // DISABLED to prevent refreshing
+            },
+            error: (error) => {
+                console.error('❌ Error starting conversation:', error);
+                this.notificationService.error('Erreur de connexion au service de chat');
+
+                // Fallback welcome message
+                this.chatMessages.set([
+                    {
+                        id: '1',
+                        text: 'Désolé, je ne peux pas me connecter au serveur pour le moment. Veuillez réessayer plus tard.',
+                        sender: 'ai',
+                        timestamp: new Date()
+                    }
+                ]);
             }
-        ]);
+        });
+    }
+
+    startPolling(): void {
+        // DISABLED - Polling causes annoying page refresh
+        // We'll manually poll after sending messages instead
     }
 
     // Image Upload & Identification
@@ -151,8 +193,8 @@ export class AiMechanicComponent implements OnInit {
         this.identificationLoading.set(true);
 
         // Simulate AI identification process (2-3 seconds)
+        // TODO: Replace with real AI image recognition API
         setTimeout(() => {
-            // Mock result - in production, this would call an AI API
             const mockResult: IdentificationResult = {
                 partName: 'Plaquettes de frein avant',
                 partNumber: 'BRK-FR-001',
@@ -176,20 +218,43 @@ export class AiMechanicComponent implements OnInit {
     }
 
     viewProductDetails(): void {
-        // Navigate to product detail page
-        this.router.navigate(['/products', 1]); // Mock product ID
+        this.router.navigate(['/products', 1]);
     }
 
     addToCart(): void {
         this.notificationService.success('Produit ajouté au panier');
     }
 
-    // Chatbot
+    clearHistory(): void {
+        if (!this.conversationId) return;
+
+        if (confirm('Êtes-vous sûr de vouloir effacer l\'historique de la conversation ?')) {
+            this.chatService.archiveConversation(this.conversationId).subscribe({
+                next: () => {
+                    this.notificationService.success('Historique effacé');
+                    this.chatMessages.set([]);
+                    // Restart conversation to get a new ID
+                    this.initializeChat();
+                },
+                error: (err) => {
+                    console.error('Error clearing history:', err);
+                    this.notificationService.error('Erreur lors de la suppression de l\'historique');
+                }
+            });
+        }
+    }
+
+    // Chatbot - Real AI Integration
     sendMessage(): void {
         const message = this.userMessage().trim();
-        if (!message) return;
+        if (!message || !this.conversationId) {
+            if (!this.conversationId) {
+                this.notificationService.error('Connexion au chat non établie');
+            }
+            return;
+        }
 
-        // Add user message
+        // Add user message to UI immediately
         const userMsg: ChatMessage = {
             id: Date.now().toString(),
             text: message,
@@ -204,57 +269,73 @@ export class AiMechanicComponent implements OnInit {
         // Scroll to bottom
         setTimeout(() => this.scrollToBottom(), 100);
 
-        // Simulate AI response (1-2 seconds)
-        setTimeout(() => {
-            const aiResponse = this.generateAIResponse(message);
-            this.chatMessages.update(messages => [...messages, aiResponse]);
-            this.chatLoading.set(false);
-            setTimeout(() => this.scrollToBottom(), 100);
-        }, 1500);
+        console.log('📤 Sending message to AI:', message);
+
+        // Send message to backend - AI will respond automatically
+        this.chatService.sendMessage(this.conversationId, {
+            content: message
+        }).subscribe({
+            next: (sentMessage) => {
+                console.log('✅ Message sent successfully, waiting for AI response...');
+
+                // Fetch AI response after a short delay (give AI time to generate)
+                setTimeout(() => {
+                    this.fetchAiResponse();
+                }, 2000);
+            },
+            error: (error) => {
+                console.error('❌ Error sending message:', error);
+                this.chatLoading.set(false);
+                this.notificationService.error('Erreur lors de l\'envoi du message');
+
+                // Add error message
+                this.chatMessages.update(messages => [...messages, {
+                    id: Date.now().toString(),
+                    text: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
+                    sender: 'ai',
+                    timestamp: new Date()
+                }]);
+            }
+        });
     }
 
-    generateAIResponse(userMessage: string): ChatMessage {
-        const lowerMessage = userMessage.toLowerCase();
+    fetchAiResponse(): void {
+        if (!this.conversationId) return;
 
-        // Simple keyword-based responses (in production, use actual AI/LLM)
-        let responseText = '';
-        let relatedProducts = undefined;
+        // Get messages since just before we sent ours
+        const since = new Date(Date.now() - 10000);
 
-        if (lowerMessage.includes('frein') || lowerMessage.includes('plaquette')) {
-            responseText = 'Pour changer vos plaquettes de frein :\n\n1. Soulevez le véhicule et retirez la roue\n2. Retirez les vis de l\'étrier\n3. Remplacez les plaquettes usées\n4. Remontez l\'étrier et la roue\n5. Pompez la pédale de frein plusieurs fois\n\n⚠️ Important : Vérifiez également l\'état des disques de frein. Si vous n\'êtes pas sûr, consultez un professionnel.';
-            relatedProducts = [
-                { id: 1, name: 'Plaquettes de frein Brembo', price: 89.99, imageUrl: 'https://placehold.co/300x200/e3f2fd/1976d2?text=Brake+Pads' },
-                { id: 2, name: 'Disques de frein avant', price: 159.99, imageUrl: 'https://placehold.co/300x200/e3f2fd/1976d2?text=Brake+Discs' }
-            ];
-        } else if (lowerMessage.includes('huile') || lowerMessage.includes('moteur')) {
-            responseText = 'Le choix de l\'huile moteur dépend de votre véhicule :\n\n• Consultez le manuel du propriétaire pour la viscosité recommandée (ex: 5W-30)\n• Huile synthétique : meilleure protection, intervalles plus longs\n• Huile minérale : moins chère, convient aux moteurs anciens\n• Huile semi-synthétique : bon compromis\n\nFréquence de vidange : tous les 10 000 à 15 000 km ou 1 fois par an.';
-            relatedProducts = [
-                { id: 3, name: 'Huile moteur 5W-30 Castrol', price: 45.99, imageUrl: 'https://placehold.co/300x200/fff3e0/f57c00?text=Motor+Oil' },
-                { id: 4, name: 'Filtre à huile Bosch', price: 12.99, imageUrl: 'https://placehold.co/300x200/fff3e0/f57c00?text=Oil+Filter' }
-            ];
-        } else if (lowerMessage.includes('démarrage') || lowerMessage.includes('batterie')) {
-            responseText = 'Problèmes de démarrage - Causes possibles :\n\n1. **Batterie déchargée** : Testez la tension (12.6V à pleine charge)\n2. **Alternateur défaillant** : Vérifiez la charge (13.5-14.5V moteur en marche)\n3. **Démarreur HS** : Écoutez les clics au démarrage\n4. **Bougies d\'allumage** : Vérifiez l\'état et l\'écartement\n5. **Pompe à carburant** : Écoutez le bruit à la mise du contact\n\nCommencez par vérifier la batterie et les connexions.';
-            relatedProducts = [
-                { id: 5, name: 'Batterie 12V 70Ah', price: 89.99, imageUrl: 'https://placehold.co/300x200/e8f5e9/388e3c?text=Car+Battery' }
-            ];
-        } else if (lowerMessage.includes('amortisseur') || lowerMessage.includes('suspension')) {
-            responseText = 'Signes d\'usure des amortisseurs :\n\n✓ Véhicule qui rebondit après un dos d\'âne\n✓ Usure irrégulière des pneus\n✓ Distance de freinage allongée\n✓ Fuite d\'huile sur l\'amortisseur\n✓ Bruits métalliques dans les virages\n\nTest simple : Appuyez fort sur un coin du véhicule et relâchez. Si le véhicule rebondit plus de 2 fois, les amortisseurs sont usés.';
-            relatedProducts = [
-                { id: 6, name: 'Amortisseurs avant Monroe', price: 159.99, imageUrl: 'https://placehold.co/300x200/fce4ec/c2185b?text=Shocks' }
-            ];
-        } else if (lowerMessage.includes('prix') || lowerMessage.includes('coût')) {
-            responseText = 'Les prix varient selon les pièces :\n\n• Plaquettes de frein : 50-150 MAD\n• Disques de frein : 120-250 MAD\n• Amortisseurs : 150-400 MAD/unité\n• Batterie : 800-1500 MAD\n• Vidange d\'huile : 300-600 MAD\n\nConsultez notre catalogue pour des prix détaillés et des promotions.';
-        } else {
-            responseText = 'Je comprends votre question. Pour vous aider au mieux, pourriez-vous me donner plus de détails ?\n\nVous pouvez me poser des questions sur :\n• L\'entretien et la maintenance\n• Le diagnostic de pannes\n• Le choix de pièces détachées\n• Les compatibilités véhicules\n• Les procédures de remplacement\n\nOu utilisez l\'onglet "Identification" pour identifier une pièce via photo.';
-        }
+        this.chatService.getRecentMessages(this.conversationId, since).subscribe({
+            next: (messages) => {
+                let aiResponded = false;
+                messages.forEach(msg => {
+                    // Only add if not already in list and is from AI
+                    const exists = this.chatMessages().some(m => m.id === msg.id);
+                    if (!exists && msg.senderType !== 'USER') {
+                        const chatMsg: ChatMessage = {
+                            id: msg.id!,
+                            text: msg.content,
+                            sender: 'ai',
+                            timestamp: msg.createdAt
+                        };
+                        this.chatMessages.update(msgs => [...msgs, chatMsg]);
+                        aiResponded = true;
+                    }
+                });
 
-        return {
-            id: Date.now().toString(),
-            text: responseText,
-            sender: 'ai',
-            timestamp: new Date(),
-            relatedProducts
-        };
+                if (aiResponded) {
+                    this.chatLoading.set(false);
+                    setTimeout(() => this.scrollToBottom(), 100);
+                } else {
+                    // If no response yet, try again in 2 seconds
+                    setTimeout(() => this.fetchAiResponse(), 2000);
+                }
+            },
+            error: (err) => {
+                console.error('Error fetching AI response:', err);
+                this.chatLoading.set(false);
+            }
+        });
     }
 
     sendSuggestedQuestion(question: string): void {

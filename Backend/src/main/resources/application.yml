@@ -31,6 +31,12 @@ jwt:
   secret: ${JWT_SECRET:your-secret-key-change-this-in-production}
   expiration: 86400000 # 24 hours in milliseconds
 
+# Gemini AI Configuration
+gemini:
+  api:
+    key: AIzaSyA_sYC09jM6Me0IrL_XLWB2j_l_bPB1MH0
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+
 # Server Configuration
 server:
   port: 8080

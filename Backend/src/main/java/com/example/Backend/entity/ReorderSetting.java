@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,7 @@ public class ReorderSetting implements Serializable {
     @NotNull(message = "Product is required")
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "suppliers" })
     private Product product;
 
     @NotNull(message = "Reorder point is required")
@@ -65,6 +67,7 @@ public class ReorderSetting implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "preferred_supplier_id")
+    @JsonIgnoreProperties({ "purchaseOrders", "products", "hibernateLazyInitializer", "handler" })
     private Supplier preferredSupplier; // Default supplier for auto-reorder
 
     @Column(name = "last_reorder_date")

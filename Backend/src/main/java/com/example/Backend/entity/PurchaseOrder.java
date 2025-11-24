@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -37,6 +38,7 @@ public class PurchaseOrder implements Serializable {
     @NotNull(message = "Supplier is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", nullable = false)
+    @JsonIgnoreProperties({ "purchaseOrders", "products", "hibernateLazyInitializer", "handler" })
     private Supplier supplier;
 
     @Enumerated(EnumType.STRING)
@@ -89,6 +91,7 @@ public class PurchaseOrder implements Serializable {
 
     // Relationships
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("purchaseOrder")
     private List<PurchaseOrderItem> items = new ArrayList<>();
 
     // Purchase Order Status Enum

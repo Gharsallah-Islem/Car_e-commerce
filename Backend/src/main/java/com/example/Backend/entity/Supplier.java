@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -87,9 +88,11 @@ public class Supplier implements Serializable {
 
     // Relationships
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({ "supplier", "items" })
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "supplier_products", joinColumns = @JoinColumn(name = "supplier_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+    @JsonIgnoreProperties({ "suppliers", "hibernateLazyInitializer", "handler" })
     private List<Product> products = new ArrayList<>();
 }

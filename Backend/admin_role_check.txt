@@ -1,0 +1,13 @@
+                  id                  | username |       email        |      full_name       | role_id | role_name 
+--------------------------------------+----------+--------------------+----------------------+---------+-----------
+ ed505438-4593-485e-9f27-a056b7625eb7 | admin    | admin@carparts.com | System Administrator |       3 | ADMIN
+(1 row)
+
+ id |    name     
+----+-------------
+  1 | CLIENT
+  2 | SUPPORT
+  3 | ADMIN
+  4 | SUPER_ADMIN
+(4 rows)
+

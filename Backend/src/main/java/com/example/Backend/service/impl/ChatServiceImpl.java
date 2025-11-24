@@ -8,6 +8,10 @@ import com.example.Backend.entity.User;
 import com.example.Backend.repository.ConversationRepository;
 import com.example.Backend.repository.MessageRepository;
 import com.example.Backend.repository.UserRepository;
+import com.example.Backend.entity.Product;
+import com.example.Backend.repository.ProductRepository;
+import com.example.Backend.service.GeminiService;
+import lombok.extern.slf4j.Slf4j;
 import com.example.Backend.service.ChatService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +28,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatServiceImpl implements ChatService {
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final GeminiService geminiService;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -88,25 +95,63 @@ public class ChatServiceImpl implements ChatService {
     public Message sendMessage(UUID conversationId, UUID senderId, MessageDTO messageDTO) {
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new EntityNotFoundException("Conversation not found with id: " + conversationId));
-
         if (!userRepository.existsById(senderId)) {
             throw new EntityNotFoundException("Sender not found with id: " + senderId);
         }
-
-        Message message = new Message();
-        message.setConversation(conversation);
-        message.setSenderId(senderId);
-        message.setSenderType(determineSenderType(senderId));
-        message.setContent(messageDTO.getContent());
-        message.setAttachmentUrl(messageDTO.getAttachmentUrl());
-        message.setIsRead(false);
-        message.setCreatedAt(LocalDateTime.now());
-
+        // Save user's message
+        Message userMessage = new Message();
+        userMessage.setConversation(conversation);
+        userMessage.setSenderId(senderId);
+        userMessage.setSenderType(determineSenderType(senderId));
+        userMessage.setContent(messageDTO.getContent());
+        userMessage.setAttachmentUrl(messageDTO.getAttachmentUrl());
+        userMessage.setIsRead(false);
+        userMessage.setCreatedAt(LocalDateTime.now());
         // Update conversation timestamp
         conversation.setUpdatedAt(LocalDateTime.now());
         conversationRepository.save(conversation);
+        Message savedUserMessage = messageRepository.save(userMessage);
+        // Generate AI response if sender is a regular user (not admin/support)
+        String senderType = determineSenderType(senderId);
+        if (Message.SENDER_USER.equals(senderType)) {
+            try {
+                // Get conversation history
+                String conversationHistory = buildConversationHistory(conversationId);
 
-        return messageRepository.save(message);
+                // Search for relevant products
+                List<Product> relevantProducts = findRelevantProducts(messageDTO.getContent());
+
+                // Generate AI response
+                String aiResponse;
+                if (!relevantProducts.isEmpty()) {
+                    aiResponse = geminiService.generateResponseWithProducts(
+                            messageDTO.getContent(),
+                            relevantProducts,
+                            conversationHistory);
+                } else {
+                    aiResponse = geminiService.generateResponse(
+                            messageDTO.getContent(),
+                            conversationHistory);
+                }
+                // Save AI response as a message
+                Message aiMessage = new Message();
+                aiMessage.setConversation(conversation);
+                aiMessage.setSenderId(senderId);
+                aiMessage.setSenderType(Message.SENDER_SUPPORT); // Mark as AI/support
+                aiMessage.setContent(aiResponse);
+                aiMessage.setIsRead(false);
+                aiMessage.setCreatedAt(LocalDateTime.now().plusSeconds(1));
+
+                messageRepository.save(aiMessage);
+
+                log.info("AI response generated for conversation: {}", conversationId);
+
+            } catch (Exception e) {
+                log.error("Error generating AI response for conversation: {}", conversationId, e);
+                // Don't fail if AI fails
+            }
+        }
+        return savedUserMessage;
     }
 
     @Override
@@ -259,5 +304,44 @@ public class ChatServiceImpl implements ChatService {
                 .unreadCount(unreadCount.intValue())
                 .lastMessage(lastMessageDTO)
                 .build();
+    }
+
+    private String buildConversationHistory(UUID conversationId) {
+        List<Message> recentMessages = messageRepository.findTop10ByConversationIdOrderByCreatedAtDesc(conversationId);
+
+        if (recentMessages.isEmpty()) {
+            return "";
+        }
+        StringBuilder history = new StringBuilder();
+        // Reverse to get chronological order
+        for (int i = recentMessages.size() - 1; i >= 0; i--) {
+            Message msg = recentMessages.get(i);
+            String role = Message.SENDER_USER.equals(msg.getSenderType()) ? "User" : "Assistant";
+            history.append(role).append(": ").append(msg.getContent()).append("\\n");
+        }
+
+        return history.toString();
+    }
+
+    /**
+     * Find relevant products based on user message keywords
+     */
+    private List<Product> findRelevantProducts(String userMessage) {
+        try {
+            String searchTerm = userMessage.toLowerCase();
+
+            // Search products by name
+            List<Product> products = productRepository.findByNameContaining(searchTerm);
+
+            // Limit to top 5 most relevant in-stock products
+            return products.stream()
+                    .filter(p -> p.getStock() > 0)
+                    .limit(5)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("Error finding relevant products", e);
+            return List.of();
+        }
     }
 }

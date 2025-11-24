@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -113,7 +114,7 @@ public class ChatController {
      * GET /api/chat/conversations/{conversationId}/messages/recent
      */
     @GetMapping("/conversations/{conversationId}/messages/recent")
-    public ResponseEntity<List<Message>> getRecentMessages(
+    public ResponseEntity<List<MessageDTO>> getRecentMessages(
             @PathVariable UUID conversationId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime since,
             @AuthenticationPrincipal UserPrincipal currentUser) {
@@ -129,7 +130,21 @@ public class ChatController {
         }
 
         List<Message> messages = chatService.getRecentMessages(conversationId, since);
-        return ResponseEntity.ok(messages);
+
+        // Convert to DTOs to avoid StackOverflowError from circular references
+        List<MessageDTO> messageDTOs = messages.stream()
+                .map(msg -> MessageDTO.builder()
+                        .id(msg.getId())
+                        .content(msg.getContent())
+                        .senderId(msg.getSenderId())
+                        .senderType(msg.getSenderType())
+                        .isRead(msg.getIsRead())
+                        .createdAt(msg.getCreatedAt())
+                        .attachmentUrl(msg.getAttachmentUrl())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(messageDTOs);
     }
 
     /**
@@ -137,7 +152,7 @@ public class ChatController {
      * POST /api/chat/conversations/{conversationId}/messages
      */
     @PostMapping("/conversations/{conversationId}/messages")
-    public ResponseEntity<Message> sendMessage(
+    public ResponseEntity<MessageDTO> sendMessage(
             @PathVariable UUID conversationId,
             @Valid @RequestBody MessageDTO messageDTO,
             @AuthenticationPrincipal UserPrincipal currentUser) {
@@ -156,7 +171,19 @@ public class ChatController {
                 conversationId,
                 currentUser.getId(),
                 messageDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(message);
+
+        // Convert to DTO to avoid StackOverflowError
+        MessageDTO responseDTO = MessageDTO.builder()
+                .id(message.getId())
+                .content(message.getContent())
+                .senderId(message.getSenderId())
+                .senderType(message.getSenderType())
+                .isRead(message.getIsRead())
+                .createdAt(message.getCreatedAt())
+                .attachmentUrl(message.getAttachmentUrl())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     /**

@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Temp Files ###
+tables_output.txt
+*.log

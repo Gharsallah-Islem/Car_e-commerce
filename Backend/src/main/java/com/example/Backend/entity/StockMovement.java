@@ -33,7 +33,7 @@ public class StockMovement implements Serializable {
     @NotNull(message = "Product is required")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "suppliers" })
     private Product product;
 
     @Enumerated(EnumType.STRING)

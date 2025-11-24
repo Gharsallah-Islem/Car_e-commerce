@@ -15,7 +15,7 @@
             <ng-container matColumnDef="orderNumber">
                 <th mat-header-cell *matHeaderCellDef>Numéro</th>
                 <td mat-cell *matCellDef="let order">
-                    <strong>{{ order.orderNumber }}</strong>
+                    <span matTooltip="{{ order.id }}">#{{ order.id | slice:0:8 }}</span>
                 </td>
             </ng-container>
 
@@ -24,8 +24,8 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
                 <td mat-cell *matCellDef="let order">
                     <div class="customer-info">
-                        <strong>{{ order.customerName }}</strong>
-                        <span class="customer-email">{{ order.customerEmail }}</span>
+                        <strong>{{ order.user?.fullName || order.user?.username }}</strong>
+                        <span class="customer-email">{{ order.user?.email }}</span>
                     </div>
                 </td>
             </ng-container>
@@ -34,7 +34,7 @@
             <ng-container matColumnDef="date">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
                 <td mat-cell *matCellDef="let order">
-                    {{ order.date | date:'dd/MM/yyyy HH:mm' }}
+                    {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}
                 </td>
             </ng-container>
 
@@ -42,14 +42,14 @@
             <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef>Statut</th>
                 <td mat-cell *matCellDef="let order">
-                    <mat-form-field class="status-select">
+                    <mat-form-field class="status-select" subscriptSizing="dynamic">
                         <mat-select [value]="order.status"
                             (selectionChange)="updateOrderStatus(order.id, $event.value)">
-                            <mat-option value="pending">En attente</mat-option>
-                            <mat-option value="processing">En préparation</mat-option>
-                            <mat-option value="shipped">Expédiée</mat-option>
-                            <mat-option value="delivered">Livrée</mat-option>
-                            <mat-option value="cancelled">Annulée</mat-option>
+                            <mat-option value="PENDING">En attente</mat-option>
+                            <mat-option value="CONFIRMED">Confirmée</mat-option>
+                            <mat-option value="SHIPPED">Expédiée</mat-option>
+                            <mat-option value="DELIVERED">Livrée</mat-option>
+                            <mat-option value="CANCELLED">Annulée</mat-option>
                         </mat-select>
                     </mat-form-field>
                 </td>
@@ -59,7 +59,7 @@
             <ng-container matColumnDef="items">
                 <th mat-header-cell *matHeaderCellDef>Articles</th>
                 <td mat-cell *matCellDef="let order">
-                    {{ order.itemCount }} article(s)
+                    {{ order.orderItems?.length || 0 }} article(s)
                 </td>
             </ng-container>
 
@@ -67,7 +67,7 @@
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
                 <td mat-cell *matCellDef="let order">
-                    <strong class="total-amount">{{ order.total | number:'1.2-2' }} MAD</strong>
+                    <strong class="total-amount">{{ order.totalPrice | number:'1.2-2' }} MAD</strong>
                 </td>
             </ng-container>
 

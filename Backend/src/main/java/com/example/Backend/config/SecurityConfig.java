@@ -76,7 +76,7 @@ public class SecurityConfig {
 
                         // User endpoints
                         .requestMatchers("/api/cart/**").hasRole("CLIENT")
-                        .requestMatchers("/api/orders/**").hasRole("CLIENT")
+                        .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/vehicles/**").hasRole("CLIENT")
 
                         // Support endpoints

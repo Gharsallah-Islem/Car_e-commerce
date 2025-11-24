@@ -1,5 +1,6 @@
 package com.example.Backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -29,6 +30,7 @@ public class PurchaseOrderItem implements Serializable {
     @NotNull(message = "Purchase order is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_order_id", nullable = false)
+    @JsonIgnore
     private PurchaseOrder purchaseOrder;
 
     @NotNull(message = "Product is required")

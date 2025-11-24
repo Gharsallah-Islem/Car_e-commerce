@@ -83,6 +83,11 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
          * Get last message in conversation using JPA naming convention
          */
         List<Message> findTop1ByConversationIdOrderByCreatedAtDesc(UUID conversationId);
+        
+        /**
+         * Get last 10 messages in conversation for AI context (newest first)
+         */
+        List<Message> findTop10ByConversationIdOrderByCreatedAtDesc(UUID conversationId);
 
         /**
          * Search messages by content
