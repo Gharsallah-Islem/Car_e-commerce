@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: carparts-backend
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/carparts
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT Configuration
+jwt:
+  secret: YourSecretKeyForJWTTokenGenerationMustBeLongEnough
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Stripe Configuration
+stripe:
+  api-key: XXXXXXX
+
+# Google OAuth Configuration
+google:
+  client-id: XXXXXXX
+
+# CORS Configuration
+cors:
+  allowed-origins: http://localhost:3000,http://10.0.2.2:8080
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true

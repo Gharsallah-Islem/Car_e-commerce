@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/productsFragment">
+
+    <fragment
+        android:id="@+id/productsFragment"
+        android:name="com.integmobile.ui.products.ProductsFragment"
+        android:label="Products">
+        <action
+            android:id="@+id/action_products_to_detail"
+            app:destination="@id/productDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/productDetailFragment"
+        android:name="com.integmobile.ui.products.ProductDetailFragment"
+        android:label="Product Details">
+        <argument
+            android:name="productId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.integmobile.ui.cart.CartFragment"
+        android:label="Cart">
+        <action
+            android:id="@+id/action_cart_to_checkout"
+            app:destination="@id/checkoutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.integmobile.ui.checkout.CheckoutFragment"
+        android:label="Checkout">
+        <action
+            android:id="@+id/action_checkout_to_location"
+            app:destination="@id/locationPickerFragment" />
+        <action
+            android:id="@+id/action_checkout_to_payment"
+            app:destination="@id/paymentMethodFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/locationPickerFragment"
+        android:name="com.integmobile.ui.checkout.LocationPickerFragment"
+        android:label="Select Location" />
+
+    <fragment
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.integmobile.ui.checkout.PaymentMethodFragment"
+        android:label="Payment Method" />
+
+    <fragment
+        android:id="@+id/ordersFragment"
+        android:name="com.integmobile.ui.orders.OrdersFragment"
+        android:label="Orders">
+        <action
+            android:id="@+id/action_orders_to_detail"
+            app:destination="@id/orderDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/orderDetailFragment"
+        android:name="com.integmobile.ui.orders.OrderDetailFragment"
+        android:label="Order Details">
+        <argument
+            android:name="orderId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_order_detail_to_claim"
+            app:destination="@id/claimOrderFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/claimOrderFragment"
+        android:name="com.integmobile.ui.orders.ClaimOrderFragment"
+        android:label="Submit Claim">
+        <argument
+            android:name="orderId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.integmobile.ui.profile.ProfileFragment"
+        android:label="Profile" />
+
+</navigation>

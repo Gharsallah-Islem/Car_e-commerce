@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Car Parts Store</string>
+    
+    <!-- Auth -->
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="or_sign_in_with">Or sign in with</string>
+    <string name="google_sign_in">Sign in with Google</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="already_have_account">Already have an account?</string>
+    
+    <!-- Products -->
+    <string name="products">Products</string>
+    <string name="search_products">Search products…</string>
+    <string name="filter">Filter</string>
+    <string name="sort">Sort</string>
+    <string name="brand">Brand</string>
+    <string name="price_range">Price Range</string>
+    <string name="in_stock">In Stock</string>
+    <string name="category">Category</string>
+    <string name="apply_filters">Apply Filters</string>
+    <string name="clear_filters">Clear Filters</string>
+    <string name="product_details">Product Details</string>
+    <string name="specifications">Specifications</string>
+    <string name="compatibility">Compatibility</string>
+    <string name="reviews">Reviews</string>
+    <string name="related_products">Related Products</string>
+    
+    <!-- Cart -->
+    <string name="cart">Cart</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="update_cart">Update Cart</string>
+    <string name="remove_from_cart">Remove from Cart</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="continue_shopping">Continue Shopping</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="tax">Tax</string>
+    <string name="shipping">Shipping</string>
+    <string name="total">Total</string>
+    <string name="quantity">Quantity</string>
+    
+    <!-- Checkout -->
+    <string name="checkout">Checkout</string>
+    <string name="delivery_address">Delivery Address</string>
+    <string name="select_on_map">Select on Map</string>
+    <string name="confirm_location">Confirm Location</string>
+    <string name="shipping_method">Shipping Method</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="cash_on_delivery">Cash on Delivery</string>
+    <string name="card_payment">Card Payment</string>
+    <string name="place_order">Place Order</string>
+    <string name="order_summary">Order Summary</string>
+    
+    <!-- Orders -->
+    <string name="orders">Orders</string>
+    <string name="order_details">Order Details</string>
+    <string name="order_id">Order ID</string>
+    <string name="order_date">Order Date</string>
+    <string name="order_status">Order Status</string>
+    <string name="estimated_delivery">Estimated Delivery</string>
+    <string name="track_order">Track Order</string>
+    <string name="cancel_order">Cancel Order</string>
+    <string name="submit_claim">Submit Claim</string>
+    <string name="claim_reason">Claim Reason</string>
+    <string name="claim_description">Description</string>
+    <string name="upload_photo">Upload Photo</string>
+    <string name="all_orders">All Orders</string>
+    <string name="pending">Pending</string>
+    <string name="delivered">Delivered</string>
+    <string name="cancelled">Cancelled</string>
+    
+    <!-- Navigation -->
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    
+    <!-- Common -->
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="submit">Submit</string>
+    <string name="retry">Retry</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="something_went_wrong">Something went wrong</string>
+</resources>
