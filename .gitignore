@@ -72,9 +72,12 @@ ai-module/*.egg-info/
 ai-module/dist/
 ai-module/build/
 ai-module/.ipynb_checkpoints/
-ai-module/models/*.h5
-ai-module/models/*.pkl
-ai-module/models/*.pth
+# Allow trained models to be included in repo (for cloners to use)
+# ai-module/models/*.h5
+# ai-module/models/*.pkl
+# ai-module/models/*.pth
+# Ignore large datasets
+ai-module/dataset/
 
 # Database
 *.db
