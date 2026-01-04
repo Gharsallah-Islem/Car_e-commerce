@@ -37,6 +37,8 @@ public class UserDTO {
 
     private String address;
 
+    private String profilePicture;
+
     private Integer roleId;
 
     // Combine firstName and lastName into fullName if needed

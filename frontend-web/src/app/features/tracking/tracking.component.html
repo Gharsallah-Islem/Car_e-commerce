@@ -1,0 +1,254 @@
+<div class="tracking-page">
+    <!-- Animated Background Gradient -->
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Floating Header with Ultra Glass Effect -->
+    <header class="tracking-header">
+        <button class="icon-btn back" (click)="goBack()">
+            <mat-icon>arrow_back_ios</mat-icon>
+            <span class="btn-ripple"></span>
+        </button>
+        <div class="header-center">
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span class="live-text">EN DIRECT</span>
+            </div>
+            <span class="tracking-id">#{{ trackingNumber().slice(-8).toUpperCase() }}</span>
+        </div>
+        <button class="icon-btn refresh" (click)="refresh()" [disabled]="loading()">
+            <mat-icon [class.spinning]="loading()">sync</mat-icon>
+        </button>
+    </header>
+
+    <!-- Full Screen Map -->
+    <div class="map-fullscreen">
+        <div #mapContainer class="map-container"></div>
+        <div class="map-gradient-top"></div>
+        <div class="map-gradient-bottom"></div>
+    </div>
+
+    <!-- Loading State with Animated Truck -->
+    @if (loading()) {
+    <div class="loading-overlay">
+        <div class="loading-card">
+            <div class="truck-animation">
+                <div class="truck">🚚</div>
+                <div class="road"></div>
+            </div>
+            <p class="loading-text">Localisation de votre colis...</p>
+            <div class="loading-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (error()) {
+    <div class="error-overlay">
+        <div class="error-card">
+            <div class="error-animation">
+                <mat-icon>location_off</mat-icon>
+            </div>
+            <h2>{{ error() }}</h2>
+            <p>Nous n'avons pas pu localiser ce colis</p>
+            <button class="btn-gradient" routerLink="/">
+                <span>Retour à l'accueil</span>
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Main Content -->
+    @if (delivery() && !loading() && !error()) {
+
+    <!-- Premium ETA Banner -->
+    <div class="eta-banner">
+        <div class="eta-icon-wrapper">
+            <div class="eta-pulse-ring"></div>
+            <div class="eta-pulse-ring delay"></div>
+            <div class="eta-icon">
+                <mat-icon>local_shipping</mat-icon>
+            </div>
+        </div>
+        <div class="eta-info">
+            <span class="eta-label">Arrivée dans</span>
+            <span class="eta-time">
+                {{ delivery()?.estimatedDelivery ? (delivery()?.estimatedDelivery | date:'HH:mm') : '~30 min' }}
+            </span>
+        </div>
+        <div class="eta-status" [attr.data-status]="delivery()?.status">
+            {{ getStatusLabel(delivery()?.status || '') }}
+        </div>
+    </div>
+
+    <!-- Premium Bottom Sheet -->
+    <div class="premium-sheet" [class.expanded]="isSheetExpanded" [class.minimized]="isSheetMinimized">
+        <!-- Pull Handle with Minimize/Expand indicator -->
+        <div class="sheet-pull" (click)="toggleSheet()">
+            <div class="pull-indicator">
+                <span class="pull-line"></span>
+                <span class="pull-label">{{ isSheetMinimized ? 'Afficher les détails' : (isSheetExpanded ? 'Réduire' :
+                    'Masquer') }}</span>
+            </div>
+        </div>
+
+        <!-- Driver Hero Card -->
+        <div class="driver-hero">
+            <div class="driver-avatar-ring">
+                <div class="avatar-glow"></div>
+                <div class="avatar-container">
+                    <mat-icon>person</mat-icon>
+                </div>
+                <span class="status-badge online">
+                    <mat-icon>check</mat-icon>
+                </span>
+            </div>
+            <div class="driver-details">
+                <h3 class="driver-name">{{ delivery()?.driverName || 'Livreur en route' }}</h3>
+                <div class="driver-stats">
+                    <div class="stat">
+                        <mat-icon>star</mat-icon>
+                        <span>4.9</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span>234 livraisons</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span>🚗 Honda Civic</span>
+                    </div>
+                </div>
+            </div>
+            <div class="driver-actions">
+                @if (delivery()?.driverPhone) {
+                <a class="action-btn call" [href]="'tel:' + delivery()?.driverPhone">
+                    <div class="btn-glow"></div>
+                    <mat-icon>call</mat-icon>
+                </a>
+                }
+                <button class="action-btn message">
+                    <mat-icon>chat</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Animated Progress Journey -->
+        <div class="journey-section">
+            <div class="journey-header">
+                <span class="journey-title">Progression de la livraison</span>
+                <span class="journey-percent">{{ getProgressPercent() | number:'1.0-0' }}%</span>
+            </div>
+            <div class="journey-track">
+                <div class="journey-progress" [style.width]="getProgressPercent() + '%'"></div>
+                <div class="journey-vehicle" [style.left]="getProgressPercent() + '%'">
+                    🚚
+                </div>
+            </div>
+            <div class="journey-steps">
+                @for (step of statusSteps(); track step.key; let i = $index) {
+                <div class="step" [class.completed]="step.completed" [class.current]="step.current"
+                    [class.pending]="step.pending">
+                    <div class="step-marker">
+                        @if (step.completed) {
+                        <mat-icon>check</mat-icon>
+                        } @else {
+                        <span class="step-number">{{ i + 1 }}</span>
+                        }
+                    </div>
+                    <span class="step-label">{{ step.label }}</span>
+                    @if (step.current) {
+                    <span class="current-badge">En cours</span>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Delivery Info Cards -->
+        <div class="info-cards">
+            <div class="info-card address">
+                <div class="card-icon">
+                    <mat-icon>place</mat-icon>
+                </div>
+                <div class="card-content">
+                    <span class="card-label">Destination</span>
+                    <span class="card-value">{{ delivery()?.address || 'Adresse non spécifiée' }}</span>
+                </div>
+                <button class="card-action">
+                    <mat-icon>navigation</mat-icon>
+                </button>
+            </div>
+
+            <div class="info-card time">
+                <div class="card-icon">
+                    <mat-icon>schedule</mat-icon>
+                </div>
+                <div class="card-content">
+                    <span class="card-label">Livraison prévue</span>
+                    <span class="card-value">
+                        {{ delivery()?.estimatedDelivery ? (delivery()?.estimatedDelivery | date:'EEEE d MMMM') :
+                        'Aujourd\'hui' }}
+                    </span>
+                </div>
+            </div>
+
+            @if (delivery()?.deliveryNotes) {
+            <div class="info-card notes">
+                <div class="card-icon">
+                    <mat-icon>sticky_note_2</mat-icon>
+                </div>
+                <div class="card-content">
+                    <span class="card-label">Instructions</span>
+                    <span class="card-value">{{ delivery()?.deliveryNotes }}</span>
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Order Summary with Product Preview -->
+        @if (delivery()?.order) {
+        <div class="order-summary">
+            <div class="order-header">
+                <div class="order-title">
+                    <mat-icon>shopping_bag</mat-icon>
+                    <span>Votre commande</span>
+                </div>
+                <div class="order-total">
+                    <span class="currency">TND</span>
+                    <span class="amount">{{ delivery()?.order?.totalPrice | number:'1.2-2' }}</span>
+                </div>
+            </div>
+            @if (delivery()?.order?.orderItems) {
+            <div class="order-products">
+                @for (item of delivery()?.order?.orderItems; track item.id) {
+                <div class="product-row">
+                    <div class="product-qty">{{ item.quantity }}×</div>
+                    <div class="product-info">
+                        <span class="product-name">{{ item.product?.name }}</span>
+                    </div>
+                    <div class="product-price">{{ item.price | number:'1.2-2' }} TND</div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Need Help Section -->
+        <div class="help-section">
+            <button class="help-btn">
+                <mat-icon>support_agent</mat-icon>
+                <span>Besoin d'aide ?</span>
+                <mat-icon class="arrow">chevron_right</mat-icon>
+            </button>
+        </div>
+    </div>
+    }
+</div>

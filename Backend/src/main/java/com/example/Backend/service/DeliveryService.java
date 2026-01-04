@@ -140,4 +140,49 @@ public interface DeliveryService {
      * @return Average time in hours
      */
     Double getAverageDeliveryTime();
+
+    /**
+     * Create deliveries for existing shipped orders that don't have one
+     * 
+     * @return Number of deliveries created
+     */
+    int createDeliveriesForShippedOrders();
+
+    /**
+     * Get debug info about orders and deliveries
+     * 
+     * @return Map with debug information
+     */
+    Map<String, Object> getDebugInfo();
+
+    /**
+     * Sync tracking numbers from deliveries to orders
+     * 
+     * @return Number of orders synced
+     */
+    int syncTrackingNumbersToOrders();
+
+    /**
+     * Auto-create delivery from confirmed order
+     * Called automatically when order status changes to CONFIRMED
+     * 
+     * @param order The confirmed order
+     * @return Created delivery
+     */
+    Delivery createDeliveryFromOrder(com.example.Backend.entity.Order order);
+
+    /**
+     * Create deliveries for all confirmed orders that don't have one
+     * 
+     * @return Number of deliveries created
+     */
+    int createDeliveriesForConfirmedOrders();
+
+    /**
+     * Ensure simulation is running for active deliveries
+     * Used when user opens tracking page - restarts simulation if needed
+     * 
+     * @param deliveryId The delivery ID
+     */
+    void ensureSimulationRunning(java.util.UUID deliveryId);
 }

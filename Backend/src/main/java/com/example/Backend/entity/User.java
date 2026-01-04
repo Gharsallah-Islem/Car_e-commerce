@@ -53,6 +53,9 @@ public class User implements Serializable {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "profile_picture", columnDefinition = "TEXT")
+    private String profilePicture;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;

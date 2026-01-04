@@ -1,0 +1,159 @@
+<div class="delivery-detail-dialog">
+    <!-- Header -->
+    <div class="dialog-header">
+        <div class="header-content">
+            <div class="tracking-badge">
+                <mat-icon>qr_code</mat-icon>
+                <span>{{ delivery()?.trackingNumber }}</span>
+            </div>
+            <div class="status-badge" [style.background]="getStatusColor(delivery()?.status || '') + '15'"
+                [style.color]="getStatusColor(delivery()?.status || '')">
+                {{ getStatusLabel(delivery()?.status || '') }}
+            </div>
+        </div>
+        <button mat-icon-button class="close-btn" (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="dialog-content">
+        <!-- Left Column: Info -->
+        <div class="info-column">
+            <!-- Customer Info -->
+            <div class="info-section">
+                <h3><mat-icon>person</mat-icon> Client</h3>
+                <div class="info-card">
+                    <p class="name">{{ delivery()?.order?.user?.fullName || 'Client inconnu' }}</p>
+                    <p class="detail">
+                        <mat-icon>email</mat-icon>
+                        {{ delivery()?.order?.user?.email || '-' }}
+                    </p>
+                    <p class="detail">
+                        <mat-icon>phone</mat-icon>
+                        {{ delivery()?.order?.user?.phone || '-' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="info-section">
+                <h3><mat-icon>location_on</mat-icon> Adresse de livraison</h3>
+                <div class="info-card">
+                    <p class="address">{{ delivery()?.address || delivery()?.order?.shippingAddress || 'Non spécifiée'
+                        }}</p>
+                    @if (delivery()?.deliveryNotes) {
+                    <p class="notes">
+                        <mat-icon>sticky_note_2</mat-icon>
+                        {{ delivery()?.deliveryNotes }}
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <!-- Driver Info -->
+            <div class="info-section">
+                <h3><mat-icon>local_shipping</mat-icon> Livreur</h3>
+                <div class="info-card driver-card">
+                    @if (delivery()?.driverName) {
+                    <div class="driver-info">
+                        <div class="driver-avatar">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="driver-details">
+                            <p class="name">{{ delivery()?.driverName || 'Non assigné' }}</p>
+                            <p class="phone">{{ delivery()?.driverPhone || '-' }}</p>
+                        </div>
+                    </div>
+                    } @else {
+                    <p class="no-driver">Aucun livreur assigné</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            @if (delivery()?.order?.orderItems?.length) {
+            <div class="info-section">
+                <h3><mat-icon>shopping_bag</mat-icon> Articles ({{ delivery()?.order?.orderItems?.length }})</h3>
+                <div class="info-card products-card">
+                    @for (item of (delivery()?.order?.orderItems || []); track item.id) {
+                    <div class="product-row">
+                        <span class="qty">{{ item.quantity }}×</span>
+                        <span class="name">{{ item.product?.name || 'Produit' }}</span>
+                        <span class="price">{{ item.price | number:'1.2-2' }} TND</span>
+                    </div>
+                    }
+                    <div class="total-row">
+                        <span>Total</span>
+                        <span class="total-price">{{ delivery()?.order?.totalPrice | number:'1.2-2' }} TND</span>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Right Column: Map & Timeline -->
+        <div class="map-column">
+            <!-- Mini Map -->
+            <div class="map-section">
+                <h3><mat-icon>map</mat-icon> Localisation</h3>
+                <div class="map-wrapper">
+                    <div #mapContainer class="map-container"></div>
+                </div>
+                <button mat-stroked-button class="track-btn" (click)="trackOnMap()">
+                    <mat-icon>open_in_new</mat-icon>
+                    Voir sur la carte complète
+                </button>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <h3><mat-icon>timeline</mat-icon> Progression</h3>
+                <div class="progress-bar-container">
+                    <mat-progress-bar mode="determinate" [value]="getProgressPercent()"></mat-progress-bar>
+                    <span class="progress-label">{{ getProgressPercent() | number:'1.0-0' }}%</span>
+                </div>
+                <div class="timeline">
+                    @for (step of timelineSteps; track step.key; let i = $index) {
+                    <div class="timeline-step" [class.completed]="isStepCompleted(i)"
+                        [class.current]="isStepCurrent(i)">
+                        <div class="step-marker">
+                            @if (isStepCompleted(i)) {
+                            <mat-icon>check</mat-icon>
+                            } @else {
+                            <span>{{ i + 1 }}</span>
+                            }
+                        </div>
+                        <div class="step-content">
+                            <span class="step-label">{{ step.label }}</span>
+                            @if (isStepCurrent(i)) {
+                            <span class="current-badge">En cours</span>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="dates-section">
+                <div class="date-item">
+                    <span class="date-label">Créée le</span>
+                    <span class="date-value">{{ delivery()?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                @if (delivery()?.estimatedDelivery) {
+                <div class="date-item">
+                    <span class="date-label">Livraison prévue</span>
+                    <span class="date-value">{{ delivery()?.estimatedDelivery | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+                @if (delivery()?.actualDelivery) {
+                <div class="date-item success">
+                    <span class="date-label">Livrée le</span>
+                    <span class="date-value">{{ delivery()?.actualDelivery | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

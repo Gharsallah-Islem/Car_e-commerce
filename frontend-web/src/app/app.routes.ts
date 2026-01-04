@@ -83,6 +83,10 @@ export const routes: Routes = [
             {
                 path: 'delivery',
                 loadComponent: () => import('./features/admin/delivery-management/delivery-management.component').then(m => m.DeliveryManagementComponent)
+            },
+            {
+                path: 'drivers',
+                loadComponent: () => import('./features/admin/driver-management/driver-management.component').then(m => m.DriverManagementComponent)
             }
         ]
     },
@@ -91,6 +95,19 @@ export const routes: Routes = [
     {
         path: 'ai-mechanic',
         loadComponent: () => import('./features/ai-mechanic/ai-mechanic.component').then(m => m.AiMechanicComponent)
+    },
+
+    // Delivery Tracking route (public)
+    {
+        path: 'track/:trackingNumber',
+        loadComponent: () => import('./features/tracking/tracking.component').then(m => m.TrackingComponent)
+    },
+
+    // Driver Dashboard route (protected)
+    {
+        path: 'driver',
+        loadComponent: () => import('./features/driver/driver-dashboard.component').then(m => m.DriverDashboardComponent),
+        canActivate: [authGuard]
     },
 
     // Chat route (protected)

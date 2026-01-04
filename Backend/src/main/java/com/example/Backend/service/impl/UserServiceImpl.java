@@ -97,19 +97,37 @@ public class UserServiceImpl implements UserService {
         User user = getUserById(id);
 
         // Check if username is being changed and if it already exists
-        if (!user.getUsername().equals(userDTO.getUsername()) && usernameExists(userDTO.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+        if (userDTO.getUsername() != null && !userDTO.getUsername().isEmpty()) {
+            if (!user.getUsername().equals(userDTO.getUsername()) && usernameExists(userDTO.getUsername())) {
+                throw new IllegalArgumentException("Username already exists");
+            }
+            user.setUsername(userDTO.getUsername());
         }
 
         // Check if email is being changed and if it already exists
-        if (!user.getEmail().equals(userDTO.getEmail()) && emailExists(userDTO.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+        if (userDTO.getEmail() != null && !userDTO.getEmail().isEmpty()) {
+            if (!user.getEmail().equals(userDTO.getEmail()) && emailExists(userDTO.getEmail())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(userDTO.getEmail());
         }
 
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setFullName(userDTO.getFullName());
-        user.setAddress(userDTO.getAddress());
+        // Update optional fields only if provided
+        if (userDTO.getFullName() != null) {
+            user.setFullName(userDTO.getFullName());
+        }
+
+        if (userDTO.getAddress() != null) {
+            user.setAddress(userDTO.getAddress());
+        }
+
+        if (userDTO.getPhoneNumber() != null) {
+            user.setPhone(userDTO.getPhoneNumber());
+        }
+
+        if (userDTO.getProfilePicture() != null) {
+            user.setProfilePicture(userDTO.getProfilePicture());
+        }
 
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));

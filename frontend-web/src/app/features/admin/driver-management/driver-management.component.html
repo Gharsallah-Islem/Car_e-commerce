@@ -1,0 +1,273 @@
+<div class="driver-management">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Gestion des Livreurs</h1>
+            <p class="subtitle">Gérer les livreurs et les affectations</p>
+        </div>
+        <button mat-raised-button color="primary" (click)="refresh()">
+            <mat-icon>refresh</mat-icon>
+            Actualiser
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    @if (stats()) {
+    <div class="stats-grid">
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <mat-icon>group</mat-icon>
+                <div class="stat-value">{{ stats()?.totalDrivers || 0 }}</div>
+                <div class="stat-label">Total Livreurs</div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card online">
+            <mat-card-content>
+                <mat-icon>wifi</mat-icon>
+                <div class="stat-value">{{ stats()?.availableDrivers || 0 }}</div>
+                <div class="stat-label">En ligne</div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card pending">
+            <mat-card-content>
+                <mat-icon>pending</mat-icon>
+                <div class="stat-value">{{ stats()?.pendingVerification || 0 }}</div>
+                <div class="stat-label">À vérifier</div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card active">
+            <mat-card-content>
+                <mat-icon>local_shipping</mat-icon>
+                <div class="stat-value">{{ stats()?.activeDeliveries || 0 }}</div>
+                <div class="stat-label">En livraison</div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    }
+
+    <!-- Tabs -->
+    <mat-card class="content-card">
+        <mat-tab-group [(selectedIndex)]="selectedTab">
+            <!-- All Drivers Tab -->
+            <mat-tab label="Tous les livreurs">
+                <div class="tab-content">
+                    <!-- Search -->
+                    <div class="search-bar">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Rechercher</mat-label>
+                            <input matInput [(ngModel)]="searchQuery" (keyup.enter)="search()"
+                                placeholder="Nom, email ou plaque...">
+                            <mat-icon matPrefix>search</mat-icon>
+                        </mat-form-field>
+                        <button mat-raised-button color="primary" (click)="search()">
+                            Rechercher
+                        </button>
+                    </div>
+
+                    <!-- Loading -->
+                    @if (loading()) {
+                    <div class="loading-container">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                    }
+
+                    <!-- Drivers Table -->
+                    @if (!loading()) {
+                    <div class="table-container">
+                        <table mat-table [dataSource]="drivers()" class="drivers-table">
+                            <!-- Driver Column -->
+                            <ng-container matColumnDef="driver">
+                                <th mat-header-cell *matHeaderCellDef>Livreur</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    <div class="driver-cell">
+                                        <div class="driver-avatar">
+                                            <mat-icon>person</mat-icon>
+                                        </div>
+                                        <div class="driver-info">
+                                            <span class="driver-name">{{ driver.user?.fullName }}</span>
+                                            <span class="driver-email">{{ driver.user?.email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Vehicle Column -->
+                            <ng-container matColumnDef="vehicle">
+                                <th mat-header-cell *matHeaderCellDef>Véhicule</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    <div class="vehicle-cell">
+                                        <mat-icon>{{ getVehicleIcon(driver.vehicleType) }}</mat-icon>
+                                        <span>{{ driver.vehicleType }}</span>
+                                        @if (driver.vehiclePlate) {
+                                        <span class="plate">{{ driver.vehiclePlate }}</span>
+                                        }
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    <mat-chip [color]="getStatusColor(driver)" selected>
+                                        {{ getStatusLabel(driver) }}
+                                    </mat-chip>
+                                </td>
+                            </ng-container>
+
+                            <!-- Rating Column -->
+                            <ng-container matColumnDef="rating">
+                                <th mat-header-cell *matHeaderCellDef>Note</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    <div class="rating-cell">
+                                        <mat-icon>star</mat-icon>
+                                        <span>{{ driver.rating?.toFixed(1) || '5.0' }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Deliveries Column -->
+                            <ng-container matColumnDef="deliveries">
+                                <th mat-header-cell *matHeaderCellDef>Livraisons</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    {{ driver.completedDeliveries || 0 }}
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let driver">
+                                    <button mat-icon-button [matMenuTriggerFor]="menu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #menu="matMenu">
+                                        @if (!driver.isVerified) {
+                                        <button mat-menu-item (click)="verifyDriver(driver)">
+                                            <mat-icon>verified</mat-icon>
+                                            Vérifier
+                                        </button>
+                                        }
+                                        @if (driver.isActive) {
+                                        <button mat-menu-item (click)="suspendDriver(driver)">
+                                            <mat-icon>block</mat-icon>
+                                            Suspendre
+                                        </button>
+                                        } @else {
+                                        <button mat-menu-item (click)="reactivateDriver(driver)">
+                                            <mat-icon>check_circle</mat-icon>
+                                            Réactiver
+                                        </button>
+                                        }
+                                    </mat-menu>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+                    </div>
+
+                    <mat-paginator [length]="totalDrivers" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+                        (page)="onPageChange($event)">
+                    </mat-paginator>
+                    }
+                </div>
+            </mat-tab>
+
+            <!-- Assignments Tab -->
+            <mat-tab label="Affectation">
+                <div class="tab-content assignments-tab">
+                    <div class="assignment-grid">
+                        <!-- Pending Deliveries -->
+                        <div class="pending-deliveries">
+                            <h3>Livraisons en attente</h3>
+                            @if (pendingDeliveries().length === 0) {
+                            <div class="empty-state">
+                                <mat-icon>check_circle</mat-icon>
+                                <p>Aucune livraison en attente</p>
+                            </div>
+                            }
+                            @for (delivery of pendingDeliveries(); track delivery.id) {
+                            <mat-card class="delivery-card">
+                                <mat-card-content>
+                                    <div class="delivery-header">
+                                        <span class="tracking">{{ delivery.trackingNumber }}</span>
+                                        <mat-chip>{{ delivery.status }}</mat-chip>
+                                    </div>
+                                    <div class="delivery-address">
+                                        <mat-icon>location_on</mat-icon>
+                                        <span>{{ delivery.address || 'Adresse non spécifiée' }}</span>
+                                    </div>
+                                    <div class="delivery-actions">
+                                        <button mat-stroked-button (click)="findNearestDriver(delivery)">
+                                            <mat-icon>gps_fixed</mat-icon>
+                                            Plus proche
+                                        </button>
+                                        <button mat-stroked-button [matMenuTriggerFor]="assignMenu">
+                                            <mat-icon>person_add</mat-icon>
+                                            Assigner
+                                        </button>
+                                        <mat-menu #assignMenu="matMenu">
+                                            @for (driver of availableDrivers(); track driver.id) {
+                                            <button mat-menu-item (click)="assignDelivery(driver.id, delivery.id)">
+                                                <mat-icon>{{ getVehicleIcon(driver.vehicleType) }}</mat-icon>
+                                                {{ driver.user?.fullName }}
+                                            </button>
+                                            }
+                                            @if (availableDrivers().length === 0) {
+                                            <button mat-menu-item disabled>
+                                                Aucun livreur disponible
+                                            </button>
+                                            }
+                                        </mat-menu>
+                                    </div>
+                                </mat-card-content>
+                            </mat-card>
+                            }
+                        </div>
+
+                        <!-- Available Drivers -->
+                        <div class="available-drivers">
+                            <h3>Livreurs disponibles</h3>
+                            @if (availableDrivers().length === 0) {
+                            <div class="empty-state">
+                                <mat-icon>person_off</mat-icon>
+                                <p>Aucun livreur en ligne</p>
+                            </div>
+                            }
+                            @for (driver of availableDrivers(); track driver.id) {
+                            <mat-card class="driver-card" [class.busy]="driver.currentDelivery">
+                                <mat-card-content>
+                                    <div class="driver-header">
+                                        <div class="driver-avatar">
+                                            <mat-icon>person</mat-icon>
+                                        </div>
+                                        <div class="driver-info">
+                                            <span class="driver-name">{{ driver.user?.fullName }}</span>
+                                            <span class="driver-vehicle">
+                                                <mat-icon>{{ getVehicleIcon(driver.vehicleType) }}</mat-icon>
+                                                {{ driver.vehicleType }}
+                                            </span>
+                                        </div>
+                                        <mat-chip [color]="driver.currentDelivery ? 'warn' : 'primary'" selected>
+                                            {{ driver.currentDelivery ? 'Occupé' : 'Libre' }}
+                                        </mat-chip>
+                                    </div>
+                                    @if (driver.currentLatitude && driver.currentLongitude) {
+                                    <div class="driver-location">
+                                        <mat-icon>gps_fixed</mat-icon>
+                                        <span>{{ driver.currentLatitude?.toFixed(4) }}, {{
+                                            driver.currentLongitude?.toFixed(4) }}</span>
+                                    </div>
+                                    }
+                                </mat-card-content>
+                            </mat-card>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </mat-card>
+</div>

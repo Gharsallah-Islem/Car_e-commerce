@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,12 +33,14 @@ import {
     standalone: true,
     imports: [
         CommonModule,
+        RouterModule,
         MatCardModule,
         MatButtonModule,
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
         MatChipsModule,
+        MatTooltipModule,
         MatDatepickerModule,
         MatNativeDateModule,
         MatFormFieldModule,
@@ -65,6 +69,24 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     loading = true;
     refreshing = false;
 
+    // UI State
+    selectedPeriod = '30D';
+    currentDate = '';
+    lastSyncTime = 'just now';
+
+    // Performance metrics
+    revenueTargetPercent = 78;
+    fulfillmentRate = 92;
+    customerSatisfaction = 4.5;
+
+    // Funnel data
+    funnelData = [
+        { label: 'Site Visits', value: 12500, percentage: 100 },
+        { label: 'Added to Cart', value: 4200, percentage: 34, rate: 34 },
+        { label: 'Checkout Started', value: 2100, percentage: 17, rate: 50 },
+        { label: 'Orders Completed', value: 1247, percentage: 10, rate: 59 }
+    ];
+
     // Expose Math to template
     Math = Math;
 
@@ -74,30 +96,62 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
         endDate: new FormControl<Date>(new Date())
     });
 
-    // Table columns
-    productsDisplayedColumns: string[] = ['image', 'name', 'category', 'brand', 'unitsSold', 'revenue'];
-    activitiesDisplayedColumns: string[] = ['type', 'description', 'userName', 'timestamp'];
-
     // ECharts options
     revenueChartOption: EChartsOption = {};
     categoryChartOption: EChartsOption = {};
     orderStatusChartOption: EChartsOption = {};
+    heatmapChartOption: EChartsOption = {};
 
-    // Sparkline options for KPI cards
+    // Sparkline options
     revenueSparklineOption: EChartsOption = {};
     ordersSparklineOption: EChartsOption = {};
     usersSparklineOption: EChartsOption = {};
     productsSparklineOption: EChartsOption = {};
 
-    constructor(private analyticsService: AnalyticsService) { }
+    // Gauge options
+    revenueGaugeOption: EChartsOption = {};
+    fulfillmentGaugeOption: EChartsOption = {};
+    satisfactionGaugeOption: EChartsOption = {};
+
+    constructor(private analyticsService: AnalyticsService) {
+        this.updateCurrentDate();
+    }
 
     ngOnInit(): void {
         this.loadAllAnalytics();
+        // Update date every minute
+        setInterval(() => this.updateCurrentDate(), 60000);
     }
 
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    /**
+     * Get time-based greeting
+     */
+    getGreeting(): string {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    }
+
+    /**
+     * Update current date display
+     */
+    updateCurrentDate(): void {
+        const now = new Date();
+        const options: Intl.DateTimeFormatOptions = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        this.currentDate = now.toLocaleDateString('en-US', options);
     }
 
     /**
@@ -131,13 +185,16 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
                     this.inventoryAlerts = data.alerts;
                     this.salesChartData = data.salesChart;
 
-                    // Prepare ECharts
+                    // Prepare all charts
                     this.prepareRevenueChart();
                     this.prepareCategoryChart();
                     this.prepareOrderStatusChart();
                     this.prepareSparklines();
+                    this.prepareGauges();
+                    this.prepareHeatmap();
 
                     this.loading = false;
+                    this.lastSyncTime = 'just now';
                 },
                 error: (error) => {
                     console.error('Error loading analytics:', error);
@@ -147,10 +204,12 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Prepare revenue area chart
+     * Prepare revenue area chart with gradient
      */
     prepareRevenueChart(): void {
-        const dates = this.salesChartData.map(item => new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+        const dates = this.salesChartData.map(item =>
+            new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        );
         const revenues = this.salesChartData.map(item => item.revenue);
 
         this.revenueChartOption = {
@@ -165,31 +224,31 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
                 type: 'category',
                 data: dates,
                 boundaryGap: false,
-                axisLine: { lineStyle: { color: '#e5e5e5' } },
-                axisLabel: { color: '#666', fontSize: 11 }
+                axisLine: { lineStyle: { color: '#e4e4e7' } },
+                axisLabel: { color: '#71717a', fontSize: 11 }
             },
             yAxis: {
                 type: 'value',
                 axisLine: { show: false },
                 axisTick: { show: false },
-                splitLine: { lineStyle: { color: '#f5f5f5' } },
-                axisLabel: { color: '#666', fontSize: 11, formatter: '{value} TND' }
+                splitLine: { lineStyle: { color: '#f4f4f5' } },
+                axisLabel: { color: '#71717a', fontSize: 11, formatter: '{value} TND' }
             },
             series: [{
                 data: revenues,
                 type: 'line',
                 smooth: true,
                 symbol: 'circle',
-                symbolSize: 6,
-                lineStyle: { color: '#0070f3', width: 2 },
-                itemStyle: { color: '#0070f3' },
+                symbolSize: 8,
+                lineStyle: { color: '#9333ea', width: 3 },
+                itemStyle: { color: '#9333ea', borderWidth: 3, borderColor: '#fff' },
                 areaStyle: {
                     color: {
                         type: 'linear',
                         x: 0, y: 0, x2: 0, y2: 1,
                         colorStops: [
-                            { offset: 0, color: 'rgba(0, 112, 243, 0.2)' },
-                            { offset: 1, color: 'rgba(0, 112, 243, 0.0)' }
+                            { offset: 0, color: 'rgba(147, 51, 234, 0.25)' },
+                            { offset: 1, color: 'rgba(147, 51, 234, 0.02)' }
                         ]
                     }
                 }
@@ -197,12 +256,15 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
             tooltip: {
                 trigger: 'axis',
                 backgroundColor: '#fff',
-                borderColor: '#e5e5e5',
+                borderColor: '#e4e4e7',
                 borderWidth: 1,
-                textStyle: { color: '#000' },
+                textStyle: { color: '#18181b' },
                 formatter: (params: any) => {
                     const param = params[0];
-                    return `${param.name}<br/><strong>${param.value.toLocaleString('fr-TN')} TND</strong>`;
+                    return `<div style="font-weight:600;color:#71717a">${param.name}</div>
+                            <div style="color:#9333ea;font-size:18px;font-weight:700;margin-top:6px">
+                                ${param.value.toLocaleString('en-US')} TND
+                            </div>`;
                 }
             }
         };
@@ -215,50 +277,52 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
         const categories = this.categoryPerformance.map(cat => cat.categoryName);
         const revenues = this.categoryPerformance.map(cat => cat.revenue);
 
+        const colors = ['#9333ea', '#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff'];
+
         this.categoryChartOption = {
             grid: {
-                left: '20%',
+                left: '25%',
                 right: '10%',
-                bottom: '3%',
-                top: '3%',
+                bottom: '5%',
+                top: '5%',
                 containLabel: true
             },
             xAxis: {
                 type: 'value',
                 axisLine: { show: false },
                 axisTick: { show: false },
-                splitLine: { lineStyle: { color: '#f5f5f5' } },
-                axisLabel: { color: '#666', fontSize: 11 }
+                splitLine: { lineStyle: { color: '#f4f4f5' } },
+                axisLabel: { color: '#71717a', fontSize: 11 }
             },
             yAxis: {
                 type: 'category',
                 data: categories,
-                axisLine: { lineStyle: { color: '#e5e5e5' } },
-                axisLabel: { color: '#666', fontSize: 12 }
+                axisLine: { lineStyle: { color: '#e4e4e7' } },
+                axisLabel: { color: '#18181b', fontSize: 12, fontWeight: 500 }
             },
             series: [{
-                data: revenues,
+                data: revenues.map((val, idx) => ({
+                    value: val,
+                    itemStyle: { color: colors[idx % colors.length] }
+                })),
                 type: 'bar',
-                barWidth: '60%',
-                itemStyle: {
-                    color: '#0070f3',
-                    borderRadius: [0, 4, 4, 0]
-                },
+                barWidth: '55%',
+                itemStyle: { borderRadius: [0, 8, 8, 0] },
                 label: {
                     show: true,
                     position: 'right',
                     formatter: '{c} TND',
-                    color: '#666',
-                    fontSize: 11
+                    color: '#71717a',
+                    fontSize: 11,
+                    fontWeight: 600
                 }
             }],
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 backgroundColor: '#fff',
-                borderColor: '#e5e5e5',
-                borderWidth: 1,
-                textStyle: { color: '#000' }
+                borderColor: '#e4e4e7',
+                textStyle: { color: '#18181b' }
             }
         };
     }
@@ -276,93 +340,78 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
             tooltip: {
                 trigger: 'item',
                 backgroundColor: '#fff',
-                borderColor: '#e5e5e5',
-                borderWidth: 1,
-                textStyle: { color: '#000' },
+                borderColor: '#e4e4e7',
+                textStyle: { color: '#18181b' },
                 formatter: '{b}: <strong>{c}</strong> ({d}%)'
             },
             legend: {
                 bottom: '0%',
                 left: 'center',
-                textStyle: { color: '#666', fontSize: 12 }
+                textStyle: { color: '#71717a', fontSize: 11 }
             },
             series: [{
                 type: 'pie',
-                radius: ['40%', '70%'],
+                radius: ['48%', '78%'],
                 center: ['50%', '45%'],
                 avoidLabelOverlap: false,
                 itemStyle: {
-                    borderRadius: 8,
+                    borderRadius: 10,
                     borderColor: '#fff',
-                    borderWidth: 2
+                    borderWidth: 4
                 },
                 label: { show: false },
                 emphasis: {
                     label: {
                         show: true,
-                        fontSize: 14,
-                        fontWeight: 'bold'
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                        color: '#18181b'
+                    },
+                    itemStyle: {
+                        shadowBlur: 20,
+                        shadowColor: 'rgba(147, 51, 234, 0.4)'
                     }
                 },
                 data: data,
-                color: ['#0070f3', '#7928ca', '#ff0080', '#00dfd8', '#f5a623']
+                color: ['#10b981', '#9333ea', '#f59e0b', '#06b6d4', '#ef4444']
             }]
         };
     }
 
     /**
-     * Prepare sparkline charts for KPI cards
+     * Prepare sparklines for KPI cards
      */
     prepareSparklines(): void {
         const last7Days = this.salesChartData.slice(-7);
         const revenues = last7Days.map(item => item.revenue);
         const orders = last7Days.map(item => item.orders);
 
-        // Revenue sparkline
         this.revenueSparklineOption = this.createSparkline(revenues, '#10b981');
-
-        // Orders sparkline
-        this.ordersSparklineOption = this.createSparkline(orders, '#0070f3');
-
-        // Users sparkline (mock data for now)
-        this.usersSparklineOption = this.createSparkline([120, 132, 101, 134, 90, 230, 210], '#8b5cf6');
-
-        // Products sparkline (mock data for now)
+        this.ordersSparklineOption = this.createSparkline(orders, '#9333ea');
+        this.usersSparklineOption = this.createSparkline([120, 132, 101, 134, 90, 230, 210], '#a855f7');
         this.productsSparklineOption = this.createSparkline([220, 182, 191, 234, 290, 330, 310], '#f59e0b');
     }
 
     /**
-     * Create a sparkline chart
+     * Create sparkline chart
      */
     private createSparkline(data: number[], color: string): EChartsOption {
         return {
-            grid: {
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0
-            },
-            xAxis: {
-                type: 'category',
-                show: false,
-                boundaryGap: false
-            },
-            yAxis: {
-                type: 'value',
-                show: false
-            },
+            grid: { left: 0, right: 0, top: 5, bottom: 5 },
+            xAxis: { type: 'category', show: false, boundaryGap: false },
+            yAxis: { type: 'value', show: false },
             series: [{
                 data: data,
                 type: 'line',
                 smooth: true,
                 symbol: 'none',
-                lineStyle: { color: color, width: 1.5 },
+                lineStyle: { color: color, width: 2 },
                 areaStyle: {
                     color: {
                         type: 'linear',
                         x: 0, y: 0, x2: 0, y2: 1,
                         colorStops: [
-                            { offset: 0, color: color + '40' },
+                            { offset: 0, color: color + '60' },
                             { offset: 1, color: color + '00' }
                         ]
                     }
@@ -372,7 +421,112 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Refresh analytics data
+     * Prepare gauge charts
+     */
+    prepareGauges(): void {
+        this.revenueGaugeOption = this.createGauge(this.revenueTargetPercent, '#10b981');
+        this.fulfillmentGaugeOption = this.createGauge(this.fulfillmentRate, '#9333ea');
+        this.satisfactionGaugeOption = this.createGauge((this.customerSatisfaction / 5) * 100, '#a855f7');
+    }
+
+    /**
+     * Create gauge chart
+     */
+    private createGauge(value: number, color: string): EChartsOption {
+        return {
+            series: [{
+                type: 'gauge',
+                startAngle: 180,
+                endAngle: 0,
+                min: 0,
+                max: 100,
+                radius: '100%',
+                center: ['50%', '85%'],
+                splitNumber: 5,
+                axisLine: {
+                    lineStyle: {
+                        width: 14,
+                        color: [
+                            [value / 100, color],
+                            [1, '#e4e4e7']
+                        ]
+                    }
+                },
+                pointer: { show: false },
+                axisTick: { show: false },
+                splitLine: { show: false },
+                axisLabel: { show: false },
+                detail: { show: false }
+            }]
+        };
+    }
+
+    /**
+     * Prepare heatmap chart
+     */
+    prepareHeatmap(): void {
+        const hours = ['00', '03', '06', '09', '12', '15', '18', '21'];
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+        // Generate sample data
+        const data: [number, number, number][] = [];
+        for (let i = 0; i < 7; i++) {
+            for (let j = 0; j < 8; j++) {
+                data.push([j, i, Math.floor(Math.random() * 100)]);
+            }
+        }
+
+        this.heatmapChartOption = {
+            tooltip: {
+                position: 'top',
+                backgroundColor: '#fff',
+                borderColor: '#e4e4e7',
+                textStyle: { color: '#18181b' }
+            },
+            grid: {
+                left: '15%',
+                right: '5%',
+                top: '5%',
+                bottom: '15%'
+            },
+            xAxis: {
+                type: 'category',
+                data: hours,
+                splitArea: { show: true },
+                axisLine: { show: false },
+                axisLabel: { color: '#71717a', fontSize: 10 }
+            },
+            yAxis: {
+                type: 'category',
+                data: days,
+                splitArea: { show: true },
+                axisLine: { show: false },
+                axisLabel: { color: '#71717a', fontSize: 11 }
+            },
+            visualMap: {
+                min: 0,
+                max: 100,
+                show: false,
+                inRange: {
+                    color: ['#faf5ff', '#e9d5ff', '#c084fc', '#a855f7', '#9333ea']
+                }
+            },
+            series: [{
+                type: 'heatmap',
+                data: data,
+                label: { show: false },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(147, 51, 234, 0.5)'
+                    }
+                }
+            }]
+        };
+    }
+
+    /**
+     * Refresh data
      */
     refreshData(): void {
         this.refreshing = true;
@@ -383,111 +537,108 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Apply date range filter
+     * Change period
      */
-    applyDateFilter(): void {
-        const startDate = this.dateRangeForm.get('startDate')?.value;
-        const endDate = this.dateRangeForm.get('endDate')?.value;
+    changePeriod(period: string): void {
+        this.selectedPeriod = period;
+        // Recalculate date range based on period
+        const now = new Date();
+        let startDate = new Date();
 
-        if (startDate && endDate) {
-            this.loading = true;
-            const start = this.formatDate(startDate);
-            const end = this.formatDate(endDate);
+        switch (period) {
+            case '7D':
+                startDate.setDate(now.getDate() - 7);
+                break;
+            case '30D':
+                startDate.setDate(now.getDate() - 30);
+                break;
+            case '90D':
+                startDate.setDate(now.getDate() - 90);
+                break;
+            case '1Y':
+                startDate.setFullYear(now.getFullYear() - 1);
+                break;
+        }
 
-            forkJoin({
-                topProducts: this.analyticsService.getTopProducts(5, start, end),
-                categories: this.analyticsService.getCategoryPerformance(start, end)
-            })
-                .pipe(takeUntil(this.destroy$))
-                .subscribe({
-                    next: (data) => {
-                        this.topProducts = data.topProducts;
-                        this.categoryPerformance = data.categories;
-                        this.loading = false;
-                    },
-                    error: (error) => {
-                        console.error('Error applying date filter:', error);
-                        this.loading = false;
-                    }
-                });
+        this.dateRangeForm.patchValue({
+            startDate: startDate,
+            endDate: now
+        });
+
+        this.loadAllAnalytics();
+    }
+
+    /**
+     * Export report
+     */
+    exportReport(): void {
+        // TODO: Implement export functionality
+        console.log('Export report clicked');
+    }
+
+    /**
+     * Get product progress percentage for leaderboard
+     */
+    getProductProgress(product: TopProduct): number {
+        const maxRevenue = Math.max(...this.topProducts.map(p => p.revenue));
+        return (product.revenue / maxRevenue) * 100;
+    }
+
+    /**
+     * Get relative time string
+     */
+    getRelativeTime(timestamp: string | Date): string {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diffMs = now.getTime() - time.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${diffDays}d ago`;
+    }
+
+    /**
+     * Get activity CSS class
+     */
+    getActivityClass(type: string): string {
+        switch (type) {
+            case 'ORDER': return 'order';
+            case 'USER': return 'user';
+            case 'PRODUCT': return 'product';
+            case 'RECLAMATION': return 'alert';
+            default: return 'order';
         }
     }
 
     /**
-     * Format date to YYYY-MM-DD
-     */
-    private formatDate(date: Date): string {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    /**
-     * Get severity color for inventory alerts
-     */
-    getSeverityColor(severity: string): string {
-        switch (severity) {
-            case 'CRITICAL':
-                return 'warn';
-            case 'WARNING':
-                return 'accent';
-            case 'INFO':
-                return 'primary';
-            default:
-                return 'primary';
-        }
-    }
-
-    /**
-     * Get status label in French
-     */
-    getStatusLabel(status: string): string {
-        const labels: { [key: string]: string } = {
-            'PENDING': 'En attente',
-            'PROCESSING': 'En traitement',
-            'SHIPPED': 'Expédié',
-            'DELIVERED': 'Livré',
-            'CANCELLED': 'Annulé'
-        };
-        return labels[status] || status;
-    }
-
-    /**
-     * Get activity type icon
+     * Get activity icon
      */
     getActivityIcon(type: string): string {
         switch (type) {
-            case 'ORDER':
-                return 'shopping_cart';
-            case 'USER':
-                return 'person_add';
-            case 'PRODUCT':
-                return 'inventory_2';
-            case 'RECLAMATION':
-                return 'report_problem';
-            default:
-                return 'info';
+            case 'ORDER': return 'shopping_cart';
+            case 'USER': return 'person_add';
+            case 'PRODUCT': return 'inventory_2';
+            case 'RECLAMATION': return 'report_problem';
+            default: return 'info';
         }
     }
 
     /**
-     * Format currency
+     * Get status label
      */
-    formatCurrency(value: number): string {
-        return new Intl.NumberFormat('fr-TN', {
-            style: 'currency',
-            currency: 'TND',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
-    }
-
-    /**
-     * Format percentage
-     */
-    formatPercentage(value: number): string {
-        return `${value.toFixed(2)}%`;
+    getStatusLabel(status: string): string {
+        const labels: { [key: string]: string } = {
+            'PENDING': 'Pending',
+            'PROCESSING': 'Processing',
+            'SHIPPED': 'Shipped',
+            'DELIVERED': 'Delivered',
+            'CANCELLED': 'Cancelled'
+        };
+        return labels[status] || status;
     }
 
     /**
@@ -499,10 +650,19 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get growth color
+     * Format percentage
      */
-    getGrowthColor(growth?: number): string {
-        if (!growth) return '';
-        return growth > 0 ? 'positive' : 'negative';
+    formatPercentage(value: number): string {
+        return `${value.toFixed(1)}%`;
+    }
+
+    /**
+     * Format date
+     */
+    private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 }

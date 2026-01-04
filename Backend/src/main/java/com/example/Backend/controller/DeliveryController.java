@@ -88,12 +88,20 @@ public class DeliveryController {
 
     /**
      * Track delivery by tracking number (public endpoint)
+     * Auto-starts simulation for IN_TRANSIT deliveries (e.g., after backend
+     * restart)
      * GET /api/delivery/track/{trackingNumber}
      */
     @GetMapping("/track/{trackingNumber}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Delivery> trackDelivery(@PathVariable String trackingNumber) {
         Delivery delivery = deliveryService.trackDelivery(trackingNumber);
+
+        // Auto-start simulation for IN_TRANSIT deliveries if not already running
+        if ("IN_TRANSIT".equals(delivery.getStatus()) || "OUT_FOR_DELIVERY".equals(delivery.getStatus())) {
+            deliveryService.ensureSimulationRunning(delivery.getId());
+        }
+
         return ResponseEntity.ok(delivery);
     }
 
@@ -255,5 +263,58 @@ public class DeliveryController {
     public ResponseEntity<Double> getAverageDeliveryTime() {
         Double avgTime = deliveryService.getAverageDeliveryTime();
         return ResponseEntity.ok(avgTime);
+    }
+
+    /**
+     * Migrate existing shipped orders - creates deliveries for orders that don't
+     * have one
+     * POST /api/delivery/migrate-shipped-orders
+     */
+    @PostMapping("/migrate-shipped-orders")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Map<String, Object>> migrateShippedOrders() {
+        int count = deliveryService.createDeliveriesForShippedOrders();
+        Map<String, Object> response = Map.of(
+                "message", "Migration completed",
+                "deliveriesCreated", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Debug endpoint to check order statuses
+     * GET /api/delivery/debug-orders
+     */
+    @GetMapping("/debug-orders")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Map<String, Object>> debugOrders() {
+        Map<String, Object> debug = deliveryService.getDebugInfo();
+        return ResponseEntity.ok(debug);
+    }
+
+    /**
+     * Sync tracking numbers from deliveries to orders
+     * POST /api/delivery/sync-tracking-numbers
+     */
+    @PostMapping("/sync-tracking-numbers")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Map<String, Object>> syncTrackingNumbers() {
+        int count = deliveryService.syncTrackingNumbersToOrders();
+        return ResponseEntity.ok(Map.of(
+                "message", "Sync completed",
+                "ordersSynced", count));
+    }
+
+    /**
+     * Create deliveries for all confirmed orders without one
+     * POST /api/delivery/sync-confirmed-orders
+     */
+    @PostMapping("/sync-confirmed-orders")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Map<String, Object>> syncConfirmedOrders() {
+        int count = deliveryService.createDeliveriesForConfirmedOrders();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Créé " + count + " livraisons pour les commandes confirmées",
+                "deliveriesCreated", count));
     }
 }

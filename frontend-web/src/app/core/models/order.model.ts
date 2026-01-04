@@ -3,12 +3,14 @@ import { Address } from './user.model';
 
 export enum OrderStatus {
     PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED',
     PAID = 'PAID',
     PROCESSING = 'PROCESSING',
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
     CANCELLED = 'CANCELLED',
-    REFUNDED = 'REFUNDED'
+    REFUNDED = 'REFUNDED',
+    DELIVERY_FAILED = 'DELIVERY_FAILED'
 }
 
 export interface Order {
@@ -44,6 +46,14 @@ export interface Order {
     paymentId?: string;
     trackingNumber?: string;
     notes?: string;
+    delivery?: {
+        id: string;
+        trackingNumber: string;
+        status: string;
+        driverName?: string;
+        driverPhone?: string;
+        estimatedDelivery?: Date;
+    };
     createdAt: Date;
     updatedAt?: Date;
     deliveredAt?: Date;

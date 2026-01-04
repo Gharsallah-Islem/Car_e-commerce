@@ -1,68 +1,264 @@
 <!-- Premium Inventory Management Dashboard -->
 <div class="inventory-dashboard">
 
-    <!-- Gradient Header -->
+    <!-- Premium Purple Gradient Header -->
     <div class="dashboard-header">
         <div class="header-content">
-            <h1>Gestion des Stocks</h1>
-            <p class="subtitle">Vue d'ensemble et gestion de l'inventaire</p>
+            <div class="header-text">
+                <h1>Gestion des Stocks <span class="header-emoji">📦</span></h1>
+                <p class="subtitle">Tableau de bord de l'inventaire en temps réel</p>
+            </div>
+            <div class="header-status">
+                <div class="live-badge">
+                    <span class="pulse-dot"></span>
+                    <span>En direct</span>
+                </div>
+                <div class="last-update">
+                    <mat-icon>update</mat-icon>
+                    Dernière MAJ: {{ lastUpdateTime || 'Maintenant' }}
+                </div>
+            </div>
         </div>
         <div class="header-actions">
-            <button mat-raised-button (click)="checkAutoReorders()">
-                <mat-icon>autorenew</mat-icon>
-                Vérifier Réapprovisionnement
+            <button mat-raised-button class="action-refresh" (click)="refreshAll()">
+                <mat-icon>sync</mat-icon>
+                Actualiser
             </button>
-            <button mat-raised-button color="primary" [matMenuTriggerFor]="exportMenu">
+            <button mat-raised-button class="action-reorder" (click)="checkAutoReorders()">
+                <mat-icon>autorenew</mat-icon>
+                Réapprovisionnement
+            </button>
+            <button mat-raised-button class="action-export" [matMenuTriggerFor]="exportMenu">
                 <mat-icon>download</mat-icon>
                 Exporter
             </button>
-            <mat-menu #exportMenu="matMenu">
-                <button mat-menu-item (click)="exportToCSV('inventory')">Inventaire Global</button>
-                <button mat-menu-item (click)="exportToCSV('movements')">Mouvements de Stock</button>
-                <button mat-menu-item (click)="exportToCSV('orders')">Commandes d'Achat</button>
+            <mat-menu #exportMenu="matMenu" class="export-menu">
+                <button mat-menu-item (click)="exportToCSV('inventory')">
+                    <mat-icon>inventory_2</mat-icon>
+                    Inventaire Global
+                </button>
+                <button mat-menu-item (click)="exportToCSV('movements')">
+                    <mat-icon>swap_vert</mat-icon>
+                    Mouvements de Stock
+                </button>
+                <button mat-menu-item (click)="exportToCSV('orders')">
+                    <mat-icon>receipt_long</mat-icon>
+                    Commandes d'Achat
+                </button>
             </mat-menu>
         </div>
     </div>
 
-    <!-- KPI Cards -->
+    <!-- Enhanced KPI Stats Cards with Visual Effects -->
     <div class="kpi-grid">
-        <mat-card>
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <mat-icon>inventory_2</mat-icon>
+        <div class="stat-card animated" style="--delay: 0.1s">
+            <div class="stat-header">
+                <div class="stat-icon primary">
+                    <mat-icon>inventory_2</mat-icon>
+                </div>
+                <div class="stat-trend positive">
+                    <mat-icon>trending_up</mat-icon>
+                    <span>+5%</span>
+                </div>
             </div>
-            <h3>{{ stats().totalProducts }}</h3>
-            <p>Produits en Stock</p>
-        </mat-card>
+            <h3 class="stat-value">{{ stats().totalProducts }}</h3>
+            <p class="stat-label">Produits Total</p>
+            <div class="stat-sparkline primary"></div>
+        </div>
 
-        <mat-card>
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
-                <mat-icon>attach_money</mat-icon>
+        <div class="stat-card animated" style="--delay: 0.15s">
+            <div class="stat-header">
+                <div class="stat-icon success">
+                    <mat-icon>check_circle</mat-icon>
+                </div>
+                <div class="stat-badge success">
+                    <mat-icon>verified</mat-icon>
+                </div>
             </div>
-            <h3>{{ stats().totalValue | number:'1.0-0' }} MAD</h3>
-            <p>Valeur Totale</p>
-        </mat-card>
+            <h3 class="stat-value">{{ stats().healthyStockItems || 0 }}</h3>
+            <p class="stat-label">Stock Optimal</p>
+            <div class="stat-progress">
+                <div class="progress-bar success" [style.width.%]="getHealthyStockPercentage()"></div>
+            </div>
+        </div>
 
-        <mat-card>
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
-                <mat-icon>warning</mat-icon>
+        <div class="stat-card animated" style="--delay: 0.2s">
+            <div class="stat-header">
+                <div class="stat-icon warning">
+                    <mat-icon>warning</mat-icon>
+                </div>
+                @if (stats().lowStockItems > 0) {
+                <div class="stat-alert warning">
+                    <mat-icon>notifications_active</mat-icon>
+                </div>
+                }
             </div>
-            <h3>{{ stats().lowStockItems }}</h3>
-            <p>Stock Faible</p>
-        </mat-card>
+            <h3 class="stat-value">{{ stats().lowStockItems }}</h3>
+            <p class="stat-label">Stock Faible</p>
+            <div class="stat-mini-list">
+                @if (stats().lowStockItems > 0) {
+                <span class="mini-alert">Attention requise</span>
+                }
+            </div>
+        </div>
 
-        <mat-card>
-            <div class="kpi-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
-                <mat-icon>local_shipping</mat-icon>
+        <div class="stat-card animated danger-glow" style="--delay: 0.25s">
+            <div class="stat-header">
+                <div class="stat-icon danger">
+                    <mat-icon>error</mat-icon>
+                </div>
+                @if (stats().outOfStockItems > 0) {
+                <div class="stat-alert danger pulse">
+                    <mat-icon>priority_high</mat-icon>
+                </div>
+                }
             </div>
-            <h3>{{ stats().pendingPOs }}</h3>
-            <p>Commandes en Cours</p>
-        </mat-card>
+            <h3 class="stat-value">{{ stats().outOfStockItems }}</h3>
+            <p class="stat-label">Rupture de Stock</p>
+            @if (stats().outOfStockItems > 0) {
+            <div class="stat-action">
+                <button mat-button class="mini-btn" (click)="selectedTabIndex.set(0)">
+                    Voir les produits
+                </button>
+            </div>
+            }
+        </div>
+
+        <div class="stat-card animated" style="--delay: 0.3s">
+            <div class="stat-header">
+                <div class="stat-icon info">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                </div>
+            </div>
+            <h3 class="stat-value">
+                <span class="value-currency">{{ stats().totalValue | number:'1.0-0' }}</span>
+                <span class="currency-label">TND</span>
+            </h3>
+            <p class="stat-label">Valeur Totale</p>
+            <div class="stat-sparkline info"></div>
+        </div>
+
+        <div class="stat-card animated" style="--delay: 0.35s">
+            <div class="stat-header">
+                <div class="stat-icon primary">
+                    <mat-icon>local_shipping</mat-icon>
+                </div>
+                @if (stats().pendingPOs > 0) {
+                <div class="stat-badge primary">
+                    {{ stats().pendingPOs }}
+                </div>
+                }
+            </div>
+            <h3 class="stat-value">{{ stats().pendingPOs }}</h3>
+            <p class="stat-label">Commandes en cours</p>
+            @if (stats().pendingPOs > 0) {
+            <div class="stat-action">
+                <button mat-button class="mini-btn" (click)="selectedTabIndex.set(2)">
+                    Voir les commandes
+                </button>
+            </div>
+            }
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content-card">
         <mat-card>
             <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
+
+                <!-- Stock Produits Tab (NEW) -->
+                <mat-tab label="Stock Produits">
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-icon">inventory</mat-icon>
+                        Stock Produits
+                        @if (stats().outOfStockItems > 0) {
+                        <span class="tab-badge danger">{{ stats().outOfStockItems }}</span>
+                        }
+                    </ng-template>
+                    <div class="tab-content">
+                        @if (productStock().length === 0) {
+                        <div class="empty-state">
+                            <mat-icon>inventory_2</mat-icon>
+                            <h3>Aucun produit</h3>
+                            <p>Les produits s'afficheront ici</p>
+                        </div>
+                        } @else {
+                        <table mat-table [dataSource]="productStock()">
+                            <ng-container matColumnDef="product">
+                                <th mat-header-cell *matHeaderCellDef>Produit</th>
+                                <td mat-cell *matCellDef="let p">
+                                    <div class="product-cell">
+                                        <div class="product-info">
+                                            <div class="name">{{ p.name }}</div>
+                                            <div class="sku">{{ p.category || 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="sku">
+                                <th mat-header-cell *matHeaderCellDef>SKU</th>
+                                <td mat-cell *matCellDef="let p">
+                                    <code>{{ p.sku }}</code>
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="stock">
+                                <th mat-header-cell *matHeaderCellDef>Stock</th>
+                                <td mat-cell *matCellDef="let p">
+                                    <div class="stock-level">
+                                        <div class="stock-bar">
+                                            <div class="stock-fill" [class.ok]="p.status === 'OK'"
+                                                [class.low]="p.status === 'LOW'"
+                                                [class.critical]="p.status === 'CRITICAL'"
+                                                [class.empty]="p.status === 'OUT_OF_STOCK'"
+                                                [style.width.%]="(p.currentStock / 50) * 100 | number:'1.0-0'"></div>
+                                        </div>
+                                        <span class="stock-count">{{ p.currentStock }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>État</th>
+                                <td mat-cell *matCellDef="let p">
+                                    <span class="status-badge"
+                                        [ngClass]="'status-' + p.status.toLowerCase().replace('_', '-')">
+                                        @switch (p.status) {
+                                        @case ('OK') { <mat-icon>check_circle</mat-icon> En stock }
+                                        @case ('LOW') { <mat-icon>warning</mat-icon> Faible }
+                                        @case ('CRITICAL') { <mat-icon>error</mat-icon> Critique }
+                                        @case ('OUT_OF_STOCK') { <mat-icon>cancel</mat-icon> Rupture }
+                                        }
+                                    </span>
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="value">
+                                <th mat-header-cell *matHeaderCellDef>Valeur</th>
+                                <td mat-cell *matCellDef="let p">{{ p.value | number:'1.2-2' }} TND</td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let p">
+                                    <button mat-icon-button class="action-btn edit" matTooltip="Ajuster stock"
+                                        (click)="openStockAdjustment(p)">
+                                        <mat-icon>tune</mat-icon>
+                                    </button>
+                                    <button mat-icon-button class="action-btn view" matTooltip="Historique"
+                                        (click)="viewProductHistory(p)">
+                                        <mat-icon>history</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="productStockColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: productStockColumns;"></tr>
+                        </table>
+                        }
+                    </div>
+                </mat-tab>
 
                 <!-- Suppliers Tab -->
                 <mat-tab label="Fournisseurs">
@@ -101,7 +297,7 @@
 
                             <ng-container matColumnDef="productsCount">
                                 <th mat-header-cell *matHeaderCellDef>Produits</th>
-                                <td mat-cell *matCellDef="let s">{{ s.productsCount || 0 }}</td>
+                                <td mat-cell *matCellDef="let s">{{ s.products?.length || 0 }}</td>
                             </ng-container>
 
                             <ng-container matColumnDef="status">
@@ -176,7 +372,7 @@
 
                             <ng-container matColumnDef="totalAmount">
                                 <th mat-header-cell *matHeaderCellDef>Montant</th>
-                                <td mat-cell *matCellDef="let po">{{ po.totalAmount | number:'1.2-2' }} MAD</td>
+                                <td mat-cell *matCellDef="let po">{{ po.totalAmount | number:'1.2-2' }} TND</td>
                             </ng-container>
 
                             <ng-container matColumnDef="status">
@@ -307,13 +503,13 @@
 
                             <ng-container matColumnDef="supplier">
                                 <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-                                <td mat-cell *matCellDef="let r">{{ r.supplier?.name || '-' }}</td>
+                                <td mat-cell *matCellDef="let r">{{ r.preferredSupplier?.name || '-' }}</td>
                             </ng-container>
 
                             <ng-container matColumnDef="autoReorder">
                                 <th mat-header-cell *matHeaderCellDef>Auto</th>
                                 <td mat-cell *matCellDef="let r">
-                                    <mat-slide-toggle [checked]="r.autoReorder"
+                                    <mat-slide-toggle [checked]="r.isEnabled || r.autoReorder"
                                         (change)="toggleAutoReorder(r, $event.checked)">
                                     </mat-slide-toggle>
                                 </td>
@@ -351,3 +547,281 @@
     </div>
 
 </div>
+
+<!-- ================== SLIDE-OUT DIALOGS ================== -->
+
+<!-- Supplier Form Dialog -->
+@if (showSupplierForm()) {
+<div class="dialog-overlay" (click)="closeSupplierDialog()">
+    <div class="dialog-panel slide-in" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>{{ editingSupplier() ? 'Modifier Fournisseur' : 'Nouveau Fournisseur' }}</h2>
+            <button mat-icon-button (click)="closeSupplierDialog()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()" class="dialog-content">
+            <mat-form-field appearance="outline">
+                <mat-label>Nom du fournisseur</mat-label>
+                <input matInput formControlName="name" placeholder="Entrez le nom">
+                <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Personne de contact</mat-label>
+                <input matInput formControlName="contactPerson" placeholder="Nom du contact">
+                <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" placeholder="email@exemple.com" type="email">
+                <mat-icon matPrefix>email</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Téléphone</mat-label>
+                <input matInput formControlName="phone" placeholder="+212 ...">
+                <mat-icon matPrefix>phone</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Adresse</mat-label>
+                <textarea matInput formControlName="address" rows="2" placeholder="Adresse complète"></textarea>
+                <mat-icon matPrefix>location_on</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Statut</mat-label>
+                <mat-select formControlName="status">
+                    <mat-option value="ACTIVE">Actif</mat-option>
+                    <mat-option value="INACTIVE">Inactif</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="dialog-actions">
+                <button mat-button type="button" (click)="closeSupplierDialog()">Annuler</button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="supplierForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    {{ editingSupplier() ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+<!-- Stock Movement Dialog -->
+@if (showMovementForm()) {
+<div class="dialog-overlay" (click)="closeMovementDialog()">
+    <div class="dialog-panel slide-in" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>Nouveau Mouvement de Stock</h2>
+            <button mat-icon-button (click)="closeMovementDialog()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <form [formGroup]="stockMovementForm" (ngSubmit)="saveStockMovement()" class="dialog-content">
+            <mat-form-field appearance="outline">
+                <mat-label>Produit</mat-label>
+                <mat-select formControlName="productId">
+                    @for (p of productStock(); track p.id) {
+                    <mat-option [value]="p.id">{{ p.name }}</mat-option>
+                    }
+                </mat-select>
+                <mat-icon matPrefix>inventory_2</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Type de mouvement</mat-label>
+                <mat-select formControlName="type">
+                    <mat-option value="IN">Entrée (Réception)</mat-option>
+                    <mat-option value="OUT">Sortie</mat-option>
+                    <mat-option value="ADJUSTMENT">Ajustement</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>swap_vert</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Quantité</mat-label>
+                <input matInput formControlName="quantity" type="number" min="1">
+                <mat-icon matPrefix>pin</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Notes (optionnel)</mat-label>
+                <textarea matInput formControlName="notes" rows="2" placeholder="Raison du mouvement..."></textarea>
+                <mat-icon matPrefix>notes</mat-icon>
+            </mat-form-field>
+
+            <div class="dialog-actions">
+                <button mat-button type="button" (click)="closeMovementDialog()">Annuler</button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="stockMovementForm.invalid">
+                    <mat-icon>check</mat-icon>
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+<!-- PO Details Dialog -->
+@if (showPODetails() && selectedPO()) {
+<div class="dialog-overlay" (click)="closePODetails()">
+    <div class="dialog-panel slide-in wide" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>Commande {{ selectedPO()!.poNumber }}</h2>
+            <button mat-icon-button (click)="closePODetails()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <div class="dialog-content po-details">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="label">Fournisseur</span>
+                    <span class="value">{{ selectedPO()!.supplier?.name || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Statut</span>
+                    <span class="status-badge" [ngClass]="'status-' + selectedPO()!.status.toLowerCase()">
+                        {{ getStatusLabel(selectedPO()!.status) }}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Date de commande</span>
+                    <span class="value">{{ selectedPO()!.orderDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Livraison prévue</span>
+                    <span class="value">{{ selectedPO()!.expectedDeliveryDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="detail-item full-width">
+                    <span class="label">Montant total</span>
+                    <span class="value highlight">{{ selectedPO()!.totalAmount | number:'1.2-2' }} TND</span>
+                </div>
+            </div>
+
+            @if (selectedPO()!.items && selectedPO()!.items.length > 0) {
+            <h3>Articles commandés</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix unitaire</th>
+                        <th>Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (item of selectedPO()!.items; track item.id) {
+                    <tr>
+                        <td>{{ item.product?.name || 'Produit' }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.unitPrice | number:'1.2-2' }} TND</td>
+                        <td>{{ item.totalPrice | number:'1.2-2' }} TND</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            }
+
+            <div class="dialog-actions">
+                <button mat-button (click)="closePODetails()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Reorder Setting Dialog -->
+@if (showReorderForm()) {
+<div class="dialog-overlay" (click)="closeReorderForm()">
+    <div class="dialog-panel slide-in" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2>{{ editingReorderSetting() ? 'Modifier Paramètre' : 'Nouveau Paramètre de Réapprovisionnement' }}</h2>
+            <button mat-icon-button (click)="closeReorderForm()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <form [formGroup]="reorderSettingForm" (ngSubmit)="saveReorderSetting()" class="dialog-content">
+            <mat-form-field appearance="outline">
+                <mat-label>Produit</mat-label>
+                <mat-select formControlName="productId">
+                    @for (p of productStock(); track p.id) {
+                    <mat-option [value]="p.id">{{ p.name }} (Stock: {{ p.currentStock }})</mat-option>
+                    }
+                </mat-select>
+                <mat-icon matPrefix>inventory_2</mat-icon>
+            </mat-form-field>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Point de commande (Seuil)</mat-label>
+                    <input matInput formControlName="reorderPoint" type="number" min="0">
+                    <mat-icon matPrefix>low_priority</mat-icon>
+                    <mat-hint>Alerte quand stock ≤ cette valeur</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Quantité à commander</mat-label>
+                    <input matInput formControlName="reorderQuantity" type="number" min="1">
+                    <mat-icon matPrefix>add_shopping_cart</mat-icon>
+                    <mat-hint>Quantité pour réapprovisionnement</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Stock minimum</mat-label>
+                    <input matInput formControlName="minimumStock" type="number" min="0">
+                    <mat-icon matPrefix>trending_down</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Stock maximum</mat-label>
+                    <input matInput formControlName="maximumStock" type="number" min="1">
+                    <mat-icon matPrefix>trending_up</mat-icon>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Délai de livraison (jours)</mat-label>
+                <input matInput formControlName="leadTimeDays" type="number" min="1">
+                <mat-icon matPrefix>schedule</mat-icon>
+                <mat-hint>Jours entre commande et réception</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Fournisseur par défaut</mat-label>
+                <mat-select formControlName="supplierId">
+                    <mat-option value="">Aucun</mat-option>
+                    @for (s of suppliers(); track s.id) {
+                    <mat-option [value]="s.id">{{ s.name }}</mat-option>
+                    }
+                </mat-select>
+                <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+
+            <div class="form-row toggle-row">
+                <mat-slide-toggle formControlName="autoReorder" color="primary">
+                    <span class="toggle-label">
+                        <mat-icon>autorenew</mat-icon>
+                        Réapprovisionnement automatique
+                    </span>
+                </mat-slide-toggle>
+                <p class="toggle-hint">Créer automatiquement un bon de commande quand le seuil est atteint</p>
+            </div>
+
+            <div class="dialog-actions">
+                <button mat-button type="button" (click)="closeReorderForm()">Annuler</button>
+                <button mat-raised-button color="primary" type="submit"
+                    [disabled]="reorderSettingForm.invalid || loading()">
+                    <mat-icon>save</mat-icon>
+                    {{ editingReorderSetting() ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}

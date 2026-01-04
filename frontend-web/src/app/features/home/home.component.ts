@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { ProductService } from '../../core/services/product.service';
+import { RecommendationService } from '../../core/services/recommendation.service';
 import { Product, Category, CartItem } from '../../core/models';
 
 @Component({
@@ -54,6 +55,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     featuredProducts = signal<Product[]>([]);
     isLoadingProducts = signal<boolean>(true);
 
+    // AI Recommendations
+    trendingProducts = signal<Product[]>([]);
+    personalizedProducts = signal<Product[]>([]);
+    isLoadingTrending = signal<boolean>(true);
+    isLoadingPersonalized = signal<boolean>(false);
+
     // Categories - loaded from API
     categories = signal<Category[]>([]);
     isLoadingCategories = signal<boolean>(true);
@@ -73,7 +80,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     constructor(
         public authService: AuthService,
         public cartService: CartService,
-        private productService: ProductService
+        private productService: ProductService,
+        private recommendationService: RecommendationService
     ) { }
 
     ngOnInit(): void {
@@ -86,6 +94,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
                     this.userName.set(user.firstName || user.email);
                 }
             });
+            // Load personalized recommendations for logged-in users
+            this.loadPersonalizedRecommendations();
         }
 
         // Get cart item count
@@ -96,6 +106,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
         // Load categories from API
         this.loadCategories();
+
+        // Load trending products (available for all users)
+        this.loadTrendingProducts();
     }
 
     ngAfterViewInit(): void {
@@ -133,7 +146,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.isLoadingCategories.set(true);
         this.productService.getCategories().subscribe({
             next: (categories) => {
-                this.categories.set(categories);
+                // Assign high-quality images to categories if missing
+                const enhancedCategories = categories.map(cat => {
+                    if (!cat.imageUrl) {
+                        cat.imageUrl = this.getCategoryImage(cat.name);
+                    }
+                    return cat;
+                });
+                this.categories.set(enhancedCategories);
                 this.isLoadingCategories.set(false);
             },
             error: (error) => {
@@ -141,6 +161,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
                 this.isLoadingCategories.set(false);
             }
         });
+    }
+
+    private getCategoryImage(categoryName: string): string {
+        const name = categoryName.toLowerCase();
+        if (name.includes('moteur') || name.includes('engine')) {
+            return 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('frein') || name.includes('brake')) {
+            return 'https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('suspension') || name.includes('direction')) {
+            return 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('electr') || name.includes('clairage')) {
+            return 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('carr') || name.includes('body')) {
+            return 'https://images.unsplash.com/photo-1503376763036-066120622c74?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('huil') || name.includes('oil') || name.includes('filtr')) {
+            return 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('pneu') || name.includes('tire') || name.includes('wheel')) {
+            return 'https://images.unsplash.com/photo-1578844251758-2f71da645217?auto=format&fit=crop&w=800&q=80';
+        } else if (name.includes('interieur') || name.includes('interior')) {
+            return 'https://images.unsplash.com/photo-1560252829-804f1a72b308?auto=format&fit=crop&w=800&q=80';
+        }
+        return 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80';
     }
 
     updateCartCount(): void {
@@ -209,11 +251,47 @@ export class HomeComponent implements OnInit, AfterViewInit {
             }).subscribe({
                 next: () => {
                     console.log('Product added to cart');
+                    // Track add to cart for recommendations
+                    this.recommendationService.trackAddToCart(product.id);
                 },
                 error: (error) => {
                     console.error('Error adding to cart:', error);
                 }
             });
         }
+    }
+
+    /**
+     * Load trending products for all users
+     */
+    loadTrendingProducts(): void {
+        this.isLoadingTrending.set(true);
+        this.recommendationService.getTrendingProducts(7, 8).subscribe({
+            next: (products) => {
+                this.trendingProducts.set(products);
+                this.isLoadingTrending.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading trending products:', error);
+                this.isLoadingTrending.set(false);
+            }
+        });
+    }
+
+    /**
+     * Load personalized recommendations for logged-in users
+     */
+    loadPersonalizedRecommendations(): void {
+        this.isLoadingPersonalized.set(true);
+        this.recommendationService.getPersonalizedRecommendations(8).subscribe({
+            next: (products) => {
+                this.personalizedProducts.set(products);
+                this.isLoadingPersonalized.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading personalized recommendations:', error);
+                this.isLoadingPersonalized.set(false);
+            }
+        });
     }
 }

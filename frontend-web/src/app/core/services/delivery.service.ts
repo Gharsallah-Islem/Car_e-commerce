@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface Delivery {
@@ -8,13 +9,21 @@ export interface Delivery {
     trackingNumber: string;
     order: any;
     deliveryAddress: string;
+    address: string;
     recipientName: string;
     recipientPhone: string;
     status: 'PROCESSING' | 'PICKED_UP' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAILED' | 'CANCELLED';
     courierName?: string;
+    driverName?: string;
+    driverPhone?: string;
+    estimatedDelivery?: Date;
     estimatedDeliveryDate?: Date;
     actualDeliveryDate?: Date;
+    actualDelivery?: Date;
+    deliveryNotes?: string;
     notes?: string;
+    currentLatitude?: number;
+    currentLongitude?: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -36,6 +45,16 @@ export interface DeliveryStats {
     failed: number;
     averageDeliveryTime: number;
     onTimeRate?: number;
+}
+
+// Backend response type (uses UPPER_CASE keys)
+interface BackendDeliveryStats {
+    TOTAL?: number;
+    PROCESSING?: number;
+    IN_TRANSIT?: number;
+    OUT_FOR_DELIVERY?: number;
+    DELIVERED?: number;
+    FAILED?: number;
 }
 
 @Injectable({
@@ -128,10 +147,32 @@ export class DeliveryService {
     // ==================== STATISTICS ====================
 
     getStatistics(): Observable<DeliveryStats> {
-        return this.http.get<DeliveryStats>(`${this.apiUrl}/statistics`);
+        return this.http.get<BackendDeliveryStats>(`${this.apiUrl}/statistics`).pipe(
+            map(backendStats => ({
+                totalDeliveries: backendStats.TOTAL || 0,
+                processing: backendStats.PROCESSING || 0,
+                inTransit: backendStats.IN_TRANSIT || 0,
+                outForDelivery: backendStats.OUT_FOR_DELIVERY || 0,
+                delivered: backendStats.DELIVERED || 0,
+                failed: backendStats.FAILED || 0,
+                averageDeliveryTime: 0, // Will be fetched separately
+                onTimeRate: 0
+            }))
+        );
     }
 
     getAverageDeliveryTime(): Observable<number> {
         return this.http.get<number>(`${this.apiUrl}/average-time`);
     }
+
+    /**
+     * Sync confirmed orders - creates deliveries for confirmed orders that don't have one
+     */
+    syncConfirmedOrders(): Observable<{ success: boolean; message: string; deliveriesCreated: number }> {
+        return this.http.post<{ success: boolean; message: string; deliveriesCreated: number }>(
+            `${this.apiUrl}/sync-confirmed-orders`,
+            {}
+        );
+    }
 }
+

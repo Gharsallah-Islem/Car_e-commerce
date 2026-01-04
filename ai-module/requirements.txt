@@ -1,0 +1,40 @@
+# Deep Learning Framework - TensorFlow with GPU support
+tensorflow==2.17.1
+
+# Image Processing
+pillow==10.1.0
+opencv-python==4.8.1.78
+
+# EfficientNet Model (built into TensorFlow 2.15)
+# efficientnet==1.1.1  # Not needed, using tf.keras.applications.EfficientNetB0
+
+# Vector Search - FAISS (CPU version for compatibility)
+faiss-cpu==1.7.4
+
+# API Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Data Processing
+numpy==1.24.3
+pandas==2.1.4
+scikit-learn==1.3.2
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.2
+requests==2.31.0
+
+# Progress bars and logging
+tqdm==4.66.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Kaggle API for dataset download
+kaggle==1.5.16
+
+# Image augmentation for training
+albumentations==1.3.1

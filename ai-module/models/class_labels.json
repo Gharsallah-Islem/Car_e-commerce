@@ -1,0 +1,17 @@
+{
+  "0": "battery",
+  "1": "brake_pads",
+  "2": "engine",
+  "3": "alternator",
+  "4": "radiator",
+  "5": "spark_plug",
+  "6": "oil_filter",
+  "7": "air_filter",
+  "8": "headlight",
+  "9": "tire",
+  "10": "steering_wheel",
+  "11": "turbocharger",
+  "12": "shock_absorber",
+  "13": "exhaust_pipe",
+  "14": "transmission"
+}

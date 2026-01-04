@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -18,9 +18,12 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 import { NotificationService } from '../../../core/services/notification.service';
 import { DeliveryService, Delivery as DeliveryModel, DeliveryStats as DeliveryStatsModel } from '../../../core/services/delivery.service';
+import { DeliveryDetailDialogComponent } from './delivery-detail-dialog/delivery-detail-dialog.component';
 
 // Using types from DeliveryService
 type Delivery = DeliveryModel;
@@ -48,7 +51,8 @@ type DeliveryStats = DeliveryStatsModel;
         MatSortModule,
         MatMenuModule,
         MatBadgeModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        MatDialogModule
     ],
     templateUrl: './delivery-management.component.html',
     styleUrls: ['./delivery-management.component.scss']
@@ -74,9 +78,37 @@ export class DeliveryManagementComponent implements OnInit {
         onTimeRate: 0
     });
 
-    // Deliveries
+    // Deliveries - raw data
     deliveries = signal<Delivery[]>([]);
-    activeDeliveries = signal<Delivery[]>([]);
+
+    // Tab 1: En Attente (PROCESSING - waiting for driver assignment) - FIFO oldest first
+    get pendingDeliveries(): Delivery[] {
+        return this.deliveries()
+            .filter(d => d.status === 'PROCESSING')
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+
+    // Tab 2: En Cours (IN_TRANSIT, OUT_FOR_DELIVERY - actively being delivered) - FIFO oldest first
+    get activeDeliveries(): Delivery[] {
+        return this.deliveries()
+            .filter(d => d.status === 'IN_TRANSIT' || d.status === 'OUT_FOR_DELIVERY')
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+
+    // Tab 3: Historique (DELIVERED - completed) - newest first for display
+    get completedDeliveries(): Delivery[] {
+        return this.deliveries()
+            .filter(d => d.status === 'DELIVERED')
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    // Tab 4: Échecs (FAILED, CANCELLED) - newest first
+    get failedDeliveries(): Delivery[] {
+        return this.deliveries()
+            .filter(d => d.status === 'FAILED' || d.status === 'CANCELLED')
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
     deliveryColumns: string[] = ['trackingNumber', 'order', 'customer', 'address', 'status', 'courier', 'estimated', 'actions'];
 
     // Pagination
@@ -86,10 +118,15 @@ export class DeliveryManagementComponent implements OnInit {
     // Couriers
     couriers = ['Mohammed Ali', 'Ahmed Benali', 'Sara El Amrani', 'Youssef Alaoui'];
 
+    // Sync loading state
+    syncing = signal<boolean>(false);
+
     constructor(
         private fb: FormBuilder,
         private notificationService: NotificationService,
-        private deliveryService: DeliveryService
+        private deliveryService: DeliveryService,
+        private dialog: MatDialog,
+        private router: Router
     ) {
         this.initForms();
     }
@@ -97,8 +134,9 @@ export class DeliveryManagementComponent implements OnInit {
     ngOnInit(): void {
         this.loadDeliveryStats();
         this.loadDeliveries();
-        this.loadActiveDeliveries();
+        this.syncConfirmedOrders(); // Auto-sync on load
     }
+
 
     initForms(): void {
         this.trackingForm = this.fb.group({
@@ -151,15 +189,22 @@ export class DeliveryManagementComponent implements OnInit {
         });
     }
 
-    loadActiveDeliveries(): void {
-        this.deliveryService.getActiveDeliveries(0, 100).subscribe({
-            next: (response) => {
-                this.activeDeliveries.set(response.content);
+    /**
+     * Sync confirmed orders - creates deliveries for any confirmed orders missing one
+     */
+    syncConfirmedOrders(): void {
+        this.syncing.set(true);
+        this.deliveryService.syncConfirmedOrders().subscribe({
+            next: (response: any) => {
+                this.syncing.set(false);
+                if (response.deliveriesCreated > 0) {
+                    this.notificationService.success(`${response.deliveriesCreated} nouvelle(s) livraison(s) créée(s)`);
+                    this.loadDeliveries(); // Reload to show new deliveries
+                }
             },
             error: (error) => {
-                console.error('Error loading active deliveries:', error);
-                // Set empty array for graceful degradation
-                this.activeDeliveries.set([]);
+                this.syncing.set(false);
+                console.error('Error syncing confirmed orders:', error);
             }
         });
     }
@@ -190,7 +235,7 @@ export class DeliveryManagementComponent implements OnInit {
                 this.deliveries.update(deliveries =>
                     deliveries.map(d => d.id === deliveryId ? updated : d)
                 );
-                this.loadActiveDeliveries();
+                // No need to reload - computed getters will update automatically
                 this.notificationService.success('Statut mis à jour');
             },
             error: (error) => {
@@ -278,5 +323,29 @@ export class DeliveryManagementComponent implements OnInit {
     printDeliveryLabel(deliveryId: string): void {
         this.notificationService.info('Impression de l\'étiquette...');
         // Implement print logic
+    }
+
+    viewDeliveryDetails(delivery: Delivery): void {
+        const dialogRef = this.dialog.open(DeliveryDetailDialogComponent, {
+            data: { delivery },
+            width: '900px',
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            panelClass: 'delivery-detail-dialog-panel'
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result?.action === 'track' && result?.trackingNumber) {
+                this.router.navigate(['/track', result.trackingNumber]);
+            }
+        });
+    }
+
+    trackOnMap(delivery: Delivery): void {
+        if (delivery.trackingNumber) {
+            this.router.navigate(['/track', delivery.trackingNumber]);
+        } else {
+            this.notificationService.warning('Numéro de suivi non disponible');
+        }
     }
 }

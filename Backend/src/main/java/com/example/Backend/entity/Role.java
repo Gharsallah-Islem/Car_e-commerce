@@ -23,6 +23,7 @@ public class Role implements Serializable {
 
     // Role name constants
     public static final String CLIENT = "CLIENT";
+    public static final String DRIVER = "DRIVER";
     public static final String SUPPORT = "SUPPORT";
     public static final String ADMIN = "ADMIN";
     public static final String SUPER_ADMIN = "SUPER_ADMIN";

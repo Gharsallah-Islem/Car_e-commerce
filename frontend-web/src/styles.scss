@@ -1,3 +1,6 @@
+/* Import Leaflet CSS globally - required for map tiles to position correctly */
+@import 'leaflet/dist/leaflet.css';
+
 /* You can add global styles to this file, and also import other style files */
 
 html,
@@ -7,7 +10,7 @@ body {
 
 body {
     margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ======================================
@@ -122,4 +125,20 @@ body {
 
 .p-4 {
     padding: 32px;
+}
+
+/* ======================================
+   Delivery Detail Dialog Panel
+   ====================================== */
+.delivery-detail-dialog-panel {
+    .mat-mdc-dialog-container {
+        padding: 0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .mat-mdc-dialog-surface {
+        border-radius: 16px;
+        overflow: hidden;
+    }
 }

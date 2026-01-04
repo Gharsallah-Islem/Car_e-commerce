@@ -14,18 +14,22 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 import { NotificationService } from '../../core/services/notification.service';
 import { ChatService } from '../../core/services/chat.service';
+import { AiService, AnalyzedProduct } from '../../core/services/ai.service';
 import { Router } from '@angular/router';
 
 interface IdentificationResult {
     partName: string;
     partNumber: string;
     confidence: number;
+    confidencePercent: string;
     category: string;
     brand: string;
     price: number;
     stock: number;
     compatibility: string[];
     imageUrl: string;
+    products: AnalyzedProduct[];
+    productsFound: boolean;
 }
 
 interface ChatMessage {
@@ -94,6 +98,7 @@ export class AiMechanicComponent implements OnInit, OnDestroy {
     constructor(
         private notificationService: NotificationService,
         private chatService: ChatService,
+        private aiService: AiService,
         private router: Router
     ) { }
 
@@ -190,35 +195,92 @@ export class AiMechanicComponent implements OnInit, OnDestroy {
     }
 
     identifyPart(): void {
+        const imageData = this.uploadedImage();
+        if (!imageData) {
+            this.notificationService.error('No image to analyze');
+            return;
+        }
+
         this.identificationLoading.set(true);
+        console.log('🔍 Sending image to AI for analysis...');
 
-        // Simulate AI identification process (2-3 seconds)
-        // TODO: Replace with real AI image recognition API
-        setTimeout(() => {
-            const mockResult: IdentificationResult = {
-                partName: 'Plaquettes de frein avant',
-                partNumber: 'BRK-FR-001',
-                confidence: 94.5,
-                category: 'Freinage',
-                brand: 'Brembo',
-                price: 89.99,
-                stock: 45,
-                compatibility: [
-                    'Peugeot 208 (2012-2019)',
-                    'Renault Clio IV (2012-2019)',
-                    'Citroën C3 (2010-2016)'
-                ],
-                imageUrl: 'https://placehold.co/300x200/e3f2fd/1976d2?text=Brake+Pads'
-            };
+        this.aiService.analyzePartImage(imageData).subscribe({
+            next: (response) => {
+                console.log('✅ AI Analysis response:', response);
 
-            this.identificationResult.set(mockResult);
-            this.identificationLoading.set(false);
-            this.notificationService.success('Pièce identifiée avec succès !');
-        }, 2500);
+                if (response.success) {
+                    // Generate compatibility list based on part type
+                    const getCompatibility = (partName: string): string[] => {
+                        const partLower = partName.toLowerCase();
+                        // Common part types have universal compatibility
+                        if (partLower.includes('brake') || partLower.includes('pad') || partLower.includes('rotor')) {
+                            return ['Renault Clio', 'Peugeot 208', 'Volkswagen Golf', 'Toyota Corolla'];
+                        } else if (partLower.includes('oil') || partLower.includes('filter')) {
+                            return ['Tous véhicules', 'Universel'];
+                        } else if (partLower.includes('battery') || partLower.includes('alternator')) {
+                            return ['12V Standard', 'Véhicules européens'];
+                        } else if (partLower.includes('headlight') || partLower.includes('taillight')) {
+                            return ['Selon modèle', 'Vérifier référence'];
+                        }
+                        return ['Compatibilité universelle'];
+                    };
+
+                    // Map the API response to our IdentificationResult format
+                    const result: IdentificationResult = {
+                        partName: response.partName,
+                        partNumber: response.recommendationId?.substring(0, 8).toUpperCase() || 'N/A',
+                        confidence: response.confidence * 100, // Convert to percentage
+                        confidencePercent: response.confidencePercent,
+                        category: 'Auto Parts',
+                        brand: 'Various',
+                        price: response.products.length > 0 ? response.products[0].price : 0,
+                        stock: response.products.length > 0 ? response.products[0].stock : 0,
+                        compatibility: getCompatibility(response.partName),
+                        imageUrl: imageData,
+                        products: response.products,
+                        productsFound: response.productsFound
+                    };
+
+                    this.identificationResult.set(result);
+
+                    if (response.productsFound) {
+                        this.notificationService.success(
+                            `Part identified: ${response.partName} - ${response.products.length} product(s) found!`
+                        );
+                    } else {
+                        this.notificationService.info(
+                            `Part identified: ${response.partName} - No exact matches in catalog`
+                        );
+                    }
+                } else {
+                    this.notificationService.warning('Could not identify the part. Try a clearer image.');
+                }
+
+                this.identificationLoading.set(false);
+            },
+            error: (error) => {
+                console.error('❌ AI Analysis error:', error);
+                this.identificationLoading.set(false);
+                this.notificationService.error('Failed to analyze image. Please try again.');
+            }
+        });
     }
 
     viewProductDetails(): void {
-        this.router.navigate(['/products', 1]);
+        const result = this.identificationResult();
+        if (result?.products && result.products.length > 0) {
+            // Navigate to the first matched product
+            this.router.navigate(['/products', result.products[0].id]);
+        } else {
+            // Fallback: search products by part name
+            this.router.navigate(['/products'], {
+                queryParams: { search: result?.partName || '' }
+            });
+        }
+    }
+
+    viewProduct(productId: string | number): void {
+        this.router.navigate(['/products', productId]);
     }
 
     addToCart(): void {
@@ -348,10 +410,6 @@ export class AiMechanicComponent implements OnInit, OnDestroy {
             const container = this.chatContainer.nativeElement;
             container.scrollTop = container.scrollHeight;
         }
-    }
-
-    viewProduct(productId: number): void {
-        this.router.navigate(['/products', productId]);
     }
 
     formatTimestamp(date: Date): string {

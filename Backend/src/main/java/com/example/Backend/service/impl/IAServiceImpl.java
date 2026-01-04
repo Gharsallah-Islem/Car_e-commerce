@@ -10,24 +10,53 @@ import com.example.Backend.repository.RecommendationRepository;
 import com.example.Backend.repository.UserRepository;
 import com.example.Backend.repository.VehicleRepository;
 import com.example.Backend.service.IAService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class IAServiceImpl implements IAService {
 
     private final RecommendationRepository recommendationRepository;
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
     private final ProductRepository productRepository;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    @Value("${ai.module.url:http://localhost:5000}")
+    private String aiModuleUrl;
+
+    @Value("${ai.module.timeout:30000}")
+    private int aiModuleTimeout;
+
+    public IAServiceImpl(
+            RecommendationRepository recommendationRepository,
+            UserRepository userRepository,
+            VehicleRepository vehicleRepository,
+            ProductRepository productRepository) {
+        this.recommendationRepository = recommendationRepository;
+        this.userRepository = userRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.productRepository = productRepository;
+        this.restTemplate = new RestTemplate();
+        this.objectMapper = new ObjectMapper();
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -140,22 +169,158 @@ public class IAServiceImpl implements IAService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        // TODO: Integrate with Flask API for image recognition
-        // For now, create a mock response
+        log.info("Analyzing part image for user: {}", userId);
 
+        String partName = "Unknown Part";
+        double confidence = 0.0;
+        List<Product> matchedProducts = List.of();
+        String aiResponse;
+
+        try {
+            // Call AI module API
+            String aiUrl = aiModuleUrl + "/api/v1/visual-search/predict";
+            log.info("Calling AI module at: {}", aiUrl);
+
+            // Create request body
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("image", imageData);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
+
+            // Make the API call
+            ResponseEntity<String> response = restTemplate.postForEntity(aiUrl, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                // Parse the response
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                if (jsonResponse.has("success") && jsonResponse.get("success").asBoolean()) {
+                    partName = jsonResponse.get("top_prediction").asText("Unknown");
+                    confidence = jsonResponse.get("confidence").asDouble(0.0);
+
+                    log.info("AI prediction: {} with confidence {:.2f}", partName, confidence);
+
+                    // Search for matching products in the catalog
+                    matchedProducts = productRepository.findByNameContaining(partName);
+
+                    // If no exact match, try searching by keywords
+                    if (matchedProducts.isEmpty()) {
+                        // Try partial match - e.g., "BRAKE PAD" -> search for "brake" or "pad"
+                        String[] keywords = partName.toLowerCase().replace("_", " ").split(" ");
+                        for (String keyword : keywords) {
+                            if (keyword.length() > 3) { // Skip short words
+                                matchedProducts = productRepository.findByNameContaining(keyword);
+                                if (!matchedProducts.isEmpty())
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Limit to top 5 products
+                    if (matchedProducts.size() > 5) {
+                        matchedProducts = matchedProducts.subList(0, 5);
+                    }
+
+                    aiResponse = buildAiResponseMessage(partName, confidence, matchedProducts);
+                } else {
+                    String errorMsg = jsonResponse.has("detail") ? jsonResponse.get("detail").asText()
+                            : "Unknown error";
+                    log.warn("AI module returned error: {}", errorMsg);
+                    aiResponse = "Could not identify the part. Please try with a clearer image.";
+                }
+            } else {
+                log.warn("AI module returned non-OK status: {}", response.getStatusCode());
+                aiResponse = "AI service temporarily unavailable. Please try again later.";
+            }
+
+        } catch (Exception e) {
+            log.error("Error calling AI module: {}", e.getMessage(), e);
+            aiResponse = "AI analysis temporarily unavailable. Error: " + e.getMessage();
+        }
+
+        // Save recommendation to database
         Recommendation recommendation = new Recommendation();
         recommendation.setUser(user);
-        recommendation.setImageUrl("data:image/base64," + imageData.substring(0, Math.min(50, imageData.length())));
-        recommendation.setSymptoms("Image analysis request");
-        recommendation
-                .setAiResponse("Image analysis in progress. Please check back later for AI-powered part recognition.");
-        recommendation.setConfidenceScore(0.5);
+        recommendation.setImageUrl("uploaded_image");
+        recommendation.setSymptoms("Image analysis request - Part: " + partName);
+        recommendation.setAiResponse(aiResponse);
+        recommendation.setConfidenceScore(confidence);
         recommendation.setCreatedAt(LocalDateTime.now());
+
+        // Save matched product IDs
+        if (!matchedProducts.isEmpty()) {
+            String productIds = matchedProducts.stream()
+                    .map(p -> "\"" + p.getId() + "\"")
+                    .collect(Collectors.joining(",", "[", "]"));
+            recommendation.setSuggestedProducts(productIds);
+        }
 
         recommendationRepository.save(recommendation);
 
-        return "Image uploaded successfully. AI analysis will be available shortly. " +
-                "Recommendation ID: " + recommendation.getId();
+        // Build JSON response for frontend
+        return buildJsonResponse(partName, confidence, matchedProducts, recommendation.getId());
+    }
+
+    /**
+     * Build a user-friendly response message
+     */
+    private String buildAiResponseMessage(String partName, double confidence, List<Product> products) {
+        StringBuilder sb = new StringBuilder();
+
+        String formattedName = partName.replace("_", " ");
+        sb.append("I identified this as a **").append(formattedName).append("** ");
+        sb.append("with ").append(String.format("%.1f%%", confidence * 100)).append(" confidence.\n\n");
+
+        if (!products.isEmpty()) {
+            sb.append("We have ").append(products.size()).append(" matching product(s) in stock:\n");
+            for (Product p : products) {
+                sb.append("• ").append(p.getName());
+                if (p.getPrice() != null) {
+                    sb.append(" - ").append(String.format("%.2f €", p.getPrice()));
+                }
+                sb.append("\n");
+            }
+        } else {
+            sb.append("Unfortunately, we don't have this exact part in stock. ");
+            sb.append("Would you like me to help you find an alternative?");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Build JSON response for the frontend
+     */
+    private String buildJsonResponse(String partName, double confidence, List<Product> products,
+            UUID recommendationId) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("partName", partName.replace("_", " "));
+            response.put("confidence", confidence);
+            response.put("confidencePercent", String.format("%.1f%%", confidence * 100));
+            response.put("recommendationId", recommendationId.toString());
+
+            List<Map<String, Object>> productList = products.stream().map(p -> {
+                Map<String, Object> productMap = new HashMap<>();
+                productMap.put("id", p.getId());
+                productMap.put("name", p.getName());
+                productMap.put("price", p.getPrice());
+                productMap.put("stock", p.getStock());
+                return productMap;
+            }).collect(Collectors.toList());
+
+            response.put("products", productList);
+            response.put("productsFound", !products.isEmpty());
+
+            return objectMapper.writeValueAsString(response);
+        } catch (Exception e) {
+            log.error("Error building JSON response: {}", e.getMessage());
+            return "{\"success\": true, \"partName\": \"" + partName + "\", \"confidence\": " + confidence
+                    + ", \"products\": []}";
+        }
     }
 
     @Override

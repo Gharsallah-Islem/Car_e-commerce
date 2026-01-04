@@ -1,277 +1,547 @@
+// World-Class Admin Delivery Dashboard
+// Inspired by Stripe, Linear, Shopify - Clean, Minimal, Professional
+
+// Design System
+$white: #FFFFFF;
+$gray-50: #F9FAFB;
+$gray-100: #F3F4F6;
+$gray-200: #E5E7EB;
+$gray-300: #D1D5DB;
+$gray-400: #9CA3AF;
+$gray-500: #6B7280;
+$gray-600: #4B5563;
+$gray-700: #374151;
+$gray-800: #1F2937;
+$gray-900: #111827;
+
+$primary: #6366F1;
+$primary-light: #818CF8;
+$primary-50: #EEF2FF;
+
+$success: #10B981;
+$success-50: #ECFDF5;
+$success-100: #D1FAE5;
+
+$warning: #F59E0B;
+$warning-50: #FFFBEB;
+$warning-100: #FEF3C7;
+
+$danger: #EF4444;
+$danger-50: #FEF2F2;
+$danger-100: #FEE2E2;
+
+$blue: #3B82F6;
+$blue-50: #EFF6FF;
+
+$purple: #8B5CF6;
+$purple-50: #F5F3FF;
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+$radius-sm: 6px;
+$radius: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+
+// Base Container
+:host {
+    display: block;
+    background: $gray-50;
+    min-height: 100vh;
+    padding: 32px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: $gray-900;
+}
+
+// Page Header
 .delivery-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    margin: -24px -24px 24px -24px;
-    border-radius: 8px 8px 0 0;
+    background: $white;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    padding: 24px 32px;
+    margin-bottom: 24px;
+    box-shadow: $shadow-sm;
 
     .header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 16px;
     }
 
     .title-section {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 16px;
 
         .header-icon {
-            font-size: 48px;
             width: 48px;
             height: 48px;
+            background: $primary-50;
+            border-radius: $radius-md;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $primary;
+            font-size: 24px;
         }
 
         h1 {
             margin: 0;
-            font-size: 2rem;
+            font-size: 24px;
             font-weight: 600;
+            color: $gray-900;
+            letter-spacing: -0.025em;
         }
 
         .subtitle {
-            margin: 0.25rem 0 0 0;
-            opacity: 0.9;
-            font-size: 0.95rem;
+            margin: 4px 0 0 0;
+            font-size: 14px;
+            color: $gray-500;
+            font-weight: 400;
         }
     }
 
     .header-actions {
+        display: flex;
+        gap: 12px;
+
         button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: $radius;
+            border: 1px solid $gray-300;
+            background: $white;
+            color: $gray-700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: $shadow-sm;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
 
             &:hover {
-                background: rgba(255, 255, 255, 0.3);
+                background: $gray-50;
+                border-color: $gray-400;
+            }
+
+            &.primary {
+                background: $primary;
+                color: $white;
+                border-color: $primary;
+
+                &:hover {
+                    background: darken($primary, 5%);
+                }
             }
         }
     }
 }
 
+// Stats Grid - Clean Card Design
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 
     .stat-card {
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
+        background: $white;
+        border: 1px solid $gray-200;
+        border-radius: $radius-md;
+        box-shadow: $shadow-sm;
+        transition: all 0.2s ease;
+        overflow: visible;
 
         &:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-shadow: $shadow-md;
+            border-color: $gray-300;
         }
 
         .stat-content {
+            padding: 20px;
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem;
+            align-items: flex-start;
+            gap: 16px;
 
             .stat-icon {
-                width: 60px;
-                height: 60px;
-                border-radius: 12px;
+                width: 44px;
+                height: 44px;
+                border-radius: $radius;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                flex-shrink: 0;
 
                 mat-icon {
-                    font-size: 32px;
-                    width: 32px;
-                    height: 32px;
-                    color: white;
+                    font-size: 20px;
+                    width: 20px;
+                    height: 20px;
                 }
             }
 
             .stat-details {
                 flex: 1;
+                min-width: 0;
 
                 h3 {
                     margin: 0;
-                    font-size: 1.75rem;
-                    font-weight: 700;
+                    font-size: 28px;
+                    font-weight: 600;
+                    color: $gray-900;
+                    letter-spacing: -0.025em;
+                    line-height: 1.2;
                 }
 
                 p {
-                    margin: 0.25rem 0 0 0;
-                    font-size: 0.875rem;
-                    opacity: 0.7;
+                    margin: 4px 0 0 0;
+                    font-size: 13px;
+                    color: $gray-500;
+                    font-weight: 500;
                 }
             }
         }
 
+        // Color variants
         &.stat-primary .stat-icon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: $primary-50;
+            color: $primary;
         }
 
         &.stat-success .stat-icon {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: $success-50;
+            color: $success;
         }
 
         &.stat-warning .stat-icon {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: $warning-50;
+            color: $warning;
         }
 
         &.stat-danger .stat-icon {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            background: $danger-50;
+            color: $danger;
         }
 
         &.stat-info .stat-icon {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: $blue-50;
+            color: $blue;
         }
 
         &.stat-purple .stat-icon {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            background: $purple-50;
+            color: $purple;
         }
 
         &.stat-teal .stat-icon {
-            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            background: #F0FDFA;
+            color: #14B8A6;
         }
     }
 }
 
+// Search/Tracking Card
 .tracking-card {
-    margin-bottom: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    background: $white;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    margin-bottom: 24px;
+    overflow: hidden;
 
     .card-header {
-        padding: 1.5rem;
+        padding: 16px 24px;
+        border-bottom: 1px solid $gray-100;
+        background: $gray-50;
 
         h2 {
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.25rem;
+            gap: 10px;
+            font-size: 15px;
             font-weight: 600;
-            color: #667eea;
+            color: $gray-700;
 
             mat-icon {
-                color: #667eea;
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: $gray-400;
             }
         }
     }
 
     .tracking-form {
-        padding: 1.5rem;
+        padding: 20px 24px;
         display: flex;
-        gap: 1rem;
-        align-items: flex-start;
+        gap: 12px;
+        align-items: flex-end;
 
         .tracking-input {
             flex: 1;
+            max-width: 400px;
+
+            ::ng-deep {
+                .mat-mdc-form-field {
+                    width: 100%;
+                }
+
+                .mat-mdc-text-field-wrapper {
+                    background: $gray-50;
+                    border-radius: $radius;
+                    border: 1px solid $gray-300;
+
+                    &:hover {
+                        border-color: $gray-400;
+                    }
+                }
+
+                .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+                    background: transparent;
+                }
+
+                .mat-mdc-form-field-focus-overlay {
+                    display: none;
+                }
+
+                .mdc-line-ripple {
+                    display: none;
+                }
+
+                input {
+                    color: $gray-900;
+                    font-size: 14px;
+
+                    &::placeholder {
+                        color: $gray-400;
+                    }
+                }
+
+                .mat-mdc-floating-label {
+                    color: $gray-500;
+                }
+
+                .mdc-text-field--focused {
+                    .mat-mdc-text-field-wrapper {
+                        border-color: $primary;
+                        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+                    }
+                }
+            }
         }
 
         button {
-            margin-top: 8px;
+            height: 44px;
+            padding: 0 20px;
+            background: $primary;
+            color: $white;
+            border: none;
+            border-radius: $radius;
+            font-weight: 500;
+            box-shadow: $shadow-sm;
+            transition: all 0.15s;
+
+            &:hover {
+                background: darken($primary, 5%);
+                box-shadow: $shadow;
+            }
+
+            &:disabled {
+                background: $gray-300;
+                cursor: not-allowed;
+            }
         }
     }
 }
 
+// Tabs - Clean Minimal Design
 .delivery-tabs {
-    ::ng-deep .mat-mdc-tab-labels {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    ::ng-deep {
+        .mat-mdc-tab-header {
+            background: $white;
+            border: 1px solid $gray-200;
+            border-radius: $radius-md $radius-md 0 0;
+            border-bottom: none;
+        }
+
+        .mat-mdc-tab {
+            color: $gray-500;
+            font-weight: 500;
+            font-size: 14px;
+            min-width: 120px;
+
+            &.mdc-tab--active {
+                color: $primary;
+            }
+
+            .mdc-tab__text-label {
+                color: inherit;
+            }
+
+            .mdc-tab-indicator__content--underline {
+                border-color: $primary;
+                border-width: 2px;
+            }
+        }
+
+        .mat-mdc-tab-body-wrapper {
+            background: $white;
+            border: 1px solid $gray-200;
+            border-top: none;
+            border-radius: 0 0 $radius-md $radius-md;
+        }
     }
 }
 
 .tab-content {
-    padding: 2rem 0;
+    padding: 0;
 }
 
+// Data Cards
 mat-card {
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    background: $white;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
 
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1.5rem;
+        padding: 16px 24px;
+        background: $gray-50;
+        border-bottom: 1px solid $gray-100;
 
         h2 {
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.25rem;
+            gap: 10px;
+            font-size: 15px;
             font-weight: 600;
-            color: #667eea;
+            color: $gray-700;
 
             mat-icon {
-                color: #667eea;
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: $primary;
             }
         }
     }
 
     mat-divider {
-        margin: 0 1.5rem;
+        display: none;
     }
 }
 
+// Table - Professional Data Display
 .table-container {
-    padding: 1.5rem;
+    padding: 0;
     overflow-x: auto;
 
     table {
         width: 100%;
+        border-collapse: collapse;
 
         th {
-            font-weight: 600;
-            color: #667eea;
-            background: #f8f9fa;
+            font-weight: 500;
+            font-size: 12px;
+            color: $gray-500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: $gray-50;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid $gray-200;
+            white-space: nowrap;
         }
 
         td {
-            padding: 1rem 0.75rem;
+            padding: 16px;
+            color: $gray-900;
+            font-size: 14px;
+            border-bottom: 1px solid $gray-100;
+            vertical-align: middle;
         }
 
-        tr:hover {
-            background: #f8f9fa;
+        tr {
+            transition: background 0.1s;
+
+            &:hover td {
+                background: $gray-50;
+            }
+
+            &:last-child td {
+                border-bottom: none;
+            }
         }
 
+        // Cell Styles
         .tracking-cell {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 10px;
 
             .tracking-icon {
-                color: #667eea;
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
+                color: $primary;
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            strong {
+                font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+                font-size: 13px;
+                color: $primary;
+                font-weight: 500;
             }
         }
 
         .customer-info {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 2px;
+
+            strong {
+                font-weight: 500;
+                color: $gray-900;
+            }
 
             .phone {
-                font-size: 0.875rem;
-                color: #6c757d;
+                font-size: 13px;
+                color: $gray-500;
             }
         }
 
         .address-cell {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            max-width: 300px;
+            gap: 8px;
+            max-width: 220px;
+            font-size: 13px;
+            color: $gray-600;
+            line-height: 1.4;
 
             mat-icon {
-                color: #6c757d;
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
+                color: $gray-400;
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
                 flex-shrink: 0;
             }
         }
@@ -279,90 +549,249 @@ mat-card {
         .status-cell {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 8px;
+            max-width: 140px;
 
             mat-chip {
-                display: flex;
+                display: inline-flex;
                 align-items: center;
-                gap: 0.25rem;
+                gap: 6px;
                 font-weight: 500;
+                font-size: 12px;
+                padding: 4px 10px;
+                border-radius: 9999px;
+                background: $success-100;
+                color: darken($success, 10%);
+                border: none;
+                height: auto;
 
                 mat-icon {
-                    font-size: 18px;
-                    width: 18px;
-                    height: 18px;
+                    font-size: 14px;
+                    width: 14px;
+                    height: 14px;
                 }
             }
 
             mat-progress-bar {
                 height: 4px;
                 border-radius: 2px;
+                background: $gray-200;
+
+                ::ng-deep .mdc-linear-progress__bar-inner {
+                    border-color: $success;
+                }
             }
         }
 
         .courier-select {
             width: 150px;
 
-            ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-                display: none;
+            ::ng-deep {
+                .mat-mdc-form-field-subscript-wrapper {
+                    display: none;
+                }
+
+                .mat-mdc-text-field-wrapper {
+                    background: $gray-50;
+                    border: 1px solid $gray-300;
+                    border-radius: $radius-sm;
+                    padding: 0 8px;
+                }
+
+                .mat-mdc-select-value {
+                    color: $gray-700;
+                    font-size: 13px;
+                }
             }
         }
 
         .date-cell {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 2px;
+
+            strong {
+                font-weight: 500;
+                color: $gray-900;
+                font-size: 14px;
+            }
 
             .label {
-                font-size: 0.75rem;
-                color: #6c757d;
+                font-size: 11px;
+                color: $gray-500;
                 text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+        }
+    }
+
+    // Empty State
+    .mat-mdc-no-data-row td {
+        text-align: center;
+        padding: 48px;
+        color: $gray-500;
+    }
+}
+
+// Paginator
+::ng-deep {
+    .mat-mdc-paginator {
+        background: $gray-50;
+        color: $gray-600;
+        border-top: 1px solid $gray-200;
+        font-size: 13px;
+
+        .mat-mdc-paginator-container {
+            min-height: 52px;
+            padding: 0 16px;
+        }
+
+        .mat-mdc-select-value,
+        .mat-mdc-paginator-page-size-label,
+        .mat-mdc-paginator-range-label {
+            color: $gray-600;
+        }
+
+        .mat-mdc-icon-button {
+            color: $gray-500;
+
+            &:hover {
+                background: $gray-200;
+            }
+
+            &:disabled {
+                color: $gray-300;
             }
         }
     }
 }
 
-// Responsive Design
+// Menu Dropdown
+::ng-deep {
+    .mat-mdc-menu-panel {
+        background: $white;
+        border: 1px solid $gray-200;
+        border-radius: $radius;
+        box-shadow: $shadow-lg;
+        min-width: 180px;
+
+        .mat-mdc-menu-item {
+            color: $gray-700;
+            font-size: 14px;
+            min-height: 40px;
+
+            mat-icon {
+                color: $gray-500;
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            &:hover {
+                background: $gray-50;
+            }
+        }
+
+        mat-divider {
+            margin: 4px 0;
+            border-color: $gray-200;
+        }
+    }
+}
+
+// Icon Buttons
+::ng-deep {
+    .mat-mdc-icon-button {
+        color: $gray-500;
+
+        &:hover {
+            background: $gray-100;
+            color: $gray-700;
+        }
+    }
+}
+
+// Loading Spinner
+::ng-deep {
+    .mat-mdc-progress-spinner circle {
+        stroke: $primary;
+    }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+    :host {
+        padding: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
+    :host {
+        padding: 16px;
+    }
+
     .delivery-header {
+        padding: 20px;
+
         .header-content {
             flex-direction: column;
             align-items: flex-start;
         }
 
-        .title-section {
-            .header-icon {
-                font-size: 36px;
-                width: 36px;
-                height: 36px;
-            }
+        .title-section h1 {
+            font-size: 20px;
+        }
 
-            h1 {
-                font-size: 1.5rem;
+        .header-actions {
+            width: 100%;
+
+            button {
+                flex: 1;
             }
         }
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+
+        .stat-card .stat-content {
+            padding: 16px;
+
+            .stat-details h3 {
+                font-size: 22px;
+            }
+        }
     }
 
-    .tracking-form {
+    .tracking-card .tracking-form {
         flex-direction: column;
+
+        .tracking-input {
+            max-width: 100%;
+        }
 
         button {
             width: 100%;
         }
     }
 
-    .table-container {
-        table {
-            font-size: 0.875rem;
+    .table-container table {
+        font-size: 13px;
 
-            td,
-            th {
-                padding: 0.5rem;
-            }
+        th,
+        td {
+            padding: 12px;
         }
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
 }

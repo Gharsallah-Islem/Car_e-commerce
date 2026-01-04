@@ -1,5 +1,6 @@
 export enum UserRole {
     CLIENT = 'CLIENT',
+    SUPPORT = 'SUPPORT',
     ADMIN = 'ADMIN',
     SUPER_ADMIN = 'SUPER_ADMIN'
 }
@@ -10,6 +11,8 @@ export interface User {
     firstName: string;
     lastName: string;
     phoneNumber?: string;
+    address?: string;
+    profilePicture?: string;
     role: UserRole;
     isActive?: boolean;
     enabled?: boolean; // Deprecated, use isActive

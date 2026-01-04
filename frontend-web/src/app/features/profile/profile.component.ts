@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,20 +14,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { HttpClient } from '@angular/common/http';
 
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { User, UserProfile, Address } from '../../core/models';
-
-interface Order {
-    id: string;
-    orderNumber: string;
-    date: Date;
-    status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-    total: number;
-    itemCount: number;
-    paymentMethod: string;
-}
+import { OrderService } from '../../core/services/order.service';
+import { User, Address, Order, OrderStatus } from '../../core/models';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-profile',
@@ -53,6 +46,8 @@ interface Order {
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+    @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
     // Forms
     profileForm!: FormGroup;
     passwordForm!: FormGroup;
@@ -60,16 +55,16 @@ export class ProfileComponent implements OnInit {
 
     // State
     currentUser = signal<User | null>(null);
-    userProfile = signal<UserProfile | null>(null);
     orders = signal<Order[]>([]);
     addresses = signal<Address[]>([]);
     loading = signal<boolean>(false);
+    loadingOrders = signal<boolean>(false);
     editingProfile = signal<boolean>(false);
     editingAddress = signal<number | null>(null);
     selectedTabIndex = signal<number>(0);
-
-    // Table columns
-    orderColumns: string[] = ['orderNumber', 'date', 'status', 'items', 'total', 'actions'];
+    selectedOrder = signal<Order | null>(null);
+    showOrderDetails = signal<boolean>(false);
+    uploadingPicture = signal<boolean>(false);
 
     // Computed
     fullName = computed(() => {
@@ -81,17 +76,24 @@ export class ProfileComponent implements OnInit {
         const allOrders = this.orders();
         return {
             total: allOrders.length,
-            pending: allOrders.filter(o => o.status === 'pending').length,
-            delivered: allOrders.filter(o => o.status === 'delivered').length,
-            totalSpent: allOrders.reduce((sum, o) => sum + o.total, 0)
+            pending: allOrders.filter(o =>
+                o.status === OrderStatus.PENDING ||
+                o.status === OrderStatus.PROCESSING
+            ).length,
+            delivered: allOrders.filter(o => o.status === OrderStatus.DELIVERED).length,
+            totalSpent: allOrders
+                .filter(o => o.status !== OrderStatus.CANCELLED && o.status !== OrderStatus.REFUNDED)
+                .reduce((sum, o) => sum + (o.totalPrice || 0), 0)
         };
     });
 
     constructor(
         private fb: FormBuilder,
         private router: Router,
+        private http: HttpClient,
         private authService: AuthService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private orderService: OrderService
     ) {
         this.initForms();
     }
@@ -108,7 +110,8 @@ export class ProfileComponent implements OnInit {
             firstName: ['', [Validators.required, Validators.minLength(2)]],
             lastName: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
-            phoneNumber: ['', [Validators.pattern(/^[0-9]{8}$/)]]
+            phoneNumber: ['', [Validators.pattern(/^[0-9]{8}$/)]],
+            address: ['']
         });
 
         // Password form
@@ -145,7 +148,8 @@ export class ProfileComponent implements OnInit {
                         firstName: user.firstName,
                         lastName: user.lastName,
                         email: user.email,
-                        phoneNumber: user.phoneNumber || ''
+                        phoneNumber: user.phoneNumber || '',
+                        address: user.address || ''
                     });
 
                     // Disable email if OAuth user
@@ -163,70 +167,97 @@ export class ProfileComponent implements OnInit {
     }
 
     loadOrders(): void {
-        // Simulate loading orders - replace with actual API call
-        setTimeout(() => {
-            const mockOrders: Order[] = [
-                {
-                    id: '1',
-                    orderNumber: 'ORD-2024-001',
-                    date: new Date('2024-10-15'),
-                    status: 'delivered',
-                    total: 1250.50,
-                    itemCount: 3,
-                    paymentMethod: 'Carte bancaire'
-                },
-                {
-                    id: '2',
-                    orderNumber: 'ORD-2024-002',
-                    date: new Date('2024-10-28'),
-                    status: 'shipped',
-                    total: 450.00,
-                    itemCount: 2,
-                    paymentMethod: 'Paiement à la livraison'
-                },
-                {
-                    id: '3',
-                    orderNumber: 'ORD-2024-003',
-                    date: new Date('2024-11-01'),
-                    status: 'processing',
-                    total: 890.25,
-                    itemCount: 5,
-                    paymentMethod: 'Carte bancaire'
-                }
-            ];
-            this.orders.set(mockOrders);
-        }, 500);
+        this.loadingOrders.set(true);
+        this.orderService.getMyOrders(0, 20).subscribe({
+            next: (response) => {
+                this.orders.set(response.content || []);
+                this.loadingOrders.set(false);
+            },
+            error: (err) => {
+                console.error('Error loading orders:', err);
+                this.orders.set([]);
+                this.loadingOrders.set(false);
+            }
+        });
     }
 
     loadAddresses(): void {
-        // Simulate loading addresses - replace with actual API call
-        setTimeout(() => {
-            const mockAddresses: Address[] = [
-                {
-                    id: 1,
-                    street: '123 Rue Mohammed V',
-                    city: 'Casablanca',
-                    postalCode: '1000',
-                    country: 'Tunisie'
-                },
-                {
-                    id: 2,
-                    street: '456 Avenue Hassan II',
-                    city: 'Rabat',
-                    postalCode: '1000',
-                    country: 'Tunisie'
-                }
-            ];
-            this.addresses.set(mockAddresses);
-        }, 500);
+        // Load addresses from user profile if available
+        const user = this.currentUser();
+        if (user && (user as any).addresses) {
+            this.addresses.set((user as any).addresses);
+        } else {
+            this.addresses.set([]);
+        }
     }
 
     toggleEditProfile(): void {
         this.editingProfile.set(!this.editingProfile());
         if (!this.editingProfile()) {
-            // Reset form if cancelled
             this.loadUserData();
         }
+    }
+
+    // Profile picture upload
+    triggerFileInput(): void {
+        this.fileInput.nativeElement.click();
+    }
+
+    onFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+
+        const file = input.files[0];
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            this.notificationService.error('Veuillez sélectionner une image');
+            return;
+        }
+
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            this.notificationService.error('L\'image ne doit pas dépasser 2 Mo');
+            return;
+        }
+
+        this.uploadingPicture.set(true);
+
+        // Convert to Base64
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            this.updateProfilePicture(base64);
+        };
+        reader.onerror = () => {
+            this.notificationService.error('Erreur lors de la lecture du fichier');
+            this.uploadingPicture.set(false);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    updateProfilePicture(base64: string): void {
+        const user = this.currentUser();
+        if (!user) return;
+
+        this.http.put<User>(`${environment.apiUrl}/users/me`, {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber,
+            address: user.address,
+            profilePicture: base64
+        }).subscribe({
+            next: (updatedUser) => {
+                this.currentUser.set(updatedUser);
+                this.notificationService.success('Photo de profil mise à jour');
+                this.uploadingPicture.set(false);
+            },
+            error: () => {
+                this.notificationService.error('Erreur lors de la mise à jour de la photo');
+                this.uploadingPicture.set(false);
+            }
+        });
     }
 
     saveProfile(): void {
@@ -236,13 +267,28 @@ export class ProfileComponent implements OnInit {
         }
 
         this.loading.set(true);
-        // Simulate API call
-        setTimeout(() => {
-            const formValue = this.profileForm.getRawValue();
-            this.notificationService.success('Profil mis à jour avec succès');
-            this.editingProfile.set(false);
-            this.loading.set(false);
-        }, 1000);
+        const formValue = this.profileForm.getRawValue();
+        const user = this.currentUser();
+
+        this.http.put<User>(`${environment.apiUrl}/users/me`, {
+            email: formValue.email,
+            firstName: formValue.firstName,
+            lastName: formValue.lastName,
+            phoneNumber: formValue.phoneNumber,
+            address: formValue.address,
+            profilePicture: user?.profilePicture
+        }).subscribe({
+            next: (updatedUser) => {
+                this.currentUser.set(updatedUser);
+                this.notificationService.success('Profil mis à jour avec succès');
+                this.editingProfile.set(false);
+                this.loading.set(false);
+            },
+            error: () => {
+                this.notificationService.error('Erreur lors de la mise à jour du profil');
+                this.loading.set(false);
+            }
+        });
     }
 
     changePassword(): void {
@@ -256,7 +302,6 @@ export class ProfileComponent implements OnInit {
         }
 
         this.loading.set(true);
-        // Simulate API call
         setTimeout(() => {
             this.notificationService.success('Mot de passe modifié avec succès');
             this.passwordForm.reset();
@@ -318,30 +363,73 @@ export class ProfileComponent implements OnInit {
         this.addressForm.reset({ country: 'Tunisie' });
     }
 
-    viewOrderDetails(orderId: string): void {
-        this.router.navigate(['/profile/orders', orderId]);
+    viewOrderDetails(order: Order): void {
+        this.selectedOrder.set(order);
+        this.showOrderDetails.set(true);
+    }
+
+    closeOrderDetails(): void {
+        this.showOrderDetails.set(false);
+        this.selectedOrder.set(null);
+    }
+
+    cancelOrder(orderId: string): void {
+        if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
+            this.orderService.cancelOrder(orderId).subscribe({
+                next: () => {
+                    this.notificationService.success('Commande annulée avec succès');
+                    this.loadOrders();
+                    this.closeOrderDetails();
+                },
+                error: (err) => {
+                    this.notificationService.error('Impossible d\'annuler cette commande');
+                }
+            });
+        }
     }
 
     getStatusColor(status: string): string {
         const colors: { [key: string]: string } = {
-            pending: 'accent',
-            processing: 'primary',
-            shipped: 'primary',
-            delivered: 'primary',
-            cancelled: 'warn'
+            PENDING: 'pending',
+            PAID: 'processing',
+            PROCESSING: 'processing',
+            SHIPPED: 'shipped',
+            DELIVERED: 'delivered',
+            CANCELLED: 'cancelled',
+            REFUNDED: 'cancelled'
         };
-        return colors[status] || 'primary';
+        return colors[status] || 'pending';
     }
 
     getStatusLabel(status: string): string {
         const labels: { [key: string]: string } = {
-            pending: 'En attente',
-            processing: 'En préparation',
-            shipped: 'Expédiée',
-            delivered: 'Livrée',
-            cancelled: 'Annulée'
+            PENDING: 'En attente',
+            PAID: 'Payée',
+            PROCESSING: 'En préparation',
+            SHIPPED: 'Expédiée',
+            DELIVERED: 'Livrée',
+            CANCELLED: 'Annulée',
+            REFUNDED: 'Remboursée'
         };
         return labels[status] || status;
+    }
+
+    canTrackOrder(order: Order): boolean {
+        // Can track if order is in a trackable status (SHIPPED or PROCESSING)
+        const trackableStatuses = ['SHIPPED', 'PROCESSING'];
+        return trackableStatuses.includes(order.status);
+    }
+
+    trackOrder(order: Order): void {
+        // Use delivery tracking number, order tracking number, or generate from order ID
+        const trackingNumber = order.delivery?.trackingNumber
+            || order.trackingNumber
+            || `ORD-${order.id}`;
+        this.router.navigate(['/track', trackingNumber]);
+    }
+
+    canCancelOrder(order: Order): boolean {
+        return order.status === OrderStatus.PENDING || order.status === OrderStatus.PAID;
     }
 
     logout(): void {

@@ -12,10 +12,12 @@ import com.example.Backend.service.PurchaseOrderService;
 import com.example.Backend.service.ReorderSettingService;
 import com.example.Backend.service.StockMovementService;
 import com.example.Backend.service.SupplierService;
+import com.example.Backend.service.InventoryStatsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,10 @@ public class InventoryController {
     private final PurchaseOrderService purchaseOrderService;
     private final StockMovementService stockMovementService;
     private final ReorderSettingService reorderSettingService;
+    private final InventoryStatsService inventoryStatsService;
 
     // ==================== SUPPLIER ENDPOINTS ====================
-    
+
     @PostMapping("/suppliers")
     public ResponseEntity<Supplier> createSupplier(@Valid @RequestBody SupplierDTO supplierDTO) {
         Supplier supplier = supplierService.createSupplier(supplierDTO);
@@ -94,7 +97,7 @@ public class InventoryController {
     }
 
     // ==================== PURCHASE ORDER ENDPOINTS ====================
-    
+
     @PostMapping("/purchase-orders")
     public ResponseEntity<PurchaseOrder> createPurchaseOrder(
             @Valid @RequestBody PurchaseOrderDTO purchaseOrderDTO) {
@@ -164,7 +167,7 @@ public class InventoryController {
     }
 
     // ==================== STOCK MOVEMENT ENDPOINTS ====================
-    
+
     @PostMapping("/stock-movements")
     public ResponseEntity<StockMovement> recordStockMovement(
             @Valid @RequestBody StockMovementDTO movementDTO) {
@@ -174,7 +177,7 @@ public class InventoryController {
 
     @GetMapping("/stock-movements")
     public ResponseEntity<Page<StockMovement>> getAllStockMovements(
-            @PageableDefault(size = 20, sort = "date") Pageable pageable) {
+            @PageableDefault(size = 20, sort = "movementDate", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<StockMovement> movements = stockMovementService.getAllMovements(pageable);
         return ResponseEntity.ok(movements);
     }
@@ -209,7 +212,7 @@ public class InventoryController {
     }
 
     // ==================== REORDER SETTING ENDPOINTS ====================
-    
+
     @PostMapping("/reorder-settings")
     public ResponseEntity<ReorderSetting> createReorderSetting(
             @Valid @RequestBody ReorderSettingDTO reorderSettingDTO) {
@@ -264,13 +267,22 @@ public class InventoryController {
     }
 
     // ==================== INVENTORY STATISTICS ====================
-    
+
+    /**
+     * Get comprehensive inventory statistics for dashboard
+     */
     @GetMapping("/statistics")
     public ResponseEntity<Map<String, Object>> getInventoryStatistics() {
-        Map<String, Object> stats = Map.of(
-            "suppliers", supplierService.getSupplierStatistics(),
-            "purchaseOrders", purchaseOrderService.getPurchaseOrderStatistics()
-        );
+        Map<String, Object> stats = inventoryStatsService.getFullStats();
         return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * Get product stock overview with status indicators
+     */
+    @GetMapping("/product-stock")
+    public ResponseEntity<List<Map<String, Object>>> getProductStockOverview() {
+        List<Map<String, Object>> stockOverview = inventoryStatsService.getProductStockOverview();
+        return ResponseEntity.ok(stockOverview);
     }
 }

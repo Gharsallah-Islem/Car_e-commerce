@@ -1,0 +1,10 @@
+{
+    "model_name": "EfficientNetB0 - 50 Car Parts",
+    "architecture": "EfficientNetB0",
+    "num_classes": 50,
+    "input_size": 224,
+    "accuracy": "97.99%",
+    "status": "Production Ready",
+    "source": "Pre-trained on 50 types of car parts dataset",
+    "note": "This is a production-ready model with 97.99% accuracy. Includes all major internal and external car parts."
+}

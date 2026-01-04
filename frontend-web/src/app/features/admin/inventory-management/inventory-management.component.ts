@@ -68,15 +68,36 @@ export class InventoryManagementComponent implements OnInit {
     loading = signal<boolean>(false);
     selectedTabIndex = signal<number>(0);
 
+    // Live status
+    lastUpdateTime: string = '';
+
+    // Dialog/Form visibility states
+    showSupplierForm = signal<boolean>(false);
+    showMovementForm = signal<boolean>(false);
+    showPODetails = signal<boolean>(false);
+    showReorderForm = signal<boolean>(false);
+    selectedPO = signal<PurchaseOrder | null>(null);
+    editingReorderSetting = signal<ReorderSetting | null>(null);
+
     // Stats
     stats = signal<InventoryStats>({
         totalProducts: 0,
         totalValue: 0,
         lowStockItems: 0,
         outOfStockItems: 0,
+        healthyStockItems: 0,
         pendingPOs: 0,
-        activeSuppliers: 0
+        draftPOs: 0,
+        approvedPOs: 0,
+        receivedPOs: 0,
+        activeSuppliers: 0,
+        totalSuppliers: 0,
+        totalMovements: 0
     });
+
+    // Product Stock Overview
+    productStock = signal<any[]>([]);
+    productStockColumns: string[] = ['product', 'sku', 'stock', 'status', 'value', 'actions'];
 
     // Suppliers
     suppliers = signal<Supplier[]>([]);
@@ -175,10 +196,42 @@ export class InventoryManagementComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadInventoryStats();
+        this.loadProductStock();
         this.loadSuppliers();
         this.loadPurchaseOrders();
         this.loadStockMovements();
         this.loadReorderSettings();
+        this.updateLastUpdateTime();
+    }
+
+    // Helper method to calculate healthy stock percentage
+    getHealthyStockPercentage(): number {
+        const total = this.stats().totalProducts;
+        const healthy = this.stats().healthyStockItems || 0;
+        if (total === 0) return 0;
+        return Math.round((healthy / total) * 100);
+    }
+
+    // Refresh all data
+    refreshAll(): void {
+        this.loading.set(true);
+        this.loadInventoryStats();
+        this.loadProductStock();
+        this.loadSuppliers();
+        this.loadPurchaseOrders();
+        this.loadStockMovements();
+        this.loadReorderSettings();
+        this.updateLastUpdateTime();
+        setTimeout(() => this.loading.set(false), 500);
+    }
+
+    // Update the last update time display
+    private updateLastUpdateTime(): void {
+        const now = new Date();
+        this.lastUpdateTime = now.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 
     initForms(): void {
@@ -204,18 +257,20 @@ export class InventoryManagementComponent implements OnInit {
         this.stockMovementForm = this.fb.group({
             productId: ['', [Validators.required]],
             type: ['IN', [Validators.required]],
-            quantity: [0, [Validators.required, Validators.min(1)]],
-            reason: ['', [Validators.required]],
-            reference: ['']
+            quantity: [1, [Validators.required, Validators.min(1)]],
+            notes: ['']  // Optional notes field
         });
 
         // Reorder Setting Form
         this.reorderSettingForm = this.fb.group({
             productId: ['', [Validators.required]],
-            reorderPoint: [0, [Validators.required, Validators.min(0)]],
-            reorderQuantity: [0, [Validators.required, Validators.min(1)]],
-            supplierId: ['', [Validators.required]],
-            autoReorder: [false]
+            reorderPoint: [5, [Validators.required, Validators.min(0)]],
+            reorderQuantity: [10, [Validators.required, Validators.min(1)]],
+            supplierId: [''],
+            autoReorder: [false],
+            minimumStock: [0, [Validators.min(0)]],
+            maximumStock: [100, [Validators.min(1)]],
+            leadTimeDays: [7, [Validators.min(1)]]
         });
     }
 
@@ -231,6 +286,18 @@ export class InventoryManagementComponent implements OnInit {
                 console.error('Error loading inventory stats:', error);
                 this.notificationService.error('Erreur lors du chargement des statistiques');
                 this.loading.set(false);
+            }
+        });
+    }
+
+    loadProductStock(): void {
+        this.inventoryService.getProductStockOverview().subscribe({
+            next: (products) => {
+                this.productStock.set(products);
+            },
+            error: (error) => {
+                console.error('Error loading product stock:', error);
+                this.productStock.set([]);
             }
         });
     }
@@ -351,8 +418,8 @@ export class InventoryManagementComponent implements OnInit {
                     this.suppliers.update(suppliers => [...suppliers, supplier]);
                     this.notificationService.success('Fournisseur ajouté avec succès');
                 }
-                this.supplierForm.reset({ status: 'ACTIVE' });
-                this.editingSupplier.set(null);
+                this.closeSupplierDialog();
+                this.loadSuppliers();
                 this.loading.set(false);
             },
             error: (error) => {
@@ -443,28 +510,22 @@ export class InventoryManagementComponent implements OnInit {
         this.loading.set(true);
         const formValue = this.stockMovementForm.value;
 
-        // Map form type to backend enum with proper typing
-        const movementTypeMap: { [key: string]: 'PURCHASE' | 'SALE' | 'ADJUSTMENT' | 'RETURN' } = {
-            'IN': 'PURCHASE',
-            'OUT': 'SALE',
-            'ADJUSTMENT': 'ADJUSTMENT'
-        };
-
-        const movementType = movementTypeMap[formValue.type] || 'ADJUSTMENT';
-
         const movementData = {
             productId: formValue.productId,
-            movementType: movementType,
+            type: formValue.type,
             quantity: formValue.quantity,
-            referenceType: formValue.reference || 'MANUAL',
-            notes: formValue.reason
-        } as Partial<StockMovement>;
+            reference: 'MANUAL',
+            reason: formValue.notes || ''
+        };
 
         this.inventoryService.recordStockMovement(movementData).subscribe({
             next: (newMovement) => {
                 this.stockMovements.update(movements => [newMovement, ...movements]);
                 this.notificationService.success('Mouvement de stock enregistré');
-                this.stockMovementForm.reset({ type: 'IN' });
+                this.closeMovementDialog();
+                this.loadStockMovements();
+                this.loadProductStock();
+                this.loadInventoryStats();
                 this.loading.set(false);
             },
             error: (error) => {
@@ -473,6 +534,24 @@ export class InventoryManagementComponent implements OnInit {
                 this.loading.set(false);
             }
         });
+    }
+
+    // Product Stock Actions - Open adjustment dialog pre-filled with product
+    openStockAdjustment(product: any): void {
+        this.stockMovementForm.reset({
+            productId: product.id,
+            type: 'ADJUSTMENT',
+            quantity: product.currentStock || 1,
+            notes: ''
+        });
+        this.showMovementForm.set(true);
+    }
+
+    // View stock movement history for a product
+    viewProductHistory(product: any): void {
+        this.movementSearchQuery.set(product.name);
+        this.selectedTabIndex.set(2); // Switch to Movements tab
+        this.notificationService.info(`Historique filtré pour: ${product.name}`);
     }
 
     // Reorder Setting Management
@@ -484,25 +563,38 @@ export class InventoryManagementComponent implements OnInit {
 
         this.loading.set(true);
         const formValue = this.reorderSettingForm.value;
+        const editing = this.editingReorderSetting();
 
         const settingData = {
             productId: formValue.productId,
             reorderPoint: formValue.reorderPoint,
             reorderQuantity: formValue.reorderQuantity,
-            supplierId: formValue.supplierId,
-            isEnabled: formValue.autoReorder
+            preferredSupplierId: formValue.supplierId || null,
+            autoReorder: formValue.autoReorder
         };
 
-        this.inventoryService.createReorderSetting(settingData).subscribe({
-            next: (newSetting) => {
-                this.reorderSettings.update(settings => [...settings, newSetting]);
-                this.notificationService.success('Paramètre de réapprovisionnement enregistré');
-                this.reorderSettingForm.reset({ autoReorder: false });
+        const request = editing
+            ? this.inventoryService.updateReorderSetting(editing.id, settingData)
+            : this.inventoryService.createReorderSetting(settingData);
+
+        request.subscribe({
+            next: (savedSetting) => {
+                if (editing) {
+                    this.reorderSettings.update(settings =>
+                        settings.map(s => s.id === savedSetting.id ? savedSetting : s)
+                    );
+                    this.notificationService.success('Paramètre mis à jour');
+                } else {
+                    this.reorderSettings.update(settings => [...settings, savedSetting]);
+                    this.notificationService.success('Paramètre de réapprovisionnement créé');
+                }
+                this.closeReorderForm();
+                this.loadReorderSettings();
                 this.loading.set(false);
             },
             error: (error) => {
-                console.error('Error creating reorder setting:', error);
-                this.notificationService.error('Erreur lors de la création du paramètre');
+                console.error('Error saving reorder setting:', error);
+                this.notificationService.error('Erreur lors de l\'enregistrement');
                 this.loading.set(false);
             }
         });
@@ -597,22 +689,29 @@ export class InventoryManagementComponent implements OnInit {
     }
 
     toggleAutoReorder(setting: ReorderSetting, checked: boolean): void {
-        // Update just the auto-reorder flag
-        const updateData = { ...setting, autoReorder: checked };
-        // We need a specific endpoint or use the update endpoint
-        // Assuming updateReorderSetting exists and takes partial or full DTO
-        // casting to any to bypass strict DTO check for this quick fix
-        this.inventoryService.updateReorderSetting(setting.id, updateData as any).subscribe({
+        this.loading.set(true);
+        // Build update data with ONLY the fields that backend DTO accepts
+        // Backend ReorderSettingDTO has: productId, reorderPoint, reorderQuantity, preferredSupplierId, autoReorder
+        const updateData = {
+            productId: setting.product?.id || setting.productId,
+            reorderPoint: setting.reorderPoint,
+            reorderQuantity: setting.reorderQuantity,
+            preferredSupplierId: setting.preferredSupplier?.id || setting.supplierId || null,
+            autoReorder: checked
+        };
+
+        this.inventoryService.updateReorderSetting(setting.id, updateData).subscribe({
             next: () => {
                 this.reorderSettings.update(settings =>
-                    settings.map(s => s.id === setting.id ? { ...s, autoReorder: checked } : s)
+                    settings.map(s => s.id === setting.id ? { ...s, isEnabled: checked, autoReorder: checked } : s)
                 );
-                this.notificationService.success('Paramètre mis à jour');
+                this.notificationService.success(checked ? 'Réapprovisionnement auto activé' : 'Réapprovisionnement auto désactivé');
+                this.loading.set(false);
             },
             error: (err) => {
+                console.error('Error updating reorder setting:', err);
                 this.notificationService.error('Erreur lors de la mise à jour');
-                // Revert toggle
-                this.reorderSettings.update(settings => [...settings]);
+                this.loading.set(false);
             }
         });
     }
@@ -692,53 +791,97 @@ export class InventoryManagementComponent implements OnInit {
 
     // Dialog Methods
     openSupplierDialog(): void {
-        // TODO: Implement proper MatDialog
-        this.supplierForm.reset();
+        this.editingSupplier.set(null);
+        this.supplierForm.reset({ status: 'ACTIVE' });
+        this.showSupplierForm.set(true);
+    }
+
+    closeSupplierDialog(): void {
+        this.showSupplierForm.set(false);
+        this.editingSupplier.set(null);
+        this.supplierForm.reset({ status: 'ACTIVE' });
     }
 
     openPurchaseOrderDialog(): void {
-        // TODO: Implement proper MatDialog
+        this.editingPO.set(null);
         this.purchaseOrderForm.reset({ orderDate: new Date() });
+        // Note: Full PO creation would need items dialog - for now just toggle
+        this.notificationService.info('Création de commande - Fonctionnalité à venir');
     }
 
     openStockMovementDialog(): void {
-        // TODO: Implement proper MatDialog
+        this.stockMovementForm.reset({ type: 'IN', quantity: 1 });
+        this.showMovementForm.set(true);
+    }
+
+    closeMovementDialog(): void {
+        this.showMovementForm.set(false);
         this.stockMovementForm.reset({ type: 'IN' });
     }
 
     openReorderSettingDialog(): void {
-        // TODO: Implement proper MatDialog
+        this.editingReorderSetting.set(null);
+        this.reorderSettingForm.reset({
+            autoReorder: false,
+            reorderPoint: 5,
+            reorderQuantity: 10,
+            minimumStock: 0,
+            maximumStock: 100,
+            leadTimeDays: 7
+        });
+        this.showReorderForm.set(true);
+    }
+
+    closeReorderForm(): void {
+        this.showReorderForm.set(false);
+        this.editingReorderSetting.set(null);
         this.reorderSettingForm.reset({ autoReorder: false });
     }
 
     // Edit Methods
     editSupplier(supplier: Supplier): void {
         this.editingSupplier.set(supplier);
-        this.supplierForm.patchValue(supplier);
-        // TODO: Open dialog or show inline form
+        this.supplierForm.patchValue({
+            name: supplier.name,
+            contactPerson: supplier.contactPerson,
+            email: supplier.email,
+            phone: supplier.phone,
+            address: supplier.address,
+            status: supplier.isActive ? 'ACTIVE' : 'INACTIVE'
+        });
+        this.showSupplierForm.set(true);
     }
 
     editPurchaseOrder(po: PurchaseOrder): void {
         this.editingPO.set(po);
         this.purchaseOrderForm.patchValue(po);
-        // TODO: Open dialog or show inline form
-    }
-
-    editReorderSetting(setting: ReorderSetting): void {
-        this.reorderSettingForm.patchValue({
-            productId: setting.productId,
-            reorderPoint: setting.reorderPoint,
-            reorderQuantity: setting.reorderQuantity,
-            supplierId: setting.supplierId,
-            autoReorder: setting.autoReorder
-        });
-        // TODO: Open dialog or show inline form
+        this.notificationService.info('Édition commande - Fonctionnalité à venir');
     }
 
     // View Methods
     viewPurchaseOrder(po: PurchaseOrder): void {
-        // TODO: Navigate to details or open dialog
-        console.log('View details for PO:', po);
+        this.selectedPO.set(po);
+        this.showPODetails.set(true);
+    }
+
+    closePODetails(): void {
+        this.showPODetails.set(false);
+        this.selectedPO.set(null);
+    }
+
+    editReorderSetting(setting: ReorderSetting): void {
+        this.editingReorderSetting.set(setting);
+        this.reorderSettingForm.patchValue({
+            productId: setting.product?.id || setting.productId,
+            reorderPoint: setting.reorderPoint,
+            reorderQuantity: setting.reorderQuantity,
+            supplierId: setting.preferredSupplier?.id || setting.supplierId,
+            autoReorder: setting.autoReorder || setting.isEnabled,
+            minimumStock: setting.minimumStock || 0,
+            maximumStock: setting.maximumStock || 100,
+            leadTimeDays: setting.leadTimeDays || 7
+        });
+        this.showReorderForm.set(true);
     }
 
     // Receive/Delete Methods

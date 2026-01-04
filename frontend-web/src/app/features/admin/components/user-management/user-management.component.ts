@@ -63,7 +63,12 @@ export class UserManagementComponent implements OnInit {
     this.loading.set(true);
     this.adminService.getAllUsers().subscribe({
       next: (users) => {
-        this.users.set(users);
+        // Normalize role from backend's Role object {id, name} to string
+        const normalizedUsers = users.map(user => ({
+          ...user,
+          role: typeof user.role === 'string' ? user.role : (user.role as any).name
+        }));
+        this.users.set(normalizedUsers);
         this.loading.set(false);
       },
       error: (error) => {
@@ -124,5 +129,20 @@ export class UserManagementComponent implements OnInit {
     this.sortField.set(sort.active);
     this.sortDirection.set(sort.direction as 'asc' | 'desc');
     this.loadUsers();
+  }
+
+  /**
+   * Get role name as string (already normalized in loadUsers)
+   */
+  getRoleName(user: User): string {
+    return user.role as string;
+  }
+
+  /**
+   * View user profile
+   */
+  viewUserProfile(user: User): void {
+    console.log('User Profile:', user);
+    this.notificationService.success(`Affichage du profil de ${user.firstName} ${user.lastName}`);
   }
 }

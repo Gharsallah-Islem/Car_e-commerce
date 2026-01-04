@@ -1,0 +1,185 @@
+<div class="driver-dashboard">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>Dashboard Livreur</h1>
+            @if (driver()) {
+            <p class="driver-name">{{ driver()?.user?.fullName }}</p>
+            }
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" (click)="refresh()" [disabled]="loading()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+            <button class="icon-btn logout" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+            </button>
+        </div>
+    </header>
+
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="loading-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Chargement...</p>
+    </div>
+    }
+
+    <!-- Not a Driver State -->
+    @if (error() === 'NOT_DRIVER' && !loading()) {
+    <div class="not-driver-container">
+        <div class="not-driver-icon">
+            <mat-icon>local_shipping</mat-icon>
+        </div>
+        <h2>Vous n'êtes pas inscrit comme livreur</h2>
+        <p>Contactez l'administrateur pour devenir livreur</p>
+        <button mat-raised-button color="primary" routerLink="/">
+            Retour à l'accueil
+        </button>
+    </div>
+    }
+
+    <!-- Dashboard Content -->
+    @if (driver() && !loading() && error() !== 'NOT_DRIVER') {
+    <div class="dashboard-content">
+        <!-- Online Status Card -->
+        <mat-card class="status-card">
+            <mat-card-content>
+                <div class="status-toggle">
+                    <div class="status-info">
+                        <div class="status-indicator" [class.online]="isOnline()"></div>
+                        <div class="status-text">
+                            <span class="status-label">{{ isOnline() ? 'En ligne' : 'Hors ligne' }}</span>
+                            <span class="status-hint">
+                                {{ isOnline() ? 'Vous recevez des livraisons' : 'Activez pour recevoir des livraisons'
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                    <mat-slide-toggle [checked]="isOnline()" (change)="toggleOnlineStatus()" color="primary">
+                    </mat-slide-toggle>
+                </div>
+
+                @if (isOnline()) {
+                <div class="location-status">
+                    <mat-icon [class.pulsing]="isSendingLocation()">gps_fixed</mat-icon>
+                    <span>
+                        @if (lastLocationUpdate()) {
+                        Dernière mise à jour: {{ lastLocationUpdate() | date:'HH:mm:ss' }}
+                        } @else {
+                        Acquisition GPS...
+                        }
+                    </span>
+                </div>
+                }
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <mat-card class="stat-card">
+                <mat-card-content>
+                    <mat-icon>check_circle</mat-icon>
+                    <div class="stat-value">{{ driver()?.completedDeliveries || 0 }}</div>
+                    <div class="stat-label">Livraisons</div>
+                </mat-card-content>
+            </mat-card>
+            <mat-card class="stat-card">
+                <mat-card-content>
+                    <mat-icon>star</mat-icon>
+                    <div class="stat-value">{{ driver()?.rating?.toFixed(1) || '5.0' }}</div>
+                    <div class="stat-label">Note</div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Current Delivery -->
+        @if (hasCurrentDelivery()) {
+        <section class="current-delivery-section">
+            <h2>Livraison en cours</h2>
+            <mat-card class="delivery-card active">
+                <mat-card-content>
+                    <div class="delivery-header">
+                        <mat-chip [highlighted]="true" color="primary">
+                            {{ currentDelivery()?.status }}
+                        </mat-chip>
+                        <span class="tracking-number">{{ currentDelivery()?.trackingNumber }}</span>
+                    </div>
+
+                    <div class="delivery-address">
+                        <mat-icon>location_on</mat-icon>
+                        <span>{{ currentDelivery()?.address || 'Adresse non disponible' }}</span>
+                    </div>
+
+                    @if (currentDelivery()?.order?.user) {
+                    <div class="customer-info">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ currentDelivery()?.order?.user?.fullName }}</span>
+                    </div>
+                    }
+
+                    <mat-divider></mat-divider>
+
+                    <div class="delivery-actions">
+                        <button mat-stroked-button (click)="openNavigationApp()">
+                            <mat-icon>navigation</mat-icon>
+                            Naviguer
+                        </button>
+                        <button mat-stroked-button (click)="callCustomer()"
+                            [disabled]="!currentDelivery()?.order?.user?.phone">
+                            <mat-icon>phone</mat-icon>
+                            Appeler
+                        </button>
+                        <button mat-raised-button color="primary" (click)="completeDelivery()">
+                            <mat-icon>check</mat-icon>
+                            Terminer
+                        </button>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </section>
+        } @else {
+        <!-- No Current Delivery -->
+        @if (isOnline()) {
+        <section class="waiting-section">
+            <div class="waiting-content">
+                <div class="waiting-animation">
+                    <mat-icon>local_shipping</mat-icon>
+                </div>
+                <h3>En attente d'une livraison</h3>
+                <p>Restez en ligne pour recevoir de nouvelles commandes</p>
+            </div>
+        </section>
+        }
+        }
+
+        <!-- Driver Info -->
+        <section class="info-section">
+            <h2>Informations</h2>
+            <mat-card class="info-card">
+                <mat-card-content>
+                    <div class="info-row">
+                        <mat-icon>directions_car</mat-icon>
+                        <span class="info-label">Véhicule</span>
+                        <span class="info-value">{{ driver()?.vehicleType }}</span>
+                    </div>
+                    @if (driver()?.vehiclePlate) {
+                    <div class="info-row">
+                        <mat-icon>confirmation_number</mat-icon>
+                        <span class="info-label">Plaque</span>
+                        <span class="info-value">{{ driver()?.vehiclePlate }}</span>
+                    </div>
+                    }
+                    <div class="info-row">
+                        <mat-icon>verified</mat-icon>
+                        <span class="info-label">Statut</span>
+                        <span class="info-value" [class.verified]="driver()?.isVerified">
+                            {{ driver()?.isVerified ? 'Vérifié' : 'En attente de vérification' }}
+                        </span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </section>
+    </div>
+    }
+</div>

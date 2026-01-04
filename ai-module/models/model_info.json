@@ -1,0 +1,9 @@
+{
+  "model_name": "Baseline EfficientNetB0",
+  "architecture": "EfficientNetB0 + Custom Head",
+  "num_classes": 15,
+  "input_size": 224,
+  "pretrained_weights": "ImageNet",
+  "status": "Ready for fine-tuning",
+  "note": "This model uses ImageNet weights. Fine-tune with your car parts data for best results."
+}

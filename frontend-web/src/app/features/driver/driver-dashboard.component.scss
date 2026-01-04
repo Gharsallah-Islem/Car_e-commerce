@@ -1,0 +1,406 @@
+// Variables
+$primary: #007AFF;
+$success: #34C759;
+$warning: #FF9500;
+$danger: #FF3B30;
+$bg-dark: #0a0a0a;
+$bg-card: #1a1a1f;
+$text-primary: #ffffff;
+$text-secondary: rgba(255, 255, 255, 0.6);
+$border-color: rgba(255, 255, 255, 0.1);
+
+.driver-dashboard {
+    min-height: 100vh;
+    background: $bg-dark;
+    color: $text-primary;
+}
+
+// Header
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: $bg-card;
+    border-bottom: 1px solid $border-color;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    .header-content {
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .driver-name {
+            font-size: 0.875rem;
+            color: $text-secondary;
+            margin: 0.25rem 0 0;
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: $text-primary;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        &.logout {
+            background: rgba($danger, 0.2);
+            color: $danger;
+        }
+    }
+}
+
+// Loading & Error States
+.loading-container,
+.not-driver-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    min-height: 60vh;
+
+    .not-driver-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba($primary, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+
+        mat-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: $primary;
+        }
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem;
+    }
+
+    p {
+        color: $text-secondary;
+        margin: 0 0 1.5rem;
+    }
+}
+
+// Dashboard Content
+.dashboard-content {
+    padding: 1.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+// Status Card
+.status-card {
+    background: $bg-card;
+    border-radius: 16px;
+    border: 1px solid $border-color;
+    margin-bottom: 1.5rem;
+
+    .status-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .status-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: $danger;
+        transition: background 0.3s ease;
+
+        &.online {
+            background: $success;
+            box-shadow: 0 0 12px $success;
+        }
+    }
+
+    .status-text {
+        display: flex;
+        flex-direction: column;
+
+        .status-label {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .status-hint {
+            font-size: 0.75rem;
+            color: $text-secondary;
+        }
+    }
+
+    .location-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid $border-color;
+        font-size: 0.875rem;
+        color: $text-secondary;
+
+        mat-icon {
+            color: $success;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+
+            &.pulsing {
+                animation: pulse 1s infinite;
+            }
+        }
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+// Stats Grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .stat-card {
+        background: $bg-card;
+        border-radius: 16px;
+        border: 1px solid $border-color;
+        text-align: center;
+
+        mat-icon {
+            font-size: 28px;
+            color: $primary;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: $text-secondary;
+            text-transform: uppercase;
+        }
+    }
+}
+
+// Current Delivery Section
+.current-delivery-section {
+    margin-bottom: 1.5rem;
+
+    h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 1rem;
+    }
+
+    .delivery-card {
+        background: $bg-card;
+        border-radius: 16px;
+        border: 2px solid $primary;
+
+        &.active {
+            box-shadow: 0 0 20px rgba($primary, 0.2);
+        }
+
+        .delivery-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+
+            .tracking-number {
+                font-family: monospace;
+                font-size: 0.875rem;
+                color: $text-secondary;
+            }
+        }
+
+        .delivery-address,
+        .customer-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+
+            mat-icon {
+                color: $primary;
+                flex-shrink: 0;
+            }
+
+            span {
+                font-size: 0.9375rem;
+            }
+        }
+
+        mat-divider {
+            margin: 1rem 0;
+            border-color: $border-color;
+        }
+
+        .delivery-actions {
+            display: flex;
+            gap: 0.75rem;
+
+            button {
+                flex: 1;
+
+                mat-icon {
+                    margin-right: 0.25rem;
+                }
+            }
+        }
+    }
+}
+
+// Waiting Section
+.waiting-section {
+    margin-bottom: 1.5rem;
+
+    .waiting-content {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: $bg-card;
+        border-radius: 16px;
+        border: 1px solid $border-color;
+    }
+
+    .waiting-animation {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba($primary, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        animation: float 3s ease-in-out infinite;
+
+        mat-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: $primary;
+        }
+    }
+
+    h3 {
+        font-size: 1.125rem;
+        margin: 0 0 0.5rem;
+    }
+
+    p {
+        color: $text-secondary;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+// Info Section
+.info-section {
+    h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 1rem;
+    }
+
+    .info-card {
+        background: $bg-card;
+        border-radius: 16px;
+        border: 1px solid $border-color;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $border-color;
+        }
+
+        mat-icon {
+            color: $text-secondary;
+        }
+
+        .info-label {
+            flex: 1;
+            color: $text-secondary;
+        }
+
+        .info-value {
+            font-weight: 500;
+
+            &.verified {
+                color: $success;
+            }
+        }
+    }
+}
+
+// Responsive
+@media (min-width: 768px) {
+    .dashboard-content {
+        padding: 2rem;
+    }
+}

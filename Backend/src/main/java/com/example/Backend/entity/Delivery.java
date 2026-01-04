@@ -30,7 +30,7 @@ public class Delivery implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false, unique = true)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "delivery"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "delivery" })
     private Order order;
 
     @NotBlank(message = "Tracking number is required")
@@ -59,11 +59,23 @@ public class Delivery implements Serializable {
     @Column(name = "driver_phone", length = 20)
     private String driverPhone;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "currentDelivery", "user" })
+    private Driver driver;
+
     @Column(name = "pickup_time")
     private LocalDateTime pickupTime;
 
     @Column(name = "current_location", columnDefinition = "TEXT")
     private String currentLocation;
+
+    // GPS coordinates for live tracking
+    @Column(name = "current_latitude")
+    private Double currentLatitude;
+
+    @Column(name = "current_longitude")
+    private Double currentLongitude;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

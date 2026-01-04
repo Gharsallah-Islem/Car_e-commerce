@@ -60,8 +60,14 @@ export interface ReorderSetting {
     reorderPoint: number;
     reorderQuantity: number;
     supplier?: Supplier;
+    preferredSupplier?: Supplier;
     autoReorder?: boolean;
     isEnabled: boolean;
+    minimumStock?: number;
+    maximumStock?: number;
+    leadTimeDays?: number;
+    lastReorderDate?: Date;
+    notes?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -79,8 +85,14 @@ export interface InventoryStats {
     totalValue: number;
     lowStockItems: number;
     outOfStockItems: number;
+    healthyStockItems: number;
     pendingPOs: number;
+    draftPOs: number;
+    approvedPOs: number;
+    receivedPOs: number;
     activeSuppliers: number;
+    totalSuppliers: number;
+    totalMovements: number;
 }
 
 @Injectable({
@@ -263,5 +275,12 @@ export class InventoryService {
 
     getInventoryStatistics(): Observable<InventoryStats> {
         return this.http.get<InventoryStats>(`${this.apiUrl}/statistics`);
+    }
+
+    /**
+     * Get product stock overview with status indicators
+     */
+    getProductStockOverview(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/product-stock`);
     }
 }

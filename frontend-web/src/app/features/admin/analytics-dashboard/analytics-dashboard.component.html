@@ -13,28 +13,34 @@
     @if (!loading && dashboardStats) {
     <div class="dashboard-content">
 
-        <!-- Header -->
-        <div class="dashboard-header">
-            <div class="header-left">
-                <h1>Dashboard</h1>
-                <p class="subtitle">Welcome back! Here's what's happening with your store.</p>
-            </div>
-            <div class="header-actions">
-                <button mat-stroked-button class="action-btn" (click)="refreshData()" [disabled]="refreshing">
-                    <mat-icon>refresh</mat-icon>
-                    <span>Refresh</span>
-                </button>
-                <button mat-stroked-button class="action-btn">
-                    <mat-icon>file_download</mat-icon>
-                    <span>Export</span>
-                </button>
+        <!-- Welcome Hero -->
+        <div class="welcome-hero">
+            <div class="hero-content">
+                <div class="hero-left">
+                    <h1 class="greeting">{{ getGreeting() }}, Admin! <span class="wave">👋</span></h1>
+                    <p class="date-time">{{ currentDate }}</p>
+                </div>
+                <div class="hero-right">
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span>
+                        <span>Live</span>
+                    </div>
+                    <span class="last-sync">
+                        <mat-icon>schedule</mat-icon>
+                        Last sync: {{ lastSyncTime }}
+                    </span>
+                    <button mat-stroked-button class="refresh-btn" (click)="refreshData()" [disabled]="refreshing">
+                        <mat-icon>refresh</mat-icon>
+                        <span>{{ refreshing ? 'Syncing...' : 'Refresh' }}</span>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- KPI Cards Grid -->
         <div class="kpi-grid">
             <!-- Revenue Card -->
-            <div class="kpi-card">
+            <div class="kpi-card revenue">
                 <div class="kpi-header">
                     <div class="kpi-title">
                         <span class="label">Total Revenue</span>
@@ -45,7 +51,7 @@
                         <mat-icon>payments</mat-icon>
                     </div>
                 </div>
-                <div class="kpi-value">{{ dashboardStats.totalRevenue | number:'1.2-2' }} <span
+                <div class="kpi-value">{{ dashboardStats.totalRevenue | number:'1.0-0' }} <span
                         class="currency">TND</span></div>
                 @if (dashboardStats.revenueGrowth) {
                 <div class="kpi-change" [class.positive]="dashboardStats.revenueGrowth > 0"
@@ -57,12 +63,12 @@
                 }
                 <div class="kpi-sparkline">
                     <div echarts [options]="revenueSparklineOption" [merge]="revenueSparklineOption"
-                        style="height: 40px;"></div>
+                        style="height: 50px;"></div>
                 </div>
             </div>
 
             <!-- Orders Card -->
-            <div class="kpi-card">
+            <div class="kpi-card orders">
                 <div class="kpi-header">
                     <div class="kpi-title">
                         <span class="label">Total Orders</span>
@@ -88,16 +94,16 @@
                 }
                 <div class="kpi-sparkline">
                     <div echarts [options]="ordersSparklineOption" [merge]="ordersSparklineOption"
-                        style="height: 40px;"></div>
+                        style="height: 50px;"></div>
                 </div>
             </div>
 
             <!-- Users Card -->
-            <div class="kpi-card">
+            <div class="kpi-card users">
                 <div class="kpi-header">
                     <div class="kpi-title">
-                        <span class="label">Total Users</span>
-                        <mat-icon class="info-icon" matTooltip="Registered users">info_outline</mat-icon>
+                        <span class="label">Total Customers</span>
+                        <mat-icon class="info-icon" matTooltip="Registered customers">info_outline</mat-icon>
                     </div>
                     <div class="kpi-icon users">
                         <mat-icon>people</mat-icon>
@@ -118,13 +124,13 @@
                 </div>
                 }
                 <div class="kpi-sparkline">
-                    <div echarts [options]="usersSparklineOption" [merge]="usersSparklineOption" style="height: 40px;">
+                    <div echarts [options]="usersSparklineOption" [merge]="usersSparklineOption" style="height: 50px;">
                     </div>
                 </div>
             </div>
 
             <!-- Products Card -->
-            <div class="kpi-card">
+            <div class="kpi-card products">
                 <div class="kpi-header">
                     <div class="kpi-title">
                         <span class="label">Total Products</span>
@@ -143,22 +149,68 @@
                 }
                 <div class="kpi-sparkline">
                     <div echarts [options]="productsSparklineOption" [merge]="productsSparklineOption"
-                        style="height: 40px;"></div>
+                        style="height: 50px;"></div>
                 </div>
             </div>
         </div>
 
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" routerLink="/admin/products">
+                <mat-icon>add_circle</mat-icon>
+                <span>Add Product</span>
+            </button>
+            <button class="action-btn" routerLink="/admin/orders">
+                <mat-icon>shopping_bag</mat-icon>
+                <span>View Orders</span>
+            </button>
+            <button class="action-btn" routerLink="/admin/users">
+                <mat-icon>group</mat-icon>
+                <span>Manage Users</span>
+            </button>
+            <button class="action-btn" routerLink="/admin/inventory">
+                <mat-icon>inventory</mat-icon>
+                <span>Inventory</span>
+            </button>
+            <button class="action-btn" (click)="exportReport()">
+                <mat-icon>download</mat-icon>
+                <span>Export Report</span>
+            </button>
+        </div>
+
         <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="section-header">
+                <h2>Analytics Overview</h2>
+                <div class="period-tabs">
+                    <button class="period-btn" [class.active]="selectedPeriod === '7D'"
+                        (click)="changePeriod('7D')">7D</button>
+                    <button class="period-btn" [class.active]="selectedPeriod === '30D'"
+                        (click)="changePeriod('30D')">30D</button>
+                    <button class="period-btn" [class.active]="selectedPeriod === '90D'"
+                        (click)="changePeriod('90D')">90D</button>
+                    <button class="period-btn" [class.active]="selectedPeriod === '1Y'"
+                        (click)="changePeriod('1Y')">1Y</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts Grid -->
         <div class="charts-grid">
-            <!-- Revenue Chart -->
+            <!-- Revenue Trend Chart (Full Width) -->
             <div class="chart-card full-width">
                 <div class="card-header">
                     <div class="header-left">
-                        <h3>Revenue Overview</h3>
-                        <p class="subtitle">Daily revenue for the last 30 days</p>
+                        <h3>Revenue Trend</h3>
+                        <p class="subtitle">Daily revenue with comparison to previous period</p>
                     </div>
                     <div class="header-actions">
-                        <button mat-button class="filter-btn">Last 30 days</button>
+                        <button class="icon-btn" matTooltip="Expand">
+                            <mat-icon>fullscreen</mat-icon>
+                        </button>
+                        <button class="icon-btn" matTooltip="Download">
+                            <mat-icon>download</mat-icon>
+                        </button>
                     </div>
                 </div>
                 <div class="card-content">
@@ -168,48 +220,123 @@
                     } @else {
                     <div class="no-data">
                         <mat-icon>show_chart</mat-icon>
-                        <p>No data available</p>
+                        <p>No revenue data available</p>
                     </div>
                     }
+                </div>
+            </div>
+
+            <!-- Sales Funnel -->
+            <div class="chart-card half-width funnel-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h3>Conversion Funnel</h3>
+                        <p class="subtitle">Customer journey analysis</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="funnel-container">
+                        @for (step of funnelData; track step.label) {
+                        <div class="funnel-step">
+                            <div class="step-bar" [style.width.%]="step.percentage"></div>
+                            <div class="step-info">
+                                <span class="step-label">{{ step.label }}</span>
+                                <span class="step-value">{{ step.value | number }}</span>
+                                @if (step.rate) {
+                                <span class="step-rate">{{ step.rate }}%</span>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
                 </div>
             </div>
 
             <!-- Category Performance -->
-            <div class="chart-card">
+            <div class="chart-card half-width">
                 <div class="card-header">
-                    <h3>Sales by Category</h3>
-                    <p class="subtitle">Revenue breakdown by product category</p>
+                    <div class="header-left">
+                        <h3>Sales by Category</h3>
+                        <p class="subtitle">Revenue breakdown by product category</p>
+                    </div>
                 </div>
                 <div class="card-content">
                     @if (categoryPerformance.length > 0) {
-                    <div echarts [options]="categoryChartOption" [merge]="categoryChartOption" style="height: 300px;">
+                    <div echarts [options]="categoryChartOption" [merge]="categoryChartOption" style="height: 280px;">
                     </div>
                     } @else {
                     <div class="no-data">
                         <mat-icon>bar_chart</mat-icon>
-                        <p>No data available</p>
+                        <p>No category data available</p>
                     </div>
                     }
                 </div>
             </div>
 
-            <!-- Order Status -->
-            <div class="chart-card">
+            <!-- Order Status Donut -->
+            <div class="chart-card half-width">
                 <div class="card-header">
-                    <h3>Order Status</h3>
-                    <p class="subtitle">Distribution of order statuses</p>
+                    <div class="header-left">
+                        <h3>Order Status</h3>
+                        <p class="subtitle">Distribution of order statuses</p>
+                    </div>
                 </div>
                 <div class="card-content">
                     @if (orderStatusDistribution.length > 0) {
                     <div echarts [options]="orderStatusChartOption" [merge]="orderStatusChartOption"
-                        style="height: 300px;"></div>
+                        style="height: 280px;"></div>
                     } @else {
                     <div class="no-data">
                         <mat-icon>donut_small</mat-icon>
-                        <p>No data available</p>
+                        <p>No order data available</p>
                     </div>
                     }
                 </div>
+            </div>
+
+            <!-- Sales Heatmap -->
+            <div class="chart-card half-width heatmap-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h3>Sales Heatmap</h3>
+                        <p class="subtitle">Peak selling times by day and hour</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div echarts [options]="heatmapChartOption" [merge]="heatmapChartOption" style="height: 280px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Gauges -->
+        <div class="gauges-row">
+            <div class="gauge-card">
+                <div class="gauge-title">Revenue Target</div>
+                <div class="gauge-chart">
+                    <div echarts [options]="revenueGaugeOption" [merge]="revenueGaugeOption" style="height: 120px;">
+                    </div>
+                </div>
+                <div class="gauge-value">{{ revenueTargetPercent }}<span>%</span></div>
+                <div class="gauge-label">of monthly target</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-title">Order Fulfillment</div>
+                <div class="gauge-chart">
+                    <div echarts [options]="fulfillmentGaugeOption" [merge]="fulfillmentGaugeOption"
+                        style="height: 120px;"></div>
+                </div>
+                <div class="gauge-value">{{ fulfillmentRate }}<span>%</span></div>
+                <div class="gauge-label">on-time delivery</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-title">Customer Satisfaction</div>
+                <div class="gauge-chart">
+                    <div echarts [options]="satisfactionGaugeOption" [merge]="satisfactionGaugeOption"
+                        style="height: 120px;"></div>
+                </div>
+                <div class="gauge-value">{{ customerSatisfaction }}<span>/5</span></div>
+                <div class="gauge-label">average rating</div>
             </div>
         </div>
 
@@ -217,27 +344,45 @@
         @if (topProducts.length > 0) {
         <div class="data-card">
             <div class="card-header">
-                <h3>Top Selling Products</h3>
-                <p class="subtitle">Best performing products this month</p>
+                <div class="header-left">
+                    <span class="trophy-icon">🏆</span>
+                    <div>
+                        <h3>Top Selling Products</h3>
+                        <p class="subtitle">Best performing products this month</p>
+                    </div>
+                </div>
+                <button mat-button class="view-all-btn" routerLink="/admin/products">View All</button>
             </div>
             <div class="card-content">
                 <table class="modern-table">
                     <thead>
                         <tr>
+                            <th style="width: 50px;">#</th>
                             <th>Product</th>
                             <th>Category</th>
                             <th>Brand</th>
                             <th class="text-right">Units Sold</th>
                             <th class="text-right">Revenue</th>
+                            <th style="width: 120px;">Progress</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for (product of topProducts; track product.productId) {
+                        @for (product of topProducts; track product.productId; let i = $index) {
                         <tr>
+                            <td>
+                                <span class="rank-badge" [ngClass]="{ 
+                                    'gold': i === 0, 
+                                    'silver': i === 1, 
+                                    'bronze': i === 2,
+                                    'default': i > 2 
+                                }">
+                                    {{ i + 1 }}
+                                </span>
+                            </td>
                             <td>
                                 <div class="product-cell">
                                     <div class="product-image">
-                                        <img [src]="product.imageUrl" [alt]="product.productName">
+                                        <img [src]="product.imageUrl" [alt]="product.productName" loading="lazy">
                                     </div>
                                     <span class="product-name">{{ product.productName }}</span>
                                 </div>
@@ -250,7 +395,12 @@
                                 <strong>{{ product.unitsSold }}</strong>
                             </td>
                             <td class="text-right">
-                                <strong class="revenue-value">{{ product.revenue | number:'1.2-2' }} TND</strong>
+                                <span class="revenue-value">{{ product.revenue | number:'1.0-0' }} TND</span>
+                            </td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" [style.width.%]="getProductProgress(product)"></div>
+                                </div>
                             </td>
                         </tr>
                         }
@@ -264,23 +414,28 @@
         @if (recentActivities.length > 0) {
         <div class="data-card">
             <div class="card-header">
-                <h3>Recent Activity</h3>
-                <p class="subtitle">Latest actions in your store</p>
+                <div class="header-left">
+                    <div>
+                        <h3>Live Activity Feed</h3>
+                        <p class="subtitle">Real-time updates from your store</p>
+                    </div>
+                </div>
+                <button mat-button class="view-all-btn">View All</button>
             </div>
             <div class="card-content">
                 <div class="activity-list">
                     @for (activity of recentActivities; track activity.timestamp) {
                     <div class="activity-item">
-                        <div class="activity-icon">
+                        <div class="activity-icon" [ngClass]="getActivityClass(activity.type)">
                             <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
                         </div>
                         <div class="activity-content">
                             <p class="activity-description">{{ activity.description }}</p>
                             <div class="activity-meta">
                                 <span class="activity-user">{{ activity.userName }}</span>
-                                <span class="activity-time">{{ activity.timestamp | date:'medium' }}</span>
                             </div>
                         </div>
+                        <span class="activity-time">{{ getRelativeTime(activity.timestamp) }}</span>
                     </div>
                     }
                 </div>

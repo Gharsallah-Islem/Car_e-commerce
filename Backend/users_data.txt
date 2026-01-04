@@ -1,9 +1,0 @@
-                  id                  |     username      |            email            |     full_name     
---------------------------------------+-------------------+-----------------------------+-------------------
- 704ec2e6-2227-471c-8339-b84dc1b2957f | mansourilamiaiset | mansourilamiaiset@gmail.com | lamia mansouri
- 61e534f1-9bb6-418f-9dda-38d361ae68dc | testuser_8723     | test8723@example.com        | Test User 8723
- 7e00cdbe-e0be-47b1-aa5e-25afef600897 | testuser_8215     | test8215@example.com        | Test User 8215
- 96d6587d-66f7-4548-ac53-80fa7ab7ecc2 | lasmer701         | lasmer701@gmail.com         | Lasmer
- 6be822ea-3579-47ca-aa4f-0c6da3b5370b | paymenttest       | paymenttest@example.com     | Payment Test User
-(5 rows)
-

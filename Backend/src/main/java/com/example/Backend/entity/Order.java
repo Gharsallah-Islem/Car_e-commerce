@@ -37,7 +37,8 @@ public class Order implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties({"password", "vehicles", "cart", "orders", "reclamations", "emailVerificationToken", "passwordResetToken"})
+    @JsonIgnoreProperties({ "password", "vehicles", "cart", "orders", "reclamations", "emailVerificationToken",
+            "passwordResetToken" })
     private User user;
 
     @NotNull(message = "Total price is required")
@@ -89,6 +90,11 @@ public class Order implements Serializable {
     public static final String STATUS_SHIPPED = "SHIPPED";
     public static final String STATUS_DELIVERED = "DELIVERED";
     public static final String STATUS_CANCELLED = "CANCELLED";
+    public static final String STATUS_DELIVERY_FAILED = "DELIVERY_FAILED";
+
+    // Payment method constants
+    public static final String PAYMENT_METHOD_STRIPE = "STRIPE";
+    public static final String PAYMENT_METHOD_COD = "CASH_ON_DELIVERY";
 
     // Payment status constants
     public static final String PAYMENT_PENDING = "PENDING";
@@ -100,6 +106,14 @@ public class Order implements Serializable {
         return STATUS_PENDING.equals(status);
     }
 
+    public boolean isConfirmed() {
+        return STATUS_CONFIRMED.equals(status);
+    }
+
+    public boolean isShipped() {
+        return STATUS_SHIPPED.equals(status);
+    }
+
     public boolean isDelivered() {
         return STATUS_DELIVERED.equals(status);
     }
@@ -108,8 +122,28 @@ public class Order implements Serializable {
         return STATUS_CANCELLED.equals(status);
     }
 
+    public boolean isDeliveryFailed() {
+        return STATUS_DELIVERY_FAILED.equals(status);
+    }
+
+    public boolean isCashOnDelivery() {
+        return PAYMENT_METHOD_COD.equals(paymentMethod);
+    }
+
+    public boolean isStripePayment() {
+        return PAYMENT_METHOD_STRIPE.equals(paymentMethod);
+    }
+
+    public boolean isPaymentCompleted() {
+        return PAYMENT_COMPLETED.equals(paymentStatus);
+    }
+
     public void markAsDelivered() {
         this.status = STATUS_DELIVERED;
         this.deliveredAt = LocalDateTime.now();
+    }
+
+    public void markAsDeliveryFailed() {
+        this.status = STATUS_DELIVERY_FAILED;
     }
 }

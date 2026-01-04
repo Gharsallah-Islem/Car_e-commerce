@@ -116,12 +116,14 @@ export class OrderManagementComponent implements OnInit {
   getOrderStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
       PENDING: 'accent',
+      CONFIRMED: 'primary',
       PROCESSING: 'primary',
       SHIPPED: 'primary',
       DELIVERED: 'primary',
       CANCELLED: 'warn',
       REFUNDED: 'warn',
-      PAID: 'accent'
+      PAID: 'accent',
+      DELIVERY_FAILED: 'warn'
     };
     return colors[status] || 'primary';
   }
@@ -129,12 +131,14 @@ export class OrderManagementComponent implements OnInit {
   getOrderStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
       PENDING: 'En attente',
+      CONFIRMED: 'Confirmée',
       PROCESSING: 'En préparation',
       SHIPPED: 'Expédiée',
       DELIVERED: 'Livrée',
       CANCELLED: 'Annulée',
       REFUNDED: 'Remboursée',
-      PAID: 'Payée'
+      PAID: 'Payée',
+      DELIVERY_FAILED: 'Échec livraison'
     };
     return labels[status] || status;
   }

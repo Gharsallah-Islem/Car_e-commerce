@@ -53,12 +53,32 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
+                        // Recommendation endpoints (trending & similar are public)
+                        .requestMatchers("/api/recommendations/trending").permitAll()
+                        .requestMatchers("/api/recommendations/similar/**").permitAll()
+                        .requestMatchers("/api/recommendations/also-bought/**").permitAll()
+
+                        // Activity tracking (requires auth - handled by controller)
+
                         // OAuth2 endpoints
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
 
                         // Payment webhook endpoint (Stripe webhooks)
                         .requestMatchers("/api/payments/webhook").permitAll()
+
+                        // Delivery tracking (public for customers)
+                        .requestMatchers("/api/delivery/track/**").permitAll()
+                        .requestMatchers("/api/delivery/migrate-shipped-orders").permitAll()
+                        .requestMatchers("/api/delivery/debug-orders").permitAll()
+                        .requestMatchers("/api/delivery/sync-tracking-numbers").permitAll()
+
+                        // Driver public endpoints
+                        .requestMatchers("/api/drivers/statistics").permitAll()
+
+                        // WebSocket endpoints (authentication handled internally)
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws-native/**").permitAll()
 
                         // Actuator endpoints (health check)
                         .requestMatchers("/actuator/**").permitAll()
