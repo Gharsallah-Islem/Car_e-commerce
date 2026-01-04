@@ -1,8 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../../core/services/chat.service';
 import { Conversation } from '../../../core/models/chat.model';
-import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-conversation-list',
@@ -11,7 +10,7 @@ import { interval, Subscription } from 'rxjs';
   templateUrl: './conversation-list.component.html',
   styleUrl: './conversation-list.component.scss'
 })
-export class ConversationListComponent implements OnInit, OnDestroy {
+export class ConversationListComponent implements OnInit {
   private chatService = inject(ChatService);
 
   @Input() selectedConversationId?: string;
@@ -19,23 +18,21 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   conversations: Conversation[] = [];
   loading = false;
+  refreshing = false;
   unreadCount = 0;
-
-  private refreshSubscription?: Subscription;
 
   ngOnInit(): void {
     this.loadConversations();
     this.loadUnreadCount();
-
-    // Refresh conversations every 10 seconds
-    this.refreshSubscription = interval(10000).subscribe(() => {
-      this.loadConversations();
-      this.loadUnreadCount();
-    });
+    // No polling - manual refresh only to eliminate blinking
   }
 
-  ngOnDestroy(): void {
-    this.refreshSubscription?.unsubscribe();
+  refreshAll(): void {
+    if (this.refreshing) return;
+    this.refreshing = true;
+    this.loadConversations();
+    this.loadUnreadCount();
+    setTimeout(() => this.refreshing = false, 1000);
   }
 
   loadConversations(): void {
@@ -98,12 +95,12 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   getFormattedTime(date: Date | string): string {
     const now = new Date();
     const messageDate = typeof date === 'string' ? new Date(date) : date;
-    
+
     // Handle invalid dates
     if (isNaN(messageDate.getTime())) {
       return '';
     }
-    
+
     const diffMs = now.getTime() - messageDate.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);

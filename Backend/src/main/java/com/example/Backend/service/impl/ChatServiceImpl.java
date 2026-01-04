@@ -325,16 +325,51 @@ public class ChatServiceImpl implements ChatService {
 
     /**
      * Find relevant products based on user message keywords
+     * Enhanced to search for individual terms and car part keywords
      */
     private List<Product> findRelevantProducts(String userMessage) {
         try {
-            String searchTerm = userMessage.toLowerCase();
+            String messageLower = userMessage.toLowerCase();
 
-            // Search products by name
-            List<Product> products = productRepository.findByNameContaining(searchTerm);
+            // Common car part keywords to search for
+            String[] partKeywords = {
+                    "brake", "frein", "pad", "plaquette", "disc", "disque",
+                    "oil", "huile", "filter", "filtre", "air",
+                    "battery", "batterie", "alternator", "alternateur",
+                    "spark", "bougie", "plug",
+                    "tire", "pneu", "wheel", "roue",
+                    "light", "phare", "lamp", "ampoule",
+                    "belt", "courroie", "hose", "durite",
+                    "suspension", "shock", "amortisseur",
+                    "clutch", "embrayage", "transmission",
+                    "radiator", "radiateur", "coolant",
+                    "exhaust", "échappement", "muffler",
+                    "mirror", "rétroviseur", "wiper", "essuie"
+            };
 
-            // Limit to top 5 most relevant in-stock products
-            return products.stream()
+            List<Product> allProducts = new java.util.ArrayList<>();
+
+            // Search for each keyword found in the message
+            for (String keyword : partKeywords) {
+                if (messageLower.contains(keyword)) {
+                    List<Product> found = productRepository.findByNameContaining(keyword);
+                    allProducts.addAll(found);
+                }
+            }
+
+            // Also search for words from the user message (3+ characters)
+            String[] words = messageLower.split("\\s+");
+            for (String word : words) {
+                if (word.length() >= 3
+                        && !word.matches("(the|for|and|you|have|can|how|what|where|why|do|is|are|this|that|with)")) {
+                    List<Product> found = productRepository.findByNameContaining(word);
+                    allProducts.addAll(found);
+                }
+            }
+
+            // Remove duplicates and filter by stock
+            return allProducts.stream()
+                    .distinct()
                     .filter(p -> p.getStock() > 0)
                     .limit(5)
                     .collect(Collectors.toList());

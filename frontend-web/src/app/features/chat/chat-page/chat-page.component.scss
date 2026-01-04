@@ -1,26 +1,43 @@
+// Premium WhatsApp-inspired Chat Page - Purple/White Theme
+
+$primary-purple: #7c3aed;
+$primary-purple-light: #a78bfa;
+$white: #ffffff;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-800: #1f2937;
+
 .chat-page {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background-color: #f0f2f5;
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
 
     .mobile-header {
         display: none;
         align-items: center;
-        padding: 12px 16px;
-        background-color: #00a884;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, $primary-purple 0%, $primary-purple-light 100%);
         color: white;
         gap: 16px;
+        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
 
         .back-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
             cursor: pointer;
-            padding: 4px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 10px;
+            transition: all 0.2s;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
 
             &:active {
                 transform: scale(0.95);
@@ -30,21 +47,22 @@
         h2 {
             margin: 0;
             font-size: 18px;
-            font-weight: 500;
+            font-weight: 600;
         }
     }
 
     .chat-layout {
         display: grid;
-        grid-template-columns: 350px 1fr;
+        grid-template-columns: 380px 1fr;
         height: 100%;
         overflow: hidden;
 
         .sidebar {
-            background-color: #fff;
-            border-right: 1px solid #e9edef;
+            background: $white;
+            border-right: 1px solid rgba(124, 58, 237, 0.1);
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 24px rgba(124, 58, 237, 0.05);
 
             &.hidden {
                 display: none;
@@ -52,7 +70,7 @@
         }
 
         .main-chat {
-            background-color: #f0f2f5;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #f5f3ff 100%);
             overflow: hidden;
 
             &.full-width {
@@ -66,7 +84,7 @@
 @media (max-width: 1024px) {
     .chat-page {
         .chat-layout {
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 320px 1fr;
         }
     }
 }
@@ -80,11 +98,11 @@
 
         .chat-layout {
             grid-template-columns: 1fr;
-            height: calc(100vh - 56px); // Subtract mobile header height
+            height: calc(100vh - 60px);
 
             .sidebar {
                 position: absolute;
-                top: 56px;
+                top: 60px;
                 left: 0;
                 right: 0;
                 bottom: 0;

@@ -190,7 +190,16 @@ public class GeminiServiceImpl implements GeminiService {
             }
 
         } catch (Exception e) {
-            log.error("Error calling Gemini API", e);
+            // 🔑 Enhanced error logging for debugging
+            log.error("❌ Error calling Gemini API");
+            log.error("   URL: {}", apiUrl);
+            log.error("   API Key (first 10 chars): {}",
+                    apiKey != null && apiKey.length() > 10 ? apiKey.substring(0, 10) + "..." : "NULL or SHORT");
+            log.error("   Exception Type: {}", e.getClass().getSimpleName());
+            log.error("   Exception Message: {}", e.getMessage());
+            if (e.getCause() != null) {
+                log.error("   Cause: {}", e.getCause().getMessage());
+            }
             return "Désolé, une erreur s'est produite. Un agent humain vous répondra bientôt.";
         }
     }

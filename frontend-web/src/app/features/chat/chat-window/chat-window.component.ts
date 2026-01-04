@@ -19,11 +19,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   @Input() set conversationId(id: string | undefined) {
     if (id !== this._conversationId) {
-      this.stopPolling();
       this._conversationId = id;
       if (id) {
         this.loadMessages();
-        this.startPolling();
       } else {
         this.messages.set([]);
       }
@@ -40,26 +38,24 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   messages = signal<ChatMessage[]>([]);
   loading = signal(false);
   sending = signal(false);
+  refreshing = signal(false);
 
-  // 🔑 Polling variables
-  private pollingInterval?: any;
-  private lastPollTimestamp?: Date;
+  // Typing indicator - shows when waiting for AI response
+  aiTyping = signal(false);
 
   // Get current user ID from AuthService
   currentUserId = computed(() => {
     const user = this.authService.currentUser();
-    // Convert user ID to string to match backend UUID strings
     if (!user?.id) return undefined;
     return user.id.toString();
   });
 
   ngOnInit(): void {
-    // AuthService already provides current user via signals
-    // The currentUserId computed will automatically update when user changes
+    // Component initialization
   }
 
   ngOnDestroy(): void {
-    this.stopPolling();
+    // Cleanup
   }
 
   loadMessages(): void {
@@ -71,15 +67,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         next: (page) => {
           const parsedMessages = page.content.map(msg => this.parseMessage(msg));
           this.messages.set(parsedMessages);
-          
-          // Set last poll timestamp to the most recent message time
-          if (parsedMessages.length > 0) {
-            const lastMessage = parsedMessages[parsedMessages.length - 1];
-            this.lastPollTimestamp = new Date(lastMessage.createdAt);
-          } else {
-            this.lastPollTimestamp = new Date();
-          }
-          
           this.loading.set(false);
           this.scrollToBottom();
           this.markAllAsRead();
@@ -91,52 +78,49 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       });
   }
 
-  // 🔑 POLLING IMPLEMENTATION - CHECK FOR NEW MESSAGES EVERY 3 SECONDS
-  startPolling(): void {
-    this.stopPolling(); // Clear any existing interval
+  // Manual refresh - replaces polling to eliminate blinking
+  refreshMessages(): void {
+    if (!this._conversationId || this.refreshing()) return;
 
-    this.pollingInterval = setInterval(() => {
-      if (!this._conversationId || !this.lastPollTimestamp) return;
+    this.refreshing.set(true);
 
-      this.chatService.getRecentMessages(
-        this._conversationId,
-        this.lastPollTimestamp
-      ).subscribe({
+    // Get the timestamp of the last message
+    const currentMessages = this.messages();
+    const since = currentMessages.length > 0
+      ? new Date(currentMessages[currentMessages.length - 1].createdAt)
+      : new Date(Date.now() - 60000); // Last minute if no messages
+
+    this.chatService.getRecentMessages(this._conversationId, since)
+      .subscribe({
         next: (newMessages) => {
           if (newMessages && newMessages.length > 0) {
-            console.log(`📨 Received ${newMessages.length} new message(s)`);
             const parsedMessages = newMessages.map(msg => this.parseMessage(msg));
-            this.messages.update(current => [...current, ...parsedMessages]);
-            
-            // Update timestamp to the most recent message
-            const lastMessage = parsedMessages[parsedMessages.length - 1];
-            this.lastPollTimestamp = new Date(lastMessage.createdAt);
-            
-            this.scrollToBottom();
-            this.markAllAsRead();
+
+            // Deduplicate
+            const existingIds = new Set(this.messages().map(m => m.id));
+            const uniqueNewMessages = parsedMessages.filter(m => !existingIds.has(m.id));
+
+            if (uniqueNewMessages.length > 0) {
+              this.messages.update(current => [...current, ...uniqueNewMessages]);
+              this.scrollToBottom();
+              this.markAllAsRead();
+            }
           }
+          this.refreshing.set(false);
+          this.aiTyping.set(false);
         },
         error: (err) => {
-          // Silently handle polling errors to avoid console spam
-          if (err.status !== 0) { // Don't log network errors (CORS, etc)
-            console.error('Polling error:', err);
-          }
+          console.error('Refresh error:', err);
+          this.refreshing.set(false);
         }
       });
-    }, 3000); // Poll every 3 seconds (like WhatsApp)
-  }
-
-  stopPolling(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-    }
   }
 
   onSendMessage(content: string): void {
     if (!this._conversationId || !content.trim()) return;
 
     this.sending.set(true);
+    this.aiTyping.set(true); // Show typing indicator
     const request = { content: content.trim() };
 
     this.chatService.sendMessage(this._conversationId, request)
@@ -144,14 +128,54 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         next: (message) => {
           const parsedMessage = this.parseMessage(message);
           this.messages.update(current => [...current, parsedMessage]);
-          this.lastPollTimestamp = new Date(parsedMessage.createdAt);
           this.sending.set(false);
           this.scrollToBottom();
+
+          // Auto-check for AI response after 2 seconds
+          setTimeout(() => this.checkForAiResponse(), 2000);
         },
         error: (err) => {
           console.error('Failed to send message:', err);
           alert('Failed to send message. Please try again.');
           this.sending.set(false);
+          this.aiTyping.set(false);
+        }
+      });
+  }
+
+  // Check for AI response after sending a message
+  private checkForAiResponse(): void {
+    if (!this._conversationId) return;
+
+    const currentMessages = this.messages();
+    const since = currentMessages.length > 0
+      ? new Date(currentMessages[currentMessages.length - 1].createdAt)
+      : new Date(Date.now() - 5000);
+
+    this.chatService.getRecentMessages(this._conversationId, since)
+      .subscribe({
+        next: (newMessages) => {
+          if (newMessages && newMessages.length > 0) {
+            const parsedMessages = newMessages.map(msg => this.parseMessage(msg));
+
+            const existingIds = new Set(this.messages().map(m => m.id));
+            const uniqueNewMessages = parsedMessages.filter(m => !existingIds.has(m.id));
+
+            if (uniqueNewMessages.length > 0) {
+              this.messages.update(current => [...current, ...uniqueNewMessages]);
+              this.scrollToBottom();
+              this.aiTyping.set(false);
+            } else {
+              // No response yet, try again in 2 seconds (max 3 attempts)
+              setTimeout(() => this.checkForAiResponse(), 2000);
+            }
+          } else {
+            // Keep trying
+            setTimeout(() => this.checkForAiResponse(), 2000);
+          }
+        },
+        error: () => {
+          this.aiTyping.set(false);
         }
       });
   }
@@ -176,10 +200,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     if (unreadMessages.length > 0) {
       this.chatService.markAllAsRead(this._conversationId).subscribe({
         next: () => {
-          // Update read status in messages
-          this.messages.update(msgs => 
-            msgs.map(msg => 
-              !msg.isRead && !this.isOwnMessage(msg) 
+          this.messages.update(msgs =>
+            msgs.map(msg =>
+              !msg.isRead && !this.isOwnMessage(msg)
                 ? { ...msg, isRead: true }
                 : msg
             )
@@ -193,13 +216,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   }
 
   isOwnMessage(message: ChatMessage): boolean {
-    const userId = this.currentUserId();
-    return userId !== undefined && message.senderId === userId;
+    // USER messages → RIGHT side
+    // SUPPORT/ADMIN messages → LEFT side
+    return message.senderType === 'USER';
   }
 
   onDeleteMessage(messageId: string): void {
     if (!messageId) return;
-    
+
     this.chatService.deleteMessage(messageId).subscribe({
       next: () => {
         this.messages.update(msgs => msgs.filter(m => m.id !== messageId));
@@ -219,7 +243,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         next: () => {
           this._conversationId = undefined;
           this.messages.set([]);
-          this.stopPolling();
           alert('Conversation archived.');
         },
         error: (err) => {
@@ -246,14 +269,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     return message.id;
   }
 
-  /**
-   * Parse message from backend - handles date conversion from LocalDateTime string
-   */
   private parseMessage(message: any): ChatMessage {
     return {
       ...message,
-      createdAt: typeof message.createdAt === 'string' 
-        ? new Date(message.createdAt) 
+      createdAt: typeof message.createdAt === 'string'
+        ? new Date(message.createdAt)
         : message.createdAt,
       id: message.id?.toString() || message.id,
       conversationId: message.conversationId?.toString() || message.conversationId,

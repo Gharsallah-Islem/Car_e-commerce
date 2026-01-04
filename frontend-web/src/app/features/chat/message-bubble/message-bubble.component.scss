@@ -1,9 +1,21 @@
-// WhatsApp/Messenger-style message bubbles
+// Premium WhatsApp-style Message Bubbles - Purple/White Theme
+
+$primary-purple: #7c3aed;
+$primary-purple-light: #a78bfa;
+$primary-purple-dark: #5b21b6;
+$white: #ffffff;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-800: #1f2937;
+
 .message-wrapper {
     display: flex;
-    margin: 4px 0;
-    padding: 0 12px;
-    animation: messageSlideIn 0.2s ease-out;
+    margin: 6px 0;
+    padding: 0 16px;
+    animation: messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &.own {
         justify-content: flex-end;
@@ -16,73 +28,135 @@
 
 .message-bubble {
     position: relative;
-    max-width: 65%;
-    padding: 8px 12px 6px 12px;
-    border-radius: 8px;
-    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+    max-width: 70%;
+    padding: 12px 16px 8px 16px;
+    border-radius: 16px;
     word-wrap: break-word;
     transition: all 0.2s ease;
 
     &:hover {
+        transform: translateY(-1px);
+
         .delete-btn {
             opacity: 1;
         }
     }
 
-    // Own message (user sent)
+    // User message (own) - Premium Purple Gradient
     &.own-bubble {
-        background: #dcf8c6; // WhatsApp green
-        color: #000;
-        border-bottom-right-radius: 2px;
+        background: linear-gradient(135deg, $primary-purple 0%, $primary-purple-light 100%);
+        color: $white;
+        border-bottom-right-radius: 4px;
+        box-shadow:
+            0 4px 16px rgba(124, 58, 237, 0.25),
+            0 2px 4px rgba(124, 58, 237, 0.15);
 
-        // Alternative: Messenger blue
-        // background: #0084ff;
-        // color: #fff;
+        .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tick-icon {
+            &.sent {
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            &.read {
+                color: #a5f3fc;
+            }
+
+            // Cyan for read
+        }
+
+        // Subtle shine effect
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+            border-radius: 16px 16px 0 0;
+            pointer-events: none;
+        }
     }
 
-    // Other's message (support/admin)
+    // AI/Support message (other) - Glassmorphism White
     &.other-bubble {
-        background: #ffffff;
-        color: #000;
-        border: 1px solid #e0e0e0;
-        border-bottom-left-radius: 2px;
+        background: rgba(255, 255, 255, 0.95);
+        color: $gray-800;
+        border: 1px solid rgba(124, 58, 237, 0.12);
+        border-bottom-left-radius: 4px;
+        box-shadow:
+            0 4px 16px rgba(0, 0, 0, 0.06),
+            0 2px 4px rgba(0, 0, 0, 0.03);
+        backdrop-filter: blur(8px);
+
+        .message-time {
+            color: $gray-500;
+        }
+
+        // Purple accent line
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            bottom: 12px;
+            width: 3px;
+            background: linear-gradient(180deg, $primary-purple 0%, $primary-purple-light 100%);
+            border-radius: 0 2px 2px 0;
+        }
     }
 }
 
 .sender-name {
     font-size: 0.75rem;
-    color: #667781;
-    margin-bottom: 4px;
+    color: $primary-purple;
+    margin-bottom: 6px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    // AI indicator
+    &::after {
+        content: '✨';
+        font-size: 0.625rem;
+    }
 }
 
 .message-content {
     .message-text {
         margin: 0;
         font-size: 0.9375rem;
-        line-height: 1.4;
+        line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
     }
 }
 
 .message-attachment {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
 
     a {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        color: #0084ff;
+        gap: 8px;
+        color: $primary-purple;
         text-decoration: none;
         font-size: 0.875rem;
-        transition: color 0.2s;
+        font-weight: 500;
+        padding: 8px 12px;
+        background: rgba(124, 58, 237, 0.08);
+        border-radius: 8px;
+        transition: all 0.2s;
 
         &:hover {
-            color: #006bd6;
-            text-decoration: underline;
+            background: rgba(124, 58, 237, 0.15);
+            transform: translateX(2px);
         }
 
         svg {
@@ -95,14 +169,14 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
-    margin-top: 4px;
+    gap: 6px;
+    margin-top: 6px;
 }
 
 .message-time {
     font-size: 0.6875rem;
-    color: #667781;
     user-select: none;
+    font-weight: 500;
 }
 
 .read-status {
@@ -112,30 +186,19 @@
 
     .tick-icon {
         position: relative;
-
-        // Sent (grey double tick)
-        &.sent {
-            color: #667781;
-        }
-
-        // Read (blue double tick - WhatsApp style)
-        &.read {
-            color: #53bdeb; // WhatsApp blue
-            // Alternative: Messenger style
-            // color: #0084ff;
-        }
+        font-size: 0.875rem;
     }
 }
 
 .delete-btn {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    background: rgba(0, 0, 0, 0.5);
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.6);
     border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,9 +206,10 @@
     opacity: 0;
     transition: all 0.2s;
     color: white;
+    backdrop-filter: blur(4px);
 
     &:hover {
-        background: rgba(0, 0, 0, 0.7);
+        background: #ef4444;
         transform: scale(1.1);
     }
 
@@ -155,22 +219,140 @@
     }
 }
 
+// Product Card Styling (for AI responses with products)
+.product-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
+}
+
+.product-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+    }
+
+    .product-image {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: rgba(124, 58, 237, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        svg,
+        mat-icon {
+            color: $primary-purple;
+            font-size: 24px;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    }
+
+    .product-info {
+        flex: 1;
+
+        .product-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: $gray-800;
+            margin: 0 0 4px 0;
+        }
+
+        .product-details {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+
+            .price {
+                color: $primary-purple;
+                font-weight: 700;
+            }
+
+            .stock {
+                color: #22c55e;
+
+                &.low-stock {
+                    color: #f59e0b;
+                }
+
+                &.out-of-stock {
+                    color: #ef4444;
+                }
+            }
+        }
+    }
+
+    .add-to-cart-btn {
+        background: linear-gradient(135deg, $primary-purple 0%, $primary-purple-light 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+
+        &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+        }
+    }
+}
+
 // Animation
 @keyframes messageSlideIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(16px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 // Responsive
 @media (max-width: 768px) {
     .message-bubble {
-        max-width: 80%;
+        max-width: 85%;
+    }
+
+    .product-card {
+        padding: 10px;
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+        }
+
+        .add-to-cart-btn {
+            padding: 6px 12px;
+            font-size: 0.6875rem;
+        }
     }
 }

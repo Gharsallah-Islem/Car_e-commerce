@@ -34,8 +34,8 @@ jwt:
 # Gemini AI Configuration
 gemini:
   api:
-    key: AIzaSyA_sYC09jM6Me0IrL_XLWB2j_l_bPB1MH0
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+    key: AIzaSyCBczKaK93AGL5lvmrH11-vh13VBYJpQno
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 # Server Configuration
 server:

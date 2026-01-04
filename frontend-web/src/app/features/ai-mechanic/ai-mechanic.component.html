@@ -21,15 +21,15 @@
         </mat-card>
 
         <mat-card class="feature-card">
-            <mat-icon>chat</mat-icon>
-            <h3>Assistant conversationnel</h3>
-            <p>Posez vos questions et obtenez des réponses instantanées</p>
-        </mat-card>
-
-        <mat-card class="feature-card">
             <mat-icon>search</mat-icon>
             <h3>Recherche intelligente</h3>
             <p>Trouvez rapidement les pièces compatibles avec votre véhicule</p>
+        </mat-card>
+
+        <mat-card class="feature-card">
+            <mat-icon>support_agent</mat-icon>
+            <h3>Support Client</h3>
+            <p>Besoin d'aide ? Contactez notre équipe via la page Support</p>
         </mat-card>
     </div>
 
@@ -192,112 +192,5 @@
             </div>
         </mat-tab>
 
-        <!-- Chatbot Tab -->
-        <mat-tab label="Assistant conversationnel">
-            <div class="tab-content">
-
-                <!-- Chat Interface -->
-                <mat-card class="chat-card">
-                    <div class="chat-header"
-                        style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.12);">
-                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 500;">Discussion en cours</h3>
-                        <button mat-button color="warn" (click)="clearHistory()" matTooltip="Effacer l'historique">
-                            <mat-icon>delete_sweep</mat-icon>
-                            Effacer l'historique
-                        </button>
-                    </div>
-
-                    <!-- Chat Messages -->
-                    <div class="chat-messages" #chatContainer>
-                        @for (message of chatMessages(); track message.id) {
-                        <div class="message-wrapper" [class.user-message]="message.sender === 'user'"
-                            [class.ai-message]="message.sender === 'ai'">
-                            <div class="message-bubble">
-                                <div class="message-header">
-                                    <mat-icon>{{ message.sender === 'user' ? 'person' : 'smart_toy' }}</mat-icon>
-                                    <span class="sender-name">{{ message.sender === 'user' ? 'Vous' : 'Assistant IA'
-                                        }}</span>
-                                    <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
-                                </div>
-                                <div class="message-text">{{ message.text }}</div>
-
-                                @if (message.relatedProducts && message.relatedProducts.length > 0) {
-                                <div class="related-products">
-                                    <p class="products-title">
-                                        <mat-icon>shopping_bag</mat-icon>
-                                        Produits recommandés
-                                    </p>
-                                    <div class="products-grid">
-                                        @for (product of message.relatedProducts; track product.id) {
-                                        <div class="product-card" (click)="viewProduct(product.id)">
-                                            <div class="product-image">
-                                                <mat-icon>image</mat-icon>
-                                            </div>
-                                            <div class="product-info">
-                                                <p class="product-name">{{ product.name }}</p>
-                                                <p class="product-price">{{ product.price | number:'1.2-2' }} DT</p>
-                                            </div>
-                                            <mat-icon class="arrow">arrow_forward</mat-icon>
-                                        </div>
-                                        }
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                        </div>
-                        }
-
-                        @if (chatLoading()) {
-                        <div class="message-wrapper ai-message">
-                            <div class="message-bubble typing">
-                                <div class="message-header">
-                                    <mat-icon>smart_toy</mat-icon>
-                                    <span class="sender-name">Assistant IA</span>
-                                </div>
-                                <div class="typing-indicator">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </div>
-                        </div>
-                        }
-                    </div>
-
-                    <!-- Suggested Questions -->
-                    @if (chatMessages().length <= 1) { <div class="suggested-questions">
-                        <p class="suggestions-title">
-                            <mat-icon>help_outline</mat-icon>
-                            Questions fréquentes
-                        </p>
-                        <div class="questions-chips">
-                            @for (question of suggestedQuestions; track question) {
-                            <mat-chip (click)="sendSuggestedQuestion(question)">
-                                {{ question }}
-                            </mat-chip>
-                            }
-                        </div>
-            </div>
-            }
-
-            <mat-divider></mat-divider>
-
-            <!-- Chat Input -->
-            <div class="chat-input">
-                <mat-form-field class="message-field">
-                    <mat-label>Posez votre question...</mat-label>
-                    <input matInput [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" [disabled]="chatLoading()"
-                        placeholder="Ex: Comment changer mes plaquettes de frein ?" />
-                    <mat-icon matPrefix>edit</mat-icon>
-                </mat-form-field>
-                <button mat-fab color="primary" (click)="sendMessage()"
-                    [disabled]="!userMessage().trim() || chatLoading()" matTooltip="Envoyer le message">
-                    <mat-icon>send</mat-icon>
-                </button>
-            </div>
-            </mat-card>
-</div>
-</mat-tab>
-
-</mat-tab-group>
+    </mat-tab-group>
 </div>
