@@ -1,0 +1,129 @@
+<div class="reclamation-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <mat-icon class="header-icon">support_agent</mat-icon>
+            <div class="header-text">
+                <h1>Mes Réclamations</h1>
+                <p>Signalez un problème ou suivez vos demandes</p>
+            </div>
+        </div>
+        <button mat-raised-button color="primary" (click)="toggleForm()">
+            <mat-icon>{{ showForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showForm() ? 'Annuler' : 'Nouvelle réclamation' }}
+        </button>
+    </div>
+
+    <!-- New Reclamation Form -->
+    @if (showForm()) {
+    <mat-card class="form-card">
+        <mat-card-header>
+            <mat-card-title>Créer une réclamation</mat-card-title>
+            <mat-card-subtitle>Décrivez votre problème en détail</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+            <form [formGroup]="reclamationForm" (ngSubmit)="submitReclamation()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Sujet</mat-label>
+                    <input matInput formControlName="subject" placeholder="Ex: Produit endommagé à la réception">
+                    @if (reclamationForm.get('subject')?.hasError('required') &&
+                    reclamationForm.get('subject')?.touched) {
+                    <mat-error>Le sujet est requis</mat-error>
+                    }
+                    @if (reclamationForm.get('subject')?.hasError('minlength')) {
+                    <mat-error>Minimum 5 caractères</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Catégorie</mat-label>
+                    <mat-select formControlName="category">
+                        @for (cat of categoryOptions; track cat.value) {
+                        <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+                        }
+                    </mat-select>
+                    @if (reclamationForm.get('category')?.hasError('required') &&
+                    reclamationForm.get('category')?.touched) {
+                    <mat-error>La catégorie est requise</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description" rows="5"
+                        placeholder="Décrivez votre problème en détail..."></textarea>
+                    @if (reclamationForm.get('description')?.hasError('required') &&
+                    reclamationForm.get('description')?.touched) {
+                    <mat-error>La description est requise</mat-error>
+                    }
+                    @if (reclamationForm.get('description')?.hasError('minlength')) {
+                    <mat-error>Minimum 20 caractères</mat-error>
+                    }
+                </mat-form-field>
+
+                <div class="form-actions">
+                    <button mat-button type="button" (click)="toggleForm()">Annuler</button>
+                    <button mat-raised-button color="primary" type="submit" [disabled]="submitting()">
+                        @if (submitting()) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                        <mat-icon>send</mat-icon>
+                        Envoyer
+                        }
+                    </button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+    }
+
+    <!-- My Reclamations List -->
+    <div class="reclamations-section">
+        <h2>Historique de mes réclamations</h2>
+
+        @if (loading()) {
+        <div class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Chargement...</p>
+        </div>
+        } @else if (myReclamations().length === 0) {
+        <div class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <h3>Aucune réclamation</h3>
+            <p>Vous n'avez pas encore soumis de réclamation</p>
+            <button mat-raised-button color="primary" (click)="toggleForm()">
+                Créer ma première réclamation
+            </button>
+        </div>
+        } @else {
+        <div class="reclamations-list">
+            @for (rec of myReclamations(); track rec.id) {
+            <mat-card class="reclamation-card">
+                <div class="rec-header">
+                    <div class="rec-title">
+                        <h3>{{ rec.subject }}</h3>
+                        <span class="rec-date">{{ formatDate(rec.createdAt) }}</span>
+                    </div>
+                    <span class="status-badge" [class]="getStatusClass(rec.status)">
+                        {{ getStatusLabel(rec.status) }}
+                    </span>
+                </div>
+                <mat-divider></mat-divider>
+                <div class="rec-body">
+                    <p class="rec-description">{{ rec.description }}</p>
+                    @if (rec.response) {
+                    <div class="rec-response">
+                        <mat-icon>reply</mat-icon>
+                        <div>
+                            <strong>Réponse du support :</strong>
+                            <p>{{ rec.response }}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </mat-card>
+            }
+        </div>
+        }
+    </div>
+</div>

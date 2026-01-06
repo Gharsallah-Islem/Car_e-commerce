@@ -1,5 +1,6 @@
 export enum UserRole {
     CLIENT = 'CLIENT',
+    DRIVER = 'DRIVER',
     SUPPORT = 'SUPPORT',
     ADMIN = 'ADMIN',
     SUPER_ADMIN = 'SUPER_ADMIN'

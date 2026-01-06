@@ -87,8 +87,7 @@ public class ReclamationServiceImpl implements ReclamationService {
     @Override
     @Transactional(readOnly = true)
     public Page<Reclamation> getReclamationsByAssignedAgent(UUID supportAgentId, Pageable pageable) {
-        // Reclamation doesn't have assignedAgent field, return all in progress
-        return reclamationRepository.findByStatus("IN_PROGRESS", pageable);
+        return reclamationRepository.findByAssignedAgentId(supportAgentId, pageable);
     }
 
     @Override
@@ -97,12 +96,12 @@ public class ReclamationServiceImpl implements ReclamationService {
         Reclamation reclamation = reclamationRepository.findById(reclamationId)
                 .orElseThrow(() -> new EntityNotFoundException("Reclamation not found with id: " + reclamationId));
 
-        // Verify agent exists
-        if (!userRepository.existsById(supportAgentId)) {
-            throw new EntityNotFoundException("Support agent not found with id: " + supportAgentId);
-        }
+        // Verify agent exists and get the user
+        User agent = userRepository.findById(supportAgentId)
+                .orElseThrow(() -> new EntityNotFoundException("Support agent not found with id: " + supportAgentId));
 
-        // Since entity doesn't have assignedAgent, just update status
+        // Assign the agent and update status
+        reclamation.setAssignedAgent(agent);
         reclamation.setStatus("IN_PROGRESS");
         return reclamationRepository.save(reclamation);
     }
@@ -185,5 +184,183 @@ public class ReclamationServiceImpl implements ReclamationService {
     @Transactional(readOnly = true)
     public Long countPendingReclamations() {
         return reclamationRepository.countByStatus("OPEN");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getAgentPerformanceStats(UUID agentId) {
+        Map<String, Object> stats = new HashMap<>();
+
+        // Get all tickets assigned to this agent
+        List<Reclamation> allAssigned = reclamationRepository.findByAssignedAgentId(agentId);
+        List<Reclamation> resolved = allAssigned.stream()
+                .filter(r -> "RESOLVED".equals(r.getStatus()) || "CLOSED".equals(r.getStatus()))
+                .toList();
+
+        // Tickets resolved this month
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        long resolvedThisMonth = resolved.stream()
+                .filter(r -> r.getResolvedAt() != null && r.getResolvedAt().isAfter(startOfMonth))
+                .count();
+
+        // Tickets resolved today
+        LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+        long resolvedToday = resolved.stream()
+                .filter(r -> r.getResolvedAt() != null && r.getResolvedAt().isAfter(startOfDay))
+                .count();
+
+        // Average resolution time for this agent
+        double avgResolutionHours = 0.0;
+        int resolvedCount = 0;
+        for (Reclamation r : resolved) {
+            if (r.getCreatedAt() != null && r.getResolvedAt() != null) {
+                Duration duration = Duration.between(r.getCreatedAt(), r.getResolvedAt());
+                avgResolutionHours += duration.toHours();
+                resolvedCount++;
+            }
+        }
+        if (resolvedCount > 0) {
+            avgResolutionHours = avgResolutionHours / resolvedCount;
+        }
+
+        // In progress tickets
+        long inProgress = allAssigned.stream()
+                .filter(r -> "IN_PROGRESS".equals(r.getStatus()))
+                .count();
+
+        // Open tickets assigned to this agent
+        long openTicketsAssigned = allAssigned.stream()
+                .filter(r -> "OPEN".equals(r.getStatus()))
+                .count();
+
+        // Pending unassigned tickets (waiting to be picked up by any agent)
+        long pendingUnassigned = reclamationRepository.countUnassignedOpenTickets();
+
+        stats.put("totalAssigned", (long) allAssigned.size());
+        stats.put("totalResolved", (long) resolved.size());
+        stats.put("resolvedThisMonth", resolvedThisMonth);
+        stats.put("resolvedToday", resolvedToday);
+        stats.put("inProgress", inProgress);
+        stats.put("openTickets", pendingUnassigned); // Show unassigned tickets waiting for pickup
+        stats.put("openTicketsAssigned", openTicketsAssigned); // Tickets assigned but not started
+        stats.put("avgResolutionTimeHours", avgResolutionHours);
+
+        return stats;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAgentWeeklyStats(UUID agentId) {
+        List<Map<String, Object>> weeklyStats = new java.util.ArrayList<>();
+
+        LocalDateTime now = LocalDateTime.now();
+        String[] days = { "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim" };
+
+        // Get the start of the week (Monday)
+        LocalDateTime startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1)
+                .withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        List<Reclamation> allAssigned = reclamationRepository.findByAssignedAgentId(agentId);
+
+        for (int i = 0; i < 7; i++) {
+            LocalDateTime dayStart = startOfWeek.plusDays(i);
+            LocalDateTime dayEnd = dayStart.plusDays(1);
+
+            // Count tickets received that day (assigned to agent)
+            long ticketsReceived = allAssigned.stream()
+                    .filter(r -> r.getCreatedAt() != null &&
+                            r.getCreatedAt().isAfter(dayStart) &&
+                            r.getCreatedAt().isBefore(dayEnd))
+                    .count();
+
+            // Count tickets resolved that day
+            long ticketsResolved = allAssigned.stream()
+                    .filter(r -> r.getResolvedAt() != null &&
+                            r.getResolvedAt().isAfter(dayStart) &&
+                            r.getResolvedAt().isBefore(dayEnd))
+                    .count();
+
+            Map<String, Object> dayStat = new HashMap<>();
+            dayStat.put("day", days[i]);
+            dayStat.put("tickets", ticketsReceived);
+            dayStat.put("resolved", ticketsResolved);
+            weeklyStats.add(dayStat);
+        }
+
+        return weeklyStats;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAgentRecentActivities(UUID agentId, int limit) {
+        List<Map<String, Object>> activities = new java.util.ArrayList<>();
+
+        List<Reclamation> agentTickets = reclamationRepository.findByAssignedAgentId(agentId);
+
+        // Sort by updatedAt or resolvedAt descending
+        agentTickets.sort((a, b) -> {
+            LocalDateTime aTime = a.getResolvedAt() != null ? a.getResolvedAt()
+                    : (a.getUpdatedAt() != null ? a.getUpdatedAt() : a.getCreatedAt());
+            LocalDateTime bTime = b.getResolvedAt() != null ? b.getResolvedAt()
+                    : (b.getUpdatedAt() != null ? b.getUpdatedAt() : b.getCreatedAt());
+            return bTime.compareTo(aTime);
+        });
+
+        int count = 0;
+        for (Reclamation r : agentTickets) {
+            if (count >= limit)
+                break;
+
+            Map<String, Object> activity = new HashMap<>();
+            activity.put("id", r.getId().toString());
+            activity.put("ticketSubject", r.getSubject());
+
+            String action;
+            String type;
+            LocalDateTime activityTime;
+
+            if ("RESOLVED".equals(r.getStatus()) || "CLOSED".equals(r.getStatus())) {
+                action = "Ticket résolu";
+                type = "resolved";
+                activityTime = r.getResolvedAt() != null ? r.getResolvedAt() : r.getUpdatedAt();
+            } else if (r.getResponse() != null && !r.getResponse().isEmpty()) {
+                action = "Réponse envoyée";
+                type = "replied";
+                activityTime = r.getUpdatedAt() != null ? r.getUpdatedAt() : r.getCreatedAt();
+            } else {
+                action = "Ticket assigné";
+                type = "assigned";
+                activityTime = r.getCreatedAt();
+            }
+
+            activity.put("action", action);
+            activity.put("type", type);
+            activity.put("time", formatRelativeTime(activityTime));
+
+            activities.add(activity);
+            count++;
+        }
+
+        return activities;
+    }
+
+    private String formatRelativeTime(LocalDateTime time) {
+        if (time == null)
+            return "Récemment";
+
+        Duration duration = Duration.between(time, LocalDateTime.now());
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (minutes < 1)
+            return "À l'instant";
+        if (minutes < 60)
+            return "Il y a " + minutes + " min";
+        if (hours < 24)
+            return "Il y a " + hours + "h";
+        if (days == 1)
+            return "Hier";
+        return "Il y a " + days + " jours";
     }
 }

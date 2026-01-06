@@ -1,0 +1,237 @@
+<div class="modern-dashboard">
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="loading-container">
+        <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Chargement du tableau de bord...</p>
+        </div>
+    </div>
+    } @else {
+    <div class="dashboard-content">
+
+        <!-- Welcome Hero -->
+        <div class="welcome-hero">
+            <div class="hero-pattern"></div>
+            <div class="hero-content">
+                <div class="hero-left">
+                    <h1 class="greeting">{{ getGreeting() }}, Agent! <span class="wave">👋</span></h1>
+                    <p class="subtitle">Voici un aperçu de votre espace support</p>
+                </div>
+                <div class="hero-right">
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span>
+                        <span>En ligne</span>
+                    </div>
+                    <button mat-stroked-button class="refresh-btn" (click)="refresh()">
+                        <mat-icon>refresh</mat-icon>
+                        Actualiser
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Grid -->
+        <div class="kpi-grid">
+            <!-- Open Tickets -->
+            <div class="kpi-card open">
+                <div class="kpi-header">
+                    <div class="kpi-icon open">
+                        <mat-icon>inbox</mat-icon>
+                    </div>
+                    <div class="kpi-trend up">
+                        <mat-icon>trending_up</mat-icon>
+                    </div>
+                </div>
+                <div class="kpi-value">{{ stats().openTickets }}</div>
+                <div class="kpi-label">Tickets ouverts</div>
+                <div class="kpi-footer">
+                    <span class="badge urgent">À traiter</span>
+                </div>
+            </div>
+
+            <!-- In Progress -->
+            <div class="kpi-card progress">
+                <div class="kpi-header">
+                    <div class="kpi-icon progress">
+                        <mat-icon>pending_actions</mat-icon>
+                    </div>
+                </div>
+                <div class="kpi-value">{{ stats().inProgressTickets }}</div>
+                <div class="kpi-label">En cours de traitement</div>
+                <div class="kpi-footer">
+                    <span class="badge info">Actifs</span>
+                </div>
+            </div>
+
+            <!-- Resolved Today -->
+            <div class="kpi-card resolved">
+                <div class="kpi-header">
+                    <div class="kpi-icon resolved">
+                        <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div class="kpi-trend up">
+                        <mat-icon>trending_up</mat-icon>
+                    </div>
+                </div>
+                <div class="kpi-value">{{ stats().resolvedToday }}</div>
+                <div class="kpi-label">Résolus aujourd'hui</div>
+                <div class="kpi-footer">
+                    <span class="badge success">+{{ stats().resolvedToday || 0 }} ce jour</span>
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div class="kpi-card time">
+                <div class="kpi-header">
+                    <div class="kpi-icon time">
+                        <mat-icon>schedule</mat-icon>
+                    </div>
+                </div>
+                <div class="kpi-value">{{ stats().avgResponseTime }}</div>
+                <div class="kpi-label">Temps de réponse moyen</div>
+                <div class="kpi-footer">
+                    <span class="badge">Performance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- My Assigned Tickets -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="header-icon">
+                            <mat-icon>assignment_ind</mat-icon>
+                        </div>
+                        <div class="header-text">
+                            <h3>Mes Tickets Assignés</h3>
+                            <span>{{ myAssignedTickets().length }} tickets</span>
+                        </div>
+                    </div>
+                    <a mat-button class="view-all-btn" routerLink="/support/tickets"
+                        [queryParams]="{filter: 'assigned'}">
+                        Voir tout
+                        <mat-icon>arrow_forward</mat-icon>
+                    </a>
+                </div>
+                <div class="card-content">
+                    @if (myAssignedTickets().length === 0) {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <mat-icon>task_alt</mat-icon>
+                        </div>
+                        <h4>Tout est en ordre!</h4>
+                        <p>Aucun ticket ne vous est assigné pour le moment</p>
+                    </div>
+                    } @else {
+                    <div class="ticket-list">
+                        @for (ticket of myAssignedTickets().slice(0, 5); track ticket.id) {
+                        <div class="ticket-item" [routerLink]="['/support/tickets', ticket.id]">
+                            <div class="ticket-priority" [class]="getPriorityClass(ticket.priority)"></div>
+                            <div class="ticket-content">
+                                <span class="ticket-subject">{{ ticket.subject }}</span>
+                                <span class="ticket-meta">
+                                    <mat-icon>person</mat-icon>
+                                    {{ ticket.user?.fullName || ticket.user?.email }}
+                                    <span class="dot">•</span>
+                                    <mat-icon>schedule</mat-icon>
+                                    {{ formatDate(ticket.createdAt) }}
+                                </span>
+                            </div>
+                            <div class="ticket-status" [class]="getStatusClass(ticket.status)">
+                                {{ getStatusLabel(ticket.status) }}
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Tickets -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="header-icon recent">
+                            <mat-icon>history</mat-icon>
+                        </div>
+                        <div class="header-text">
+                            <h3>Tickets Récents</h3>
+                            <span>Dernières demandes reçues</span>
+                        </div>
+                    </div>
+                    <a mat-button class="view-all-btn" routerLink="/support/tickets">
+                        Voir tout
+                        <mat-icon>arrow_forward</mat-icon>
+                    </a>
+                </div>
+                <div class="card-content">
+                    @if (recentTickets().length === 0) {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <mat-icon>inbox</mat-icon>
+                        </div>
+                        <h4>Aucun ticket récent</h4>
+                        <p>Les nouveaux tickets apparaîtront ici</p>
+                    </div>
+                    } @else {
+                    <div class="ticket-list">
+                        @for (ticket of recentTickets().slice(0, 5); track ticket.id) {
+                        <div class="ticket-item" [routerLink]="['/support/tickets', ticket.id]">
+                            <div class="ticket-priority" [class]="getPriorityClass(ticket.priority)"></div>
+                            <div class="ticket-content">
+                                <span class="ticket-subject">{{ ticket.subject }}</span>
+                                <span class="ticket-meta">
+                                    <mat-icon>person</mat-icon>
+                                    {{ ticket.user?.fullName || ticket.user?.email }}
+                                    <span class="dot">•</span>
+                                    <mat-icon>schedule</mat-icon>
+                                    {{ formatDate(ticket.createdAt) }}
+                                </span>
+                            </div>
+                            <div class="ticket-status" [class]="getStatusClass(ticket.status)">
+                                {{ getStatusLabel(ticket.status) }}
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+            <div class="section-header">
+                <mat-icon>flash_on</mat-icon>
+                <h3>Actions Rapides</h3>
+            </div>
+            <div class="actions-grid">
+                <button class="action-card" routerLink="/support/tickets" [queryParams]="{status: 'OPEN'}">
+                    <div class="action-icon open">
+                        <mat-icon>inbox</mat-icon>
+                    </div>
+                    <span class="action-label">Tickets Ouverts</span>
+                    <span class="action-count">{{ stats().openTickets }}</span>
+                </button>
+                <button class="action-card" routerLink="/support/chat">
+                    <div class="action-icon chat">
+                        <mat-icon>chat</mat-icon>
+                    </div>
+                    <span class="action-label">Chat en Direct</span>
+                    <span class="action-hint">Répondre aux clients</span>
+                </button>
+                <button class="action-card" routerLink="/support/performance">
+                    <div class="action-icon stats">
+                        <mat-icon>analytics</mat-icon>
+                    </div>
+                    <span class="action-label">Ma Performance</span>
+                    <span class="action-hint">Voir mes statistiques</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+</div>

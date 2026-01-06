@@ -71,14 +71,14 @@ export class AppComponent {
   constructor() {
     // Check initial route
     const currentUrl = this.router.url;
-    this.showNavbar.set(!currentUrl.includes('/admin'));
+    this.showNavbar.set(!currentUrl.includes('/admin') && !currentUrl.includes('/support'));
 
     // Listen to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const url = event.url;
-      this.showNavbar.set(!url.includes('/admin'));
+      this.showNavbar.set(!url.includes('/admin') && !url.includes('/support'));
       this.mobileMenuOpen.set(false); // Close mobile menu on route change
       this.searchOpen.set(false); // Close search on route change
     });

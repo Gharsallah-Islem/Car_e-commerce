@@ -1,0 +1,254 @@
+<div class="modern-tickets">
+    <!-- Page Header -->
+    <div class="page-hero">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+            <div class="hero-left">
+                <div class="breadcrumb">
+                    <mat-icon>support_agent</mat-icon>
+                    <span>Support</span>
+                    <mat-icon class="separator">chevron_right</mat-icon>
+                    <span class="current">Tickets</span>
+                </div>
+                <h1>Gestion des Tickets</h1>
+                <p class="subtitle">Gérez et traitez les demandes clients efficacement</p>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-pill">
+                    <mat-icon>confirmation_number</mat-icon>
+                    <span><strong>{{ totalElements() }}</strong> tickets</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filters-card">
+            <form [formGroup]="filterForm" class="filters-form">
+                <div class="search-wrapper">
+                    <mat-icon class="search-icon">search</mat-icon>
+                    <input type="text" formControlName="search" placeholder="Rechercher par sujet, email, ID...">
+                </div>
+
+                <div class="filter-divider"></div>
+
+                <div class="filter-group">
+                    <label>Statut</label>
+                    <mat-select formControlName="status" class="custom-select">
+                        @for (option of statusOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                        }
+                    </mat-select>
+                </div>
+
+                <button type="button" class="reset-btn" (click)="clearFilters()">
+                    <mat-icon>refresh</mat-icon>
+                    Réinitialiser
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tickets Table Card -->
+    <div class="tickets-card">
+        <!-- Card Header -->
+        <div class="card-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <mat-icon>inbox</mat-icon>
+                </div>
+                <div class="header-text">
+                    <h2>Liste des tickets</h2>
+                    <span>{{ tickets().length }} affichés sur {{ totalElements() }}</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="view-toggle">
+                    <button class="toggle-btn active" matTooltip="Vue tableau">
+                        <mat-icon>view_list</mat-icon>
+                    </button>
+                    <button class="toggle-btn" matTooltip="Vue grille">
+                        <mat-icon>grid_view</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <mat-spinner diameter="48"></mat-spinner>
+                <p>Chargement des tickets...</p>
+            </div>
+        </div>
+        }
+
+        <!-- Empty State -->
+        @else if (tickets().length === 0) {
+        <div class="empty-state">
+            <div class="empty-illustration">
+                <div class="empty-icon">
+                    <mat-icon>inbox</mat-icon>
+                </div>
+                <div class="empty-circles">
+                    <div class="circle c1"></div>
+                    <div class="circle c2"></div>
+                    <div class="circle c3"></div>
+                </div>
+            </div>
+            <h3>Aucun ticket trouvé</h3>
+            <p>Aucun ticket ne correspond à vos critères de recherche.</p>
+            <button mat-flat-button class="empty-action-btn" (click)="clearFilters()">
+                <mat-icon>filter_alt_off</mat-icon>
+                Effacer les filtres
+            </button>
+        </div>
+        }
+
+        <!-- Table -->
+        @else {
+        <div class="table-wrapper">
+            <table mat-table [dataSource]="tickets()" class="premium-table">
+
+                <!-- Subject Column -->
+                <ng-container matColumnDef="subject">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">
+                            <mat-icon>subject</mat-icon>
+                            Sujet
+                        </div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="subject-cell">
+                            <span class="subject-text">{{ ticket.subject }}</span>
+                            <span class="ticket-id">#{{ ticket.id?.toString().slice(0, 8) }}</span>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- User Column -->
+                <ng-container matColumnDef="user">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">
+                            <mat-icon>person</mat-icon>
+                            Client
+                        </div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="user-cell">
+                            <div class="avatar">
+                                {{ (ticket.user?.firstName?.charAt(0) || 'U') + (ticket.user?.lastName?.charAt(0) || '')
+                                }}
+                            </div>
+                            <div class="user-details">
+                                <span class="name">{{ ticket.user?.fullName || (ticket.user?.firstName + ' ' +
+                                    ticket.user?.lastName) }}</span>
+                                <span class="email">{{ ticket.user?.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">
+                            <mat-icon>flag</mat-icon>
+                            Statut
+                        </div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="status-badge" [ngClass]="getStatusClass(ticket.status)">
+                            <span class="status-dot"></span>
+                            {{ getStatusLabel(ticket.status) }}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Priority Column -->
+                <ng-container matColumnDef="priority">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">
+                            <mat-icon>priority_high</mat-icon>
+                            Priorité
+                        </div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="priority-badge" [ngClass]="getPriorityClass(ticket.priority)">
+                            <mat-icon class="priority-icon">{{ getPriorityIcon(ticket.priority) }}</mat-icon>
+                            {{ getPriorityLabel(ticket.priority) }}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="createdAt">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">
+                            <mat-icon>schedule</mat-icon>
+                            Créé le
+                        </div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="date-cell">
+                            <span class="date-main">{{ formatDate(ticket.createdAt) }}</span>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <div class="th-content">Actions</div>
+                    </th>
+                    <td mat-cell *matCellDef="let ticket">
+                        <div class="actions-cell">
+                            <button class="action-btn view" (click)="viewTicket(ticket); $event.stopPropagation()"
+                                matTooltip="Voir le chat">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                            <button class="action-btn menu" [matMenuTriggerFor]="ticketMenu"
+                                (click)="$event.stopPropagation()">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #ticketMenu="matMenu" class="premium-menu">
+                                <button mat-menu-item (click)="assignToMe(ticket)">
+                                    <mat-icon>person_add</mat-icon>
+                                    <span>M'assigner ce ticket</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item (click)="updateStatus(ticket, 'IN_PROGRESS')">
+                                    <mat-icon class="progress-icon">pending_actions</mat-icon>
+                                    <span>Marquer en cours</span>
+                                </button>
+                                <button mat-menu-item (click)="updateStatus(ticket, 'RESOLVED')">
+                                    <mat-icon class="success-icon">check_circle</mat-icon>
+                                    <span>Marquer résolu</span>
+                                </button>
+                                <button mat-menu-item (click)="updateStatus(ticket, 'CLOSED')">
+                                    <mat-icon class="closed-icon">cancel</mat-icon>
+                                    <span>Fermer le ticket</span>
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="ticket-row"
+                    (click)="viewTicket(row)">
+                </tr>
+            </table>
+        </div>
+
+        <!-- Paginator -->
+        <div class="paginator-wrapper">
+            <mat-paginator [length]="totalElements()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+                [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<div class="support-layout">
+    <!-- Sidebar -->
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #sidenav mode="side" [opened]="sidenavOpened()" class="sidenav">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <mat-icon>support_agent</mat-icon>
+                </div>
+                <div class="logo-text" *ngIf="sidenavOpened()">
+                    <span class="brand">CarPartsHub</span>
+                    <span class="subtitle">Support Team</span>
+                </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Navigation -->
+            <mat-nav-list class="nav-list">
+                @for (item of navItems; track item.route) {
+                <a mat-list-item [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+                    <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                    <span matListItemTitle *ngIf="sidenavOpened()">{{ item.label }}</span>
+                    @if (getBadge(item.route); as badge) {
+                    <span class="nav-badge">{{ badge }}</span>
+                    }
+                </a>
+                }
+            </mat-nav-list>
+
+            <div class="sidenav-footer">
+                <mat-divider></mat-divider>
+                <a mat-list-item (click)="goToHome()" class="nav-item footer-item">
+                    <mat-icon matListItemIcon>storefront</mat-icon>
+                    <span matListItemTitle *ngIf="sidenavOpened()">Voir le site</span>
+                </a>
+            </div>
+        </mat-sidenav>
+
+        <mat-sidenav-content class="main-content">
+            <!-- Top Toolbar -->
+            <mat-toolbar class="toolbar">
+                <button mat-icon-button (click)="toggleSidenav()">
+                    <mat-icon>menu</mat-icon>
+                </button>
+
+                <span class="page-title">Espace Support</span>
+
+                <span class="spacer"></span>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <mat-icon>confirmation_number</mat-icon>
+                        <span>{{ pendingTickets() }} en attente</span>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                @if (currentUser | async; as user) {
+                <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
+                    <div class="avatar">{{ getInitials() }}</div>
+                    <span class="user-name">{{ user.firstName }}</span>
+                    <mat-icon>expand_more</mat-icon>
+                </button>
+                <mat-menu #userMenu="matMenu" class="user-menu">
+                    <div class="menu-header">
+                        <div class="avatar-lg">{{ getInitials() }}</div>
+                        <div class="user-info">
+                            <span class="name">{{ user.firstName }} {{ user.lastName }}</span>
+                            <span class="role">Agent Support</span>
+                        </div>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item routerLink="/support/performance">
+                        <mat-icon>analytics</mat-icon>
+                        <span>Ma Performance</span>
+                    </button>
+                    <button mat-menu-item (click)="logout()">
+                        <mat-icon>logout</mat-icon>
+                        <span>Déconnexion</span>
+                    </button>
+                </mat-menu>
+                }
+            </mat-toolbar>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <router-outlet></router-outlet>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>

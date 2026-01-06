@@ -251,11 +251,11 @@ public class ReclamationController {
     }
 
     /**
-     * Get reclamation statistics (ADMIN only)
+     * Get reclamation statistics (SUPPORT/ADMIN only)
      * GET /api/reclamations/statistics
      */
     @GetMapping("/statistics")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Map<String, Long>> getStatistics() {
 
         Map<String, Long> statistics = reclamationService.getReclamationStatistics();
@@ -263,11 +263,11 @@ public class ReclamationController {
     }
 
     /**
-     * Get average resolution time (ADMIN only)
+     * Get average resolution time (SUPPORT/ADMIN only)
      * GET /api/reclamations/average-resolution-time
      */
     @GetMapping("/average-resolution-time")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Double> getAverageResolutionTime() {
 
         Double avgTime = reclamationService.getAverageResolutionTime();
@@ -284,5 +284,46 @@ public class ReclamationController {
 
         Long count = reclamationService.countPendingReclamations();
         return ResponseEntity.ok(count);
+    }
+
+    /**
+     * Get my performance statistics (SUPPORT/ADMIN)
+     * GET /api/reclamations/my-performance
+     */
+    @GetMapping("/my-performance")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Map<String, Object>> getMyPerformance(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+
+        Map<String, Object> performance = reclamationService.getAgentPerformanceStats(currentUser.getId());
+        return ResponseEntity.ok(performance);
+    }
+
+    /**
+     * Get my weekly statistics (SUPPORT/ADMIN)
+     * GET /api/reclamations/my-weekly-stats
+     */
+    @GetMapping("/my-weekly-stats")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<java.util.List<Map<String, Object>>> getMyWeeklyStats(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+
+        java.util.List<Map<String, Object>> weeklyStats = reclamationService.getAgentWeeklyStats(currentUser.getId());
+        return ResponseEntity.ok(weeklyStats);
+    }
+
+    /**
+     * Get my recent activities (SUPPORT/ADMIN)
+     * GET /api/reclamations/my-activities
+     */
+    @GetMapping("/my-activities")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<java.util.List<Map<String, Object>>> getMyActivities(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        java.util.List<Map<String, Object>> activities = reclamationService
+                .getAgentRecentActivities(currentUser.getId(), limit);
+        return ResponseEntity.ok(activities);
     }
 }

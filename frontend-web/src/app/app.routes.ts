@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { supportGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
     // Home page (public)
@@ -41,6 +42,13 @@ export const routes: Routes = [
     {
         path: 'orders',
         loadComponent: () => import('./features/orders/my-orders.component').then(m => m.MyOrdersComponent),
+        canActivate: [authGuard]
+    },
+
+    // My Reclamations route (protected)
+    {
+        path: 'reclamations',
+        loadComponent: () => import('./features/client-reclamation/client-reclamation.component').then(m => m.ClientReclamationComponent),
         canActivate: [authGuard]
     },
 
@@ -98,6 +106,40 @@ export const routes: Routes = [
             {
                 path: 'settings',
                 loadComponent: () => import('./features/admin/admin-settings/admin-settings.component').then(m => m.AdminSettingsComponent)
+            }
+        ]
+    },
+
+    // Support Team routes (protected with supportGuard)
+    {
+        path: 'support',
+        loadComponent: () => import('./features/support/support-layout/support-layout.component').then(m => m.SupportLayoutComponent),
+        canActivate: [supportGuard],
+        children: [
+            {
+                path: '',
+                redirectTo: 'dashboard',
+                pathMatch: 'full'
+            },
+            {
+                path: 'dashboard',
+                loadComponent: () => import('./features/support/support-dashboard/support-dashboard.component').then(m => m.SupportDashboardComponent)
+            },
+            {
+                path: 'tickets',
+                loadComponent: () => import('./features/support/support-tickets/support-tickets.component').then(m => m.SupportTicketsComponent)
+            },
+            {
+                path: 'tickets/:id',
+                loadComponent: () => import('./features/support/support-ticket-detail/support-ticket-detail.component').then(m => m.SupportTicketDetailComponent)
+            },
+            {
+                path: 'chat',
+                loadComponent: () => import('./features/support/support-chat/support-chat.component').then(m => m.SupportChatComponent)
+            },
+            {
+                path: 'performance',
+                loadComponent: () => import('./features/support/support-performance/support-performance.component').then(m => m.SupportPerformanceComponent)
             }
         ]
     },

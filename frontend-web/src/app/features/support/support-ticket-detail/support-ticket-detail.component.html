@@ -1,0 +1,227 @@
+<div class="ticket-detail-container">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading()">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Chargement du ticket...</p>
+    </div>
+
+    <!-- Ticket Content -->
+    <div class="ticket-content" *ngIf="!loading() && ticket()">
+        <!-- Header with back button -->
+        <div class="ticket-header">
+            <div class="header-left">
+                <button mat-icon-button class="back-btn" (click)="goBack()">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="ticket-title-section">
+                    <div class="ticket-id">#{{ ticket()?.id?.toString()?.substring(0, 8) }}</div>
+                    <h1 class="ticket-title">{{ ticket()?.subject }}</h1>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge" [class]="getStatusClass(ticket()?.status || '')">
+                    <mat-icon>{{ getStatusIcon(ticket()?.status || '') }}</mat-icon>
+                    <span>{{ getStatusLabel(ticket()?.status || '') }}</span>
+                </div>
+                <button mat-stroked-button color="primary" [matMenuTriggerFor]="statusMenu" class="status-change-btn">
+                    <mat-icon>edit</mat-icon>
+                    Changer statut
+                </button>
+                <mat-menu #statusMenu="matMenu">
+                    <button mat-menu-item *ngFor="let status of statusOptions" (click)="updateStatus(status.value)"
+                        [disabled]="status.value === ticket()?.status">
+                        <mat-icon [class]="status.color">{{ status.icon }}</mat-icon>
+                        <span>{{ status.label }}</span>
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column: Ticket Details & Response -->
+            <div class="main-column">
+                <!-- Customer Message Card -->
+                <mat-card class="message-card customer-message">
+                    <div class="message-header">
+                        <div class="avatar customer-avatar">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="message-info">
+                            <h3 class="sender-name">{{ ticket()?.user?.firstName }} {{ ticket()?.user?.lastName }}</h3>
+                            <span class="message-time">{{ formatDate(ticket()?.createdAt || '') }}</span>
+                        </div>
+                        <div class="priority-badge" [class]="getPriorityClass(ticket()?.priority || '')">
+                            {{ getPriorityLabel(ticket()?.priority || '') }}
+                        </div>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="message-body">
+                        <p>{{ ticket()?.description }}</p>
+                    </div>
+                    <div class="attachment-section" *ngIf="ticket()?.attachmentUrl">
+                        <mat-divider></mat-divider>
+                        <div class="attachment">
+                            <mat-icon>attach_file</mat-icon>
+                            <a [href]="ticket()?.attachmentUrl" target="_blank">Voir la pièce jointe</a>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <!-- Previous Response (if exists) -->
+                <mat-card class="message-card agent-response" *ngIf="ticket()?.response">
+                    <div class="message-header">
+                        <div class="avatar agent-avatar">
+                            <mat-icon>support_agent</mat-icon>
+                        </div>
+                        <div class="message-info">
+                            <h3 class="sender-name">Réponse de l'agent</h3>
+                            <span class="message-time">{{ formatRelativeTime(ticket()?.updatedAt || '') }}</span>
+                        </div>
+                        <div class="response-badge">
+                            <mat-icon>check</mat-icon>
+                            Répondu
+                        </div>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="message-body">
+                        <p>{{ ticket()?.response }}</p>
+                    </div>
+                </mat-card>
+
+                <!-- Response Form -->
+                <mat-card class="response-form-card" *ngIf="canRespond()">
+                    <div class="form-header">
+                        <mat-icon>reply</mat-icon>
+                        <h3>Répondre au client</h3>
+                    </div>
+                    <form [formGroup]="responseForm" (ngSubmit)="submitResponse()">
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Votre réponse</mat-label>
+                            <textarea matInput formControlName="response" rows="5"
+                                placeholder="Écrivez votre réponse ici..."></textarea>
+                            <mat-error *ngIf="responseForm.get('response')?.hasError('required')">
+                                La réponse est requise
+                            </mat-error>
+                            <mat-error *ngIf="responseForm.get('response')?.hasError('minlength')">
+                                La réponse doit contenir au moins 10 caractères
+                            </mat-error>
+                        </mat-form-field>
+
+                        <div class="form-actions">
+                            <button mat-stroked-button type="button" (click)="responseForm.reset()">
+                                <mat-icon>clear</mat-icon>
+                                Effacer
+                            </button>
+                            <button mat-raised-button type="submit" color="primary"
+                                [disabled]="responseForm.invalid || submitting()">
+                                <mat-icon>send</mat-icon>
+                                {{ submitting() ? 'Envoi...' : 'Envoyer la réponse' }}
+                            </button>
+                            <button mat-raised-button type="button" class="resolve-btn" (click)="resolveTicket()"
+                                [disabled]="responseForm.invalid || submitting() || !canResolve()" *ngIf="canResolve()">
+                                <mat-icon>check_circle</mat-icon>
+                                {{ submitting() ? 'Traitement...' : 'Répondre et Résoudre' }}
+                            </button>
+                        </div>
+                    </form>
+                </mat-card>
+
+                <!-- Ticket Closed Message -->
+                <mat-card class="closed-message" *ngIf="!canRespond()">
+                    <mat-icon>lock</mat-icon>
+                    <p>Ce ticket est fermé. Aucune nouvelle réponse ne peut être ajoutée.</p>
+                </mat-card>
+            </div>
+
+            <!-- Right Column: Ticket Info -->
+            <div class="info-column">
+                <!-- Quick Actions Card -->
+                <mat-card class="info-card actions-card">
+                    <h3><mat-icon>flash_on</mat-icon> Actions rapides</h3>
+                    <div class="quick-actions">
+                        <button mat-raised-button color="primary" class="action-btn" (click)="assignToMe()"
+                            *ngIf="!ticket()?.assignedAgent">
+                            <mat-icon>person_add</mat-icon>
+                            M'assigner ce ticket
+                        </button>
+                        <button mat-raised-button class="action-btn start-btn" (click)="updateStatus('IN_PROGRESS')"
+                            *ngIf="ticket()?.status === 'OPEN'">
+                            <mat-icon>play_arrow</mat-icon>
+                            Commencer le traitement
+                        </button>
+                        <button mat-raised-button class="action-btn resolve-btn" (click)="updateStatus('RESOLVED')"
+                            *ngIf="ticket()?.status === 'IN_PROGRESS' && ticket()?.response">
+                            <mat-icon>check_circle</mat-icon>
+                            Marquer comme résolu
+                        </button>
+                        <button mat-stroked-button class="action-btn close-btn" (click)="closeTicket()"
+                            *ngIf="ticket()?.status === 'RESOLVED'">
+                            <mat-icon>lock</mat-icon>
+                            Fermer le ticket
+                        </button>
+                    </div>
+                </mat-card>
+
+                <!-- Customer Info Card -->
+                <mat-card class="info-card">
+                    <h3><mat-icon>person</mat-icon> Informations client</h3>
+                    <div class="info-row">
+                        <span class="label">Nom</span>
+                        <span class="value">{{ ticket()?.user?.firstName }} {{ ticket()?.user?.lastName }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value email">{{ ticket()?.user?.email }}</span>
+                    </div>
+                    <div class="info-row" *ngIf="ticket()?.user?.phoneNumber">
+                        <span class="label">Téléphone</span>
+                        <span class="value">{{ ticket()?.user?.phoneNumber }}</span>
+                    </div>
+                </mat-card>
+
+                <!-- Ticket Info Card -->
+                <mat-card class="info-card">
+                    <h3><mat-icon>info</mat-icon> Détails du ticket</h3>
+                    <div class="info-row">
+                        <span class="label">ID</span>
+                        <span class="value mono">{{ ticket()?.id?.toString()?.substring(0, 8) }}...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Créé le</span>
+                        <span class="value">{{ formatDate(ticket()?.createdAt || '') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Dernière mise à jour</span>
+                        <span class="value">{{ formatRelativeTime(ticket()?.updatedAt || '') }}</span>
+                    </div>
+                    <div class="info-row" *ngIf="ticket()?.resolvedAt">
+                        <span class="label">Résolu le</span>
+                        <span class="value">{{ formatDate(ticket()?.resolvedAt || '') }}</span>
+                    </div>
+                </mat-card>
+
+                <!-- Agent Info Card -->
+                <mat-card class="info-card">
+                    <h3><mat-icon>support_agent</mat-icon> Agent assigné</h3>
+                    <div class="agent-info" *ngIf="ticket()?.assignedAgent; else noAgent">
+                        <div class="agent-avatar">
+                            <mat-icon>account_circle</mat-icon>
+                        </div>
+                        <div class="agent-details">
+                            <span class="agent-name">{{ ticket()?.assignedAgent?.firstName }} {{
+                                ticket()?.assignedAgent?.lastName }}</span>
+                            <span class="agent-email">{{ ticket()?.assignedAgent?.email }}</span>
+                        </div>
+                    </div>
+                    <ng-template #noAgent>
+                        <div class="no-agent">
+                            <mat-icon>person_off</mat-icon>
+                            <span>Non assigné</span>
+                        </div>
+                    </ng-template>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+</div>

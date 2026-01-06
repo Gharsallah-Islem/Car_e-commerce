@@ -183,6 +183,8 @@
                 <select [(ngModel)]="selectedRole" (change)="applyFilters()">
                     <option value="all">Tous les rôles</option>
                     <option value="CLIENT">Clients</option>
+                    <option value="SUPPORT">Support</option>
+                    <option value="DRIVER">Livreurs</option>
                     <option value="ADMIN">Admins</option>
                     <option value="SUPER_ADMIN">Super Admins</option>
                 </select>
@@ -240,6 +242,8 @@
                                 <select [value]="user.role"
                                     (change)="changeUserRole(user.id, $any($event.target).value)">
                                     <option value="CLIENT">Client</option>
+                                    <option value="SUPPORT">Support</option>
+                                    <option value="DRIVER">Livreur</option>
                                     <option value="ADMIN">Admin</option>
                                     <option value="SUPER_ADMIN">Super Admin</option>
                                 </select>

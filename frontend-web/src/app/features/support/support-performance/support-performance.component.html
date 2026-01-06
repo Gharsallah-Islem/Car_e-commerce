@@ -1,0 +1,310 @@
+<div class="modern-performance">
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="loading-container">
+        <div class="loading-spinner">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Chargement de vos performances...</p>
+        </div>
+    </div>
+    } @else {
+
+    <!-- Hero Section -->
+    <div class="performance-hero">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1>{{ getGreeting() }}, {{ (currentUser | async)?.firstName }} 👋</h1>
+                <p class="subtitle">Voici un aperçu de vos performances ce mois-ci</p>
+            </div>
+            <div class="hero-right">
+                <div class="date-badge">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>{{ 'Janvier 2026' }}</span>
+                </div>
+                <button class="refresh-btn" (click)="refresh()">
+                    <mat-icon>refresh</mat-icon>
+                    Actualiser
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-section">
+        <div class="section-header">
+            <mat-icon>insights</mat-icon>
+            <h2>Indicateurs clés</h2>
+        </div>
+        <div class="kpi-grid">
+            <!-- Tickets Resolved -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon resolved">
+                        <mat-icon>task_alt</mat-icon>
+                    </div>
+                    <div class="kpi-trend" [class.positive]="performance().ticketsResolvedChange > 0"
+                        [class.negative]="performance().ticketsResolvedChange < 0">
+                        <mat-icon>{{ performance().ticketsResolvedChange > 0 ? 'trending_up' : 'trending_down'
+                            }}</mat-icon>
+                        <span>{{ performance().ticketsResolvedChange > 0 ? '+' : '' }}{{
+                            performance().ticketsResolvedChange }}%</span>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="kpi-value">{{ performance().ticketsResolved }}</div>
+                    <div class="kpi-label">Tickets résolus</div>
+                </div>
+                <div class="kpi-footer">
+                    <div class="mini-chart">
+                        <div class="bar" style="height: 40%"></div>
+                        <div class="bar" style="height: 60%"></div>
+                        <div class="bar" style="height: 45%"></div>
+                        <div class="bar" style="height: 80%"></div>
+                        <div class="bar" style="height: 65%"></div>
+                        <div class="bar active" style="height: 90%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon time">
+                        <mat-icon>schedule</mat-icon>
+                    </div>
+                    <div class="kpi-trend positive">
+                        <mat-icon>trending_down</mat-icon>
+                        <span>{{ performance().avgResponseTimeChange }}%</span>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="kpi-value">{{ performance().avgResponseTime }}</div>
+                    <div class="kpi-label">Temps de réponse moyen</div>
+                </div>
+                <div class="kpi-footer">
+                    <span class="badge success">Excellent</span>
+                </div>
+            </div>
+
+            <!-- Customer Satisfaction -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon satisfaction">
+                        <mat-icon>sentiment_satisfied_alt</mat-icon>
+                    </div>
+                    <div class="kpi-trend" [class.positive]="performance().satisfactionChange > 0">
+                        <mat-icon>trending_up</mat-icon>
+                        <span>+{{ performance().satisfactionChange }}%</span>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="kpi-value">{{ performance().customerSatisfaction }}%</div>
+                    <div class="kpi-label">Satisfaction client</div>
+                </div>
+                <div class="kpi-footer">
+                    <div class="stars">
+                        <mat-icon class="star filled">star</mat-icon>
+                        <mat-icon class="star filled">star</mat-icon>
+                        <mat-icon class="star filled">star</mat-icon>
+                        <mat-icon class="star filled">star</mat-icon>
+                        <mat-icon class="star half">star_half</mat-icon>
+                    </div>
+                </div>
+            </div>
+
+            <!-- First Contact Resolution -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-icon resolution">
+                        <mat-icon>bolt</mat-icon>
+                    </div>
+                    <div class="kpi-trend positive">
+                        <mat-icon>trending_up</mat-icon>
+                        <span>+{{ performance().resolutionChange }}%</span>
+                    </div>
+                </div>
+                <div class="kpi-body">
+                    <div class="kpi-value">{{ performance().firstContactResolution }}%</div>
+                    <div class="kpi-label">Résolution au 1er contact</div>
+                </div>
+                <div class="kpi-footer">
+                    <span class="badge info">Objectif: 80%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Weekly Performance Chart -->
+        <div class="content-card chart-card">
+            <div class="card-header">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <mat-icon>bar_chart</mat-icon>
+                    </div>
+                    <div class="header-text">
+                        <h3>Performance hebdomadaire</h3>
+                        <span>Tickets traités cette semaine</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="chart-container">
+                    <div class="chart-bars">
+                        @for (day of weeklyData(); track day.day) {
+                        <div class="bar-group">
+                            <div class="bar-wrapper">
+                                <div class="bar tickets" [style.height.%]="(day.tickets / getMaxBarValue()) * 100"
+                                    [matTooltip]="day.tickets + ' tickets reçus'">
+                                </div>
+                                <div class="bar resolved" [style.height.%]="(day.resolved / getMaxBarValue()) * 100"
+                                    [matTooltip]="day.resolved + ' tickets résolus'">
+                                </div>
+                            </div>
+                            <span class="bar-label">{{ day.day }}</span>
+                        </div>
+                        }
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="dot tickets"></span>
+                            <span>Reçus</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot resolved"></span>
+                            <span>Résolus</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Goal Progress -->
+        <div class="content-card goal-card">
+            <div class="card-header">
+                <div class="header-left">
+                    <div class="header-icon goal">
+                        <mat-icon>emoji_events</mat-icon>
+                    </div>
+                    <div class="header-text">
+                        <h3>Objectif mensuel</h3>
+                        <span>Progression vers votre objectif</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="goal-progress">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="progress" cx="50" cy="50" r="45"
+                                [style.stroke-dasharray]="(currentProgress / monthlyGoal) * 283 + ', 283'">
+                            </circle>
+                        </svg>
+                        <div class="progress-value">
+                            <span class="value">{{ currentProgress }}</span>
+                            <span class="label">/ {{ monthlyGoal }}</span>
+                        </div>
+                    </div>
+                    <div class="goal-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">{{ monthlyGoal - currentProgress }}</span>
+                            <span class="stat-label">Tickets restants</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">{{ ((currentProgress / monthlyGoal) * 100) | number:'1.0-0'
+                                }}%</span>
+                            <span class="stat-label">Complété</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">25</span>
+                            <span class="stat-label">Jours restants</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+        <div class="content-card">
+            <div class="card-header">
+                <div class="header-left">
+                    <div class="header-icon activity">
+                        <mat-icon>history</mat-icon>
+                    </div>
+                    <div class="header-text">
+                        <h3>Activité récente</h3>
+                        <span>Vos dernières actions</span>
+                    </div>
+                </div>
+                <button class="view-all-btn" routerLink="/support/tickets">
+                    Voir tout
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+            </div>
+            <div class="card-content">
+                <div class="activity-list">
+                    @for (activity of recentActivities(); track activity.id) {
+                    <div class="activity-item">
+                        <div class="activity-icon" [ngClass]="activity.type">
+                            <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
+                        </div>
+                        <div class="activity-content">
+                            <span class="activity-action">{{ activity.action }}</span>
+                            <span class="activity-subject">{{ activity.ticketSubject }}</span>
+                        </div>
+                        <span class="activity-time">{{ activity.time }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Section -->
+    <div class="achievements-section">
+        <div class="section-header">
+            <mat-icon>military_tech</mat-icon>
+            <h2>Récompenses & Badges</h2>
+        </div>
+        <div class="achievements-grid">
+            <div class="achievement-card earned">
+                <div class="achievement-icon">
+                    <mat-icon>speed</mat-icon>
+                </div>
+                <h4>Réponse Éclair</h4>
+                <p>Temps de réponse < 1h</p>
+            </div>
+            <div class="achievement-card earned">
+                <div class="achievement-icon">
+                    <mat-icon>workspace_premium</mat-icon>
+                </div>
+                <h4>Top Performer</h4>
+                <p>50+ tickets résolus</p>
+            </div>
+            <div class="achievement-card earned">
+                <div class="achievement-icon">
+                    <mat-icon>favorite</mat-icon>
+                </div>
+                <h4>Client Satisfait</h4>
+                <p>90%+ satisfaction</p>
+            </div>
+            <div class="achievement-card locked">
+                <div class="achievement-icon">
+                    <mat-icon>diamond</mat-icon>
+                </div>
+                <h4>Expert Support</h4>
+                <p>100 tickets résolus</p>
+                <div class="lock-overlay">
+                    <mat-icon>lock</mat-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    }
+</div>

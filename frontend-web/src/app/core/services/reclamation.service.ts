@@ -16,6 +16,7 @@ export interface Reclamation {
     assignedAgent?: any;
     response?: string;
     resolution?: string;
+    attachmentUrl?: string;
     createdAt: Date;
     updatedAt: Date;
     resolvedAt?: Date;
@@ -32,9 +33,11 @@ export interface Page<T> {
 export interface ReclamationStats {
     totalTickets: number;
     openTickets: number;
+    inProgressTickets: number;
     inProgress: number;
     resolved: number;
     closed: number;
+    resolvedToday: number;
     averageResolutionTime: number;
 }
 
@@ -54,6 +57,11 @@ export class ReclamationService {
 
     getReclamationById(id: string): Observable<Reclamation> {
         return this.http.get<Reclamation>(`${this.apiUrl}/${id}`);
+    }
+
+    // Alias for getReclamationById
+    getById(id: string): Observable<Reclamation> {
+        return this.getReclamationById(id);
     }
 
     // ==================== ADMIN QUERIES ====================
@@ -94,10 +102,21 @@ export class ReclamationService {
         return this.http.get<Page<Reclamation>>(`${this.apiUrl}/pending`, { params });
     }
 
-    getMyAssignedReclamations(page: number = 0, size: number = 20): Observable<Page<Reclamation>> {
+    getMyAssignedReclamations(paramsOrPage: number | { page?: number; size?: number } = 0, size: number = 20): Observable<Page<Reclamation>> {
+        let page: number;
+        let pageSize: number;
+
+        if (typeof paramsOrPage === 'object') {
+            page = paramsOrPage.page || 0;
+            pageSize = paramsOrPage.size || 20;
+        } else {
+            page = paramsOrPage;
+            pageSize = size;
+        }
+
         const params = new HttpParams()
             .set('page', page.toString())
-            .set('size', size.toString());
+            .set('size', pageSize.toString());
         return this.http.get<Page<Reclamation>>(`${this.apiUrl}/assigned-to-me`, { params });
     }
 
@@ -145,4 +164,73 @@ export class ReclamationService {
     getPendingCount(): Observable<number> {
         return this.http.get<number>(`${this.apiUrl}/pending/count`);
     }
+
+    // ==================== ALIASES FOR COMPATIBILITY ====================
+
+    // Alias for getStatistics - used by support dashboard
+    getStats(): Observable<ReclamationStats> {
+        return this.getStatistics();
+    }
+
+    // Flexible query method - accepts an object with page, size, status, search
+    getReclamations(params: { page?: number; size?: number; status?: string; search?: string }): Observable<Page<Reclamation>> {
+        let httpParams = new HttpParams()
+            .set('page', (params.page || 0).toString())
+            .set('size', (params.size || 20).toString());
+
+        if (params.status) {
+            return this.getReclamationsByStatus(params.status, params.page || 0, params.size || 20);
+        }
+
+        return this.http.get<Page<Reclamation>>(this.apiUrl, { params: httpParams });
+    }
+
+    // ==================== AGENT PERFORMANCE ====================
+
+    /**
+     * Get current agent's performance statistics
+     */
+    getMyPerformance(): Observable<AgentPerformanceStats> {
+        return this.http.get<AgentPerformanceStats>(`${this.apiUrl}/my-performance`);
+    }
+
+    /**
+     * Get current agent's weekly statistics
+     */
+    getMyWeeklyStats(): Observable<WeeklyStats[]> {
+        return this.http.get<WeeklyStats[]>(`${this.apiUrl}/my-weekly-stats`);
+    }
+
+    /**
+     * Get current agent's recent activities
+     */
+    getMyActivities(limit: number = 10): Observable<RecentActivity[]> {
+        const params = new HttpParams().set('limit', limit.toString());
+        return this.http.get<RecentActivity[]>(`${this.apiUrl}/my-activities`, { params });
+    }
+}
+
+// Additional interfaces for agent performance
+export interface AgentPerformanceStats {
+    totalAssigned: number;
+    totalResolved: number;
+    resolvedThisMonth: number;
+    resolvedToday: number;
+    inProgress: number;
+    openTickets: number;
+    avgResolutionTimeHours: number;
+}
+
+export interface WeeklyStats {
+    day: string;
+    tickets: number;
+    resolved: number;
+}
+
+export interface RecentActivity {
+    id: string;
+    action: string;
+    ticketSubject: string;
+    time: string;
+    type: 'resolved' | 'replied' | 'assigned' | 'escalated';
 }

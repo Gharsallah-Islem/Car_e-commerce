@@ -135,4 +135,29 @@ public interface ReclamationService {
      * @return Count
      */
     Long countPendingReclamations();
+
+    /**
+     * Get agent performance statistics
+     * 
+     * @param agentId Agent ID
+     * @return Map of performance metrics
+     */
+    Map<String, Object> getAgentPerformanceStats(UUID agentId);
+
+    /**
+     * Get agent weekly statistics
+     * 
+     * @param agentId Agent ID
+     * @return List of daily statistics
+     */
+    java.util.List<Map<String, Object>> getAgentWeeklyStats(UUID agentId);
+
+    /**
+     * Get agent recent activities
+     * 
+     * @param agentId Agent ID
+     * @param limit   Number of activities to return
+     * @return List of recent activities
+     */
+    java.util.List<Map<String, Object>> getAgentRecentActivities(UUID agentId, int limit);
 }

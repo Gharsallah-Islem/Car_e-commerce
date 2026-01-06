@@ -172,6 +172,8 @@ export class UserManagementComponent implements OnInit {
   getRoleLabel(role: string | UserRole): string {
     const labels: { [key: string]: string } = {
       CLIENT: 'Client',
+      SUPPORT: 'Support',
+      DRIVER: 'Livreur',
       ADMIN: 'Admin',
       SUPER_ADMIN: 'Super Admin'
     };

@@ -72,10 +72,21 @@
         </button>
         <button mat-menu-item routerLink="/chat">
           <mat-icon>chat_bubble_outline</mat-icon>
-          <span>Support</span>
+          <span>Support Chat</span>
         </button>
-        @if (authService.currentUser()?.role === 'ADMIN' || authService.currentUser()?.role === 'SUPER_ADMIN') {
+        <button mat-menu-item routerLink="/reclamations">
+          <mat-icon>report_problem</mat-icon>
+          <span>Mes Réclamations</span>
+        </button>
+        @if (authService.currentUser()?.role === 'SUPPORT' || authService.currentUser()?.role === 'ADMIN' ||
+        authService.currentUser()?.role === 'SUPER_ADMIN') {
         <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/support">
+          <mat-icon>support_agent</mat-icon>
+          <span>Support Panel</span>
+        </button>
+        }
+        @if (authService.currentUser()?.role === 'ADMIN' || authService.currentUser()?.role === 'SUPER_ADMIN') {
         <button mat-menu-item routerLink="/admin">
           <mat-icon>admin_panel_settings</mat-icon>
           <span>Admin Panel</span>

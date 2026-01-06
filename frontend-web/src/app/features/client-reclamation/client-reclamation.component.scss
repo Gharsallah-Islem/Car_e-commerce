@@ -1,0 +1,217 @@
+.reclamation-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: white;
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .header-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.9;
+    }
+
+    .header-text {
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 4px 0 0;
+            opacity: 0.9;
+        }
+    }
+
+    button {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    }
+}
+
+.form-card {
+    margin-bottom: 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    mat-card-header {
+        padding-bottom: 16px;
+    }
+
+    .full-width {
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+    }
+}
+
+.reclamations-section {
+    h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #333;
+    }
+}
+
+.loading-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px;
+    text-align: center;
+
+    mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #ccc;
+        margin-bottom: 16px;
+    }
+
+    h3 {
+        margin: 0 0 8px;
+        color: #666;
+    }
+
+    p {
+        margin: 0 0 16px;
+        color: #999;
+    }
+}
+
+.reclamations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reclamation-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s;
+
+    &:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 16px 16px 12px;
+
+        .rec-title {
+            h3 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .rec-date {
+                font-size: 12px;
+                color: #999;
+            }
+        }
+    }
+
+    .rec-body {
+        padding: 12px 16px 16px;
+
+        .rec-description {
+            margin: 0 0 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .rec-response {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+
+            mat-icon {
+                color: #667eea;
+            }
+
+            p {
+                margin: 4px 0 0;
+                color: #555;
+            }
+        }
+    }
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.status-open {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    &.status-in-progress {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    &.status-resolved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    &.status-closed {
+        background: #e2e3e5;
+        color: #6c757d;
+    }
+}
+
+@media (max-width: 768px) {
+    .reclamation-container {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+
+        .header-content {
+            flex-direction: column;
+        }
+    }
+}

@@ -26,6 +26,16 @@ public interface ReclamationRepository extends JpaRepository<Reclamation, UUID> 
     Page<Reclamation> findByUserId(UUID userId, Pageable pageable);
 
     /**
+     * Find reclamations assigned to a specific agent
+     */
+    Page<Reclamation> findByAssignedAgentId(UUID agentId, Pageable pageable);
+
+    /**
+     * Find all reclamations assigned to a specific agent (without pagination)
+     */
+    List<Reclamation> findByAssignedAgentId(UUID agentId);
+
+    /**
      * Find reclamations by status
      */
     List<Reclamation> findByStatus(String status);
@@ -81,4 +91,16 @@ public interface ReclamationRepository extends JpaRepository<Reclamation, UUID> 
      */
     @Query("SELECT r FROM Reclamation r WHERE r.status = 'OPEN' AND r.createdAt <= :threshold")
     List<Reclamation> findStaleReclamations(@Param("threshold") LocalDateTime threshold);
+
+    /**
+     * Count unassigned open tickets (pending to be picked up by an agent)
+     */
+    @Query("SELECT COUNT(r) FROM Reclamation r WHERE r.status = 'OPEN' AND r.assignedAgent IS NULL")
+    Long countUnassignedOpenTickets();
+
+    /**
+     * Find unassigned open tickets
+     */
+    @Query("SELECT r FROM Reclamation r WHERE r.status = 'OPEN' AND r.assignedAgent IS NULL ORDER BY r.createdAt ASC")
+    List<Reclamation> findUnassignedOpenTickets();
 }
