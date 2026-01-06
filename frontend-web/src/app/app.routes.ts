@@ -37,6 +37,13 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
 
+    // My Orders route (protected)
+    {
+        path: 'orders',
+        loadComponent: () => import('./features/orders/my-orders.component').then(m => m.MyOrdersComponent),
+        canActivate: [authGuard]
+    },
+
     // Admin routes (protected with child routes)
     {
         path: 'admin',
@@ -87,6 +94,10 @@ export const routes: Routes = [
             {
                 path: 'drivers',
                 loadComponent: () => import('./features/admin/driver-management/driver-management.component').then(m => m.DriverManagementComponent)
+            },
+            {
+                path: 'settings',
+                loadComponent: () => import('./features/admin/admin-settings/admin-settings.component').then(m => m.AdminSettingsComponent)
             }
         ]
     },

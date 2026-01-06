@@ -21,6 +21,19 @@ export interface DeliveryStatusUpdate {
     timestamp: number;
 }
 
+export interface AdminNotification {
+    id: string;
+    type: string;
+    title: string;
+    message: string;
+    data?: string;
+    isRead: boolean;
+    referenceId?: string;
+    icon?: string;
+    actionUrl?: string;
+    createdAt: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -31,6 +44,7 @@ export class WebSocketService implements OnDestroy {
     private connectionStatus$ = new BehaviorSubject<boolean>(false);
     private locationUpdates$ = new Subject<LocationUpdate>();
     private statusUpdates$ = new Subject<DeliveryStatusUpdate>();
+    private notificationUpdates$ = new Subject<AdminNotification>();
 
     constructor(private authService: AuthService) { }
 
@@ -158,6 +172,34 @@ export class WebSocketService implements OnDestroy {
                 body: JSON.stringify(location)
             });
         }
+    }
+
+    /**
+     * Subscribe to admin notifications (real-time)
+     */
+    subscribeToAdminNotifications(): Observable<AdminNotification> {
+        const topic = '/topic/admin/notifications';
+
+        if (!this.subscriptions.has(topic) && this.client?.connected) {
+            const subscription = this.client.subscribe(topic, (message: IMessage) => {
+                try {
+                    const notification: AdminNotification = JSON.parse(message.body);
+                    this.notificationUpdates$.next(notification);
+                } catch (e) {
+                    console.error('Error parsing admin notification:', e);
+                }
+            });
+            this.subscriptions.set(topic, subscription);
+        }
+
+        return this.notificationUpdates$.asObservable();
+    }
+
+    /**
+     * Get notification updates observable
+     */
+    get notificationUpdates(): Observable<AdminNotification> {
+        return this.notificationUpdates$.asObservable();
     }
 
     /**

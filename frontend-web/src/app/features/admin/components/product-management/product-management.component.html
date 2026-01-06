@@ -1,405 +1,894 @@
-<div class="modern-products">
-    <!-- Header -->
-    <div class="page-header">
+<!-- ========================================================== -->
+<!-- WORLD-CLASS PRODUCT MANAGEMENT - Premium Enterprise UI -->
+<!-- Inspired by Shopify, Square, and Linear -->
+<!-- ========================================================== -->
+
+<div class="products-container">
+
+    <!-- Premium Floating Header -->
+    <header class="products-header">
         <div class="header-left">
-            <h1>Products</h1>
-            <p class="subtitle">Manage your product catalog</p>
-        </div>
-        <div class="header-actions">
-            <button mat-raised-button color="primary" (click)="openProductForm()" class="add-btn">
-                <mat-icon>add</mat-icon>
-                <span>Add Product</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Search and Filters Bar -->
-    <div class="filters-bar">
-        <div class="search-section">
-            <form [formGroup]="searchForm">
-                <mat-form-field class="search-field" appearance="outline">
-                    <mat-icon matPrefix>search</mat-icon>
-                    <input matInput placeholder="Search products..." formControlName="search">
-                </mat-form-field>
-            </form>
-        </div>
-
-        <div class="filter-section">
-            <mat-form-field appearance="outline" class="filter-field">
-                <mat-label>Category</mat-label>
-                <mat-select [value]="selectedCategory()"
-                    (selectionChange)="selectedCategory.set($event.value); applyFilters()">
-                    <mat-option value="all">All Categories</mat-option>
-                    @for (category of categories(); track category.id) {
-                    <mat-option [value]="category.id.toString()">{{ category.name }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="filter-field">
-                <mat-label>Brand</mat-label>
-                <mat-select [value]="selectedBrand()"
-                    (selectionChange)="selectedBrand.set($event.value); applyFilters()">
-                    <mat-option value="all">All Brands</mat-option>
-                    @for (brand of brands(); track brand.id) {
-                    <mat-option [value]="brand.id.toString()">{{ brand.name }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="filter-field">
-                <mat-label>Status</mat-label>
-                <mat-select [value]="selectedStatus()"
-                    (selectionChange)="selectedStatus.set($event.value); applyFilters()">
-                    @for (status of statusOptions; track status.value) {
-                    <mat-option [value]="status.value">{{ status.label }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-
-            <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
-                <mat-icon>clear</mat-icon>
-                Clear
-            </button>
-        </div>
-
-        <div class="view-toggle">
-            <button mat-icon-button (click)="toggleViewMode()"
-                [matTooltip]="viewMode() === 'grid' ? 'List View' : 'Grid View'">
-                <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
-            </button>
-        </div>
-    </div>
-
-    <!-- Results Count -->
-    <div class="results-info">
-        <p>Showing <strong>{{ filteredProducts().length }}</strong> of <strong>{{ totalProducts() }}</strong> products
-        </p>
-    </div>
-
-    <!-- Loading State -->
-    @if (loading()) {
-    <div class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Loading products...</p>
-    </div>
-    }
-
-    <!-- Product Form Modal -->
-    @if (showForm()) {
-    <div class="form-overlay" (click)="closeProductForm()">
-        <div class="form-modal" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>
-                    <mat-icon>{{ editingProduct() ? 'edit' : 'add_circle' }}</mat-icon>
-                    {{ editingProduct() ? 'Edit Product' : 'Add New Product' }}
-                </h2>
-                <button mat-icon-button (click)="closeProductForm()">
-                    <mat-icon>close</mat-icon>
-                </button>
+            <div class="page-title-section">
+                <div class="title-badge">
+                    <mat-icon>inventory_2</mat-icon>
+                </div>
+                <div class="title-content">
+                    <h1>Gestion du Catalogue</h1>
+                    <p class="breadcrumb">Admin / Catalogue / {{ activeTab() === 'products' ? filteredProducts().length
+                        + ' produits' : activeTab() === 'categories' ? categories().length + ' catégories' :
+                        brands().length + ' marques' }}</p>
+                </div>
             </div>
+        </div>
+        <div class="header-right">
+            <div class="header-stats">
+                <div class="mini-stat">
+                    <span class="stat-value">{{ totalProducts() }}</span>
+                    <span class="stat-label">Produits</span>
+                </div>
+                <div class="mini-stat info">
+                    <span class="stat-value">{{ categories().length }}</span>
+                    <span class="stat-label">Catégories</span>
+                </div>
+                <div class="mini-stat info">
+                    <span class="stat-value">{{ brands().length }}</span>
+                    <span class="stat-label">Marques</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                @if (activeTab() === 'products') {
+                <button class="btn-icon" [class.active]="viewMode() === 'grid'" matTooltip="Vue grille"
+                    (click)="viewMode.set('grid')">
+                    <mat-icon>grid_view</mat-icon>
+                </button>
+                <button class="btn-icon" [class.active]="viewMode() === 'list'" matTooltip="Vue liste"
+                    (click)="viewMode.set('list')">
+                    <mat-icon>view_list</mat-icon>
+                </button>
+                <button class="btn-primary" (click)="openProductForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Nouveau Produit</span>
+                </button>
+                } @else if (activeTab() === 'categories') {
+                <button class="btn-primary" (click)="openCategoryForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Nouvelle Catégorie</span>
+                </button>
+                } @else {
+                <button class="btn-primary" (click)="openBrandForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Nouvelle Marque</span>
+                </button>
+                }
+            </div>
+        </div>
+    </header>
 
-            <div class="modal-content">
-                <form [formGroup]="productForm" class="product-form">
-                    <div class="form-section">
-                        <h3>Basic Information</h3>
-                        <div class="form-row">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Product Name</mat-label>
-                                <input matInput formControlName="name" placeholder="Enter product name">
-                                @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched)
-                                {
-                                <mat-error>Product name is required</mat-error>
-                                }
-                                @if (productForm.get('name')?.hasError('minlength')) {
-                                <mat-error>Minimum 3 characters</mat-error>
-                                }
-                            </mat-form-field>
+    <!-- Premium Tab Bar -->
+    <nav class="premium-tabs">
+        <button class="tab-item" [class.active]="activeTab() === 'products'" (click)="activeTab.set('products')">
+            <mat-icon>inventory_2</mat-icon>
+            <span>Produits</span>
+            <span class="tab-badge">{{ filteredProducts().length }}</span>
+        </button>
+        <button class="tab-item" [class.active]="activeTab() === 'categories'" (click)="activeTab.set('categories')">
+            <mat-icon>category</mat-icon>
+            <span>Catégories</span>
+            <span class="tab-badge category">{{ categories().length }}</span>
+        </button>
+        <button class="tab-item" [class.active]="activeTab() === 'brands'" (click)="activeTab.set('brands')">
+            <mat-icon>label</mat-icon>
+            <span>Marques</span>
+            <span class="tab-badge brand">{{ brands().length }}</span>
+        </button>
+    </nav>
+
+    <!-- ===================== PRODUCTS TAB ===================== -->
+    @if (activeTab() === 'products') {
+
+
+    <!-- Analytics Overview Section -->
+    <section class="analytics-grid">
+        <!-- Categories Overview -->
+        <div class="analytics-card categories-card">
+            <div class="card-header">
+                <h3>Par Catégorie</h3>
+            </div>
+            <div class="card-body">
+                <div class="category-list">
+                    @for (category of categories() | slice:0:5; track category.id) {
+                    <div class="category-item" (click)="selectedCategory.set(category.id.toString()); applyFilters()">
+                        <div class="category-icon">
+                            <mat-icon>folder</mat-icon>
                         </div>
-
-                        <div class="form-row">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Description</mat-label>
-                                <textarea matInput formControlName="description" rows="3"
-                                    placeholder="Enter product description"></textarea>
-                                @if (productForm.get('description')?.hasError('required') &&
-                                productForm.get('description')?.touched) {
-                                <mat-error>Description is required</mat-error>
-                                }
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-row two-col">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Category</mat-label>
-                                <mat-select formControlName="categoryId">
-                                    @for (category of categories(); track category.id) {
-                                    <mat-option [value]="category.id">{{ category.name }}</mat-option>
-                                    }
-                                </mat-select>
-                                @if (productForm.get('categoryId')?.hasError('required') &&
-                                productForm.get('categoryId')?.touched) {
-                                <mat-error>Category is required</mat-error>
-                                }
-                            </mat-form-field>
-
-                            <mat-form-field appearance="outline">
-                                <mat-label>Brand</mat-label>
-                                <mat-select formControlName="brandId">
-                                    @for (brand of brands(); track brand.id) {
-                                    <mat-option [value]="brand.id">{{ brand.name }}</mat-option>
-                                    }
-                                </mat-select>
-                                @if (productForm.get('brandId')?.hasError('required') &&
-                                productForm.get('brandId')?.touched) {
-                                <mat-error>Brand is required</mat-error>
-                                }
-                            </mat-form-field>
-                        </div>
+                        <span class="category-name">{{ category.name }}</span>
+                        <span class="category-count">{{ getCategoryProductCount(category.id) }}</span>
                     </div>
+                    }
+                </div>
+            </div>
+        </div>
 
-                    <div class="form-section">
-                        <h3>Pricing & Stock</h3>
-                        <div class="form-row three-col">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Price (TND)</mat-label>
-                                <input matInput type="number" formControlName="price" placeholder="0.00">
-                                <span matTextPrefix>TND&nbsp;</span>
-                                @if (productForm.get('price')?.hasError('required') &&
-                                productForm.get('price')?.touched) {
-                                <mat-error>Price is required</mat-error>
-                                }
-                            </mat-form-field>
-
-                            <mat-form-field appearance="outline">
-                                <mat-label>Discount Price (TND)</mat-label>
-                                <input matInput type="number" formControlName="discountPrice" placeholder="0.00">
-                                <span matTextPrefix>TND&nbsp;</span>
-                            </mat-form-field>
-
-                            <mat-form-field appearance="outline">
-                                <mat-label>Stock Quantity</mat-label>
-                                <input matInput type="number" formControlName="stock" placeholder="0">
-                                @if (productForm.get('stock')?.hasError('required') &&
-                                productForm.get('stock')?.touched) {
-                                <mat-error>Stock is required</mat-error>
-                                }
-                            </mat-form-field>
+        <!-- Stock Health -->
+        <div class="analytics-card stock-health">
+            <div class="card-header">
+                <h3>Santé du Stock</h3>
+            </div>
+            <div class="card-body">
+                <div class="stock-bars">
+                    <div class="stock-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot success"></span>
+                            <span>En stock</span>
                         </div>
+                        <div class="bar-container">
+                            <div class="bar success" [style.width.%]="getStockPercentage('in_stock')"></div>
+                        </div>
+                        <span class="bar-value">{{ getInStockCount() }}</span>
                     </div>
-
-                    <div class="form-section">
-                        <h3>Product Image</h3>
-                        <div class="form-row">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Image URL</mat-label>
-                                <input matInput formControlName="imageUrl" placeholder="https://example.com/image.jpg">
-                                @if (productForm.get('imageUrl')?.hasError('required') &&
-                                productForm.get('imageUrl')?.touched) {
-                                <mat-error>Image URL is required</mat-error>
-                                }
-                            </mat-form-field>
+                    <div class="stock-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot warning"></span>
+                            <span>Stock faible</span>
                         </div>
-                        @if (productForm.get('imageUrl')?.value) {
-                        <div class="image-preview">
-                            <img [src]="productForm.get('imageUrl')?.value" alt="Product preview"
-                                (error)="$any($event.target).src='https://via.placeholder.com/200'">
+                        <div class="bar-container">
+                            <div class="bar warning" [style.width.%]="getStockPercentage('low_stock')"></div>
                         </div>
-                        }
+                        <span class="bar-value">{{ getLowStockCount() }}</span>
                     </div>
-
-                    <div class="form-section">
-                        <h3>Additional Details</h3>
-                        <div class="form-row">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Specifications (JSON)</mat-label>
-                                <textarea matInput formControlName="specifications" rows="3"
-                                    placeholder='{"material": "Ceramic", "warranty": "2 years"}'></textarea>
-                                <mat-hint>Enter specifications in JSON format</mat-hint>
-                            </mat-form-field>
+                    <div class="stock-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot danger"></span>
+                            <span>Rupture</span>
                         </div>
-
-                        <div class="form-row">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Vehicle Compatibility</mat-label>
-                                <input matInput formControlName="compatibility"
-                                    placeholder="Peugeot 208, Renault Clio, ...">
-                                <mat-hint>Comma-separated list of compatible vehicles</mat-hint>
-                            </mat-form-field>
+                        <div class="bar-container">
+                            <div class="bar danger" [style.width.%]="getStockPercentage('out_of_stock')"></div>
                         </div>
+                        <span class="bar-value">{{ getOutOfStockCount() }}</span>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="form-actions">
-                        <button mat-stroked-button type="button" (click)="closeProductForm()">
-                            Cancel
-                        </button>
-                        <button mat-raised-button color="primary" (click)="saveProduct()"
-                            [disabled]="productForm.invalid || loading()">
-                            @if (loading()) {
-                            <mat-spinner diameter="20"></mat-spinner>
-                            } @else {
-                            <mat-icon>{{ editingProduct() ? 'save' : 'add' }}</mat-icon>
-                            }
-                            {{ editingProduct() ? 'Update Product' : 'Add Product' }}
-                        </button>
+        <!-- Quick Search -->
+        <div class="analytics-card quick-search">
+            <div class="card-header">
+                <h3>
+                    <mat-icon>search</mat-icon>
+                    Recherche Rapide
+                </h3>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="searchForm" class="search-form">
+                    <div class="search-input-wrapper">
+                        <mat-icon>search</mat-icon>
+                        <input type="text" formControlName="search" placeholder="Rechercher un produit...">
                     </div>
                 </form>
+                <div class="quick-filters">
+                    <button class="quick-chip" [class.active]="selectedStatus() === 'all'"
+                        (click)="selectedStatus.set('all'); applyFilters()">Tous</button>
+                    <button class="quick-chip" [class.active]="selectedStatus() === 'low_stock'"
+                        (click)="selectedStatus.set('low_stock'); applyFilters()">Stock faible</button>
+                    <button class="quick-chip danger" [class.active]="selectedStatus() === 'out_of_stock'"
+                        (click)="selectedStatus.set('out_of_stock'); applyFilters()">Rupture</button>
+                </div>
             </div>
         </div>
-    </div>
-    }
 
-    <!-- Products Grid View -->
-    @if (!loading() && viewMode() === 'grid') {
-    <div class="products-grid">
-        @for (product of filteredProducts(); track product.id) {
-        <div class="product-card">
-            <div class="product-image-container">
-                <img [src]="product.imageUrl" [alt]="product.name"
-                    (error)="$any($event.target).src='https://via.placeholder.com/300'">
-                @if (product.discount && product.discount > 0) {
-                <div class="discount-badge">-{{ product.discount }}%</div>
-                }
-                @if (product.stock === 0) {
-                <div class="out-of-stock-overlay">Out of Stock</div>
-                }
+        <!-- Top Brands -->
+        <div class="analytics-card brands-card">
+            <div class="card-header">
+                <h3>Marques Populaires</h3>
             </div>
+            <div class="card-body">
+                <div class="brand-list">
+                    @for (brand of brands() | slice:0:5; track brand.id) {
+                    <div class="brand-item" (click)="selectedBrand.set(brand.id.toString()); applyFilters()">
+                        <div class="brand-avatar">{{ brand.name.charAt(0) }}</div>
+                        <span class="brand-name">{{ brand.name }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <div class="product-info">
-                <div class="product-header">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-actions">
-                        <button mat-icon-button (click)="openProductForm(product)" matTooltip="Edit">
+    <!-- Filter Bar -->
+    <section class="filter-bar">
+        <div class="filter-left">
+            <p class="results-count">
+                <strong>{{ filteredProducts().length }}</strong> produits sur <strong>{{ totalProducts() }}</strong>
+            </p>
+        </div>
+        <div class="filter-right">
+            <select class="filter-select" [value]="selectedCategory()"
+                (change)="selectedCategory.set($any($event.target).value); applyFilters()">
+                <option value="all">Toutes catégories</option>
+                @for (category of categories(); track category.id) {
+                <option [value]="category.id.toString()">{{ category.name }}</option>
+                }
+            </select>
+            <select class="filter-select" [value]="selectedBrand()"
+                (change)="selectedBrand.set($any($event.target).value); applyFilters()">
+                <option value="all">Toutes marques</option>
+                @for (brand of brands(); track brand.id) {
+                <option [value]="brand.id.toString()">{{ brand.name }}</option>
+                }
+            </select>
+            <button class="btn-secondary" (click)="clearFilters()">
+                <mat-icon>clear</mat-icon>
+                <span>Réinitialiser</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <section class="main-content">
+
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="loading-state">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Chargement des produits...</p>
+        </div>
+        }
+
+        <!-- Grid View -->
+        @if (!loading() && viewMode() === 'grid') {
+        <div class="products-grid">
+            @for (product of filteredProducts(); track product.id) {
+            <div class="product-card" [class.out-of-stock]="product.stock === 0">
+                <div class="card-image">
+                    <img [src]="product.imageUrl" [alt]="product.name"
+                        (error)="$any($event.target).src='https://via.placeholder.com/300'">
+                    @if (product.discount && product.discount > 0) {
+                    <div class="discount-badge">-{{ product.discount }}%</div>
+                    }
+                    @if (product.stock === 0) {
+                    <div class="stock-overlay">
+                        <span>Rupture de stock</span>
+                    </div>
+                    }
+                    <div class="card-actions">
+                        <button class="card-action-btn" matTooltip="Modifier" (click)="openProductForm(product)">
                             <mat-icon>edit</mat-icon>
                         </button>
-                        <button mat-icon-button color="warn" (click)="deleteProduct(product.id)" matTooltip="Delete">
+                        <button class="card-action-btn danger" matTooltip="Supprimer"
+                            (click)="deleteProduct(product.id)">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
                 </div>
-
-                <div class="product-meta">
-                    <span class="category-badge">{{ product.category?.name || 'N/A' }}</span>
-                    <span class="brand-badge">{{ product.brand?.name || 'N/A' }}</span>
-                </div>
-
-                <p class="product-description">{{ product.description }}</p>
-
-                <div class="product-footer">
-                    <div class="price-section">
-                        @if (product.discount && product.discount > 0) {
-                        <span class="original-price">{{ product.price | number:'1.2-2' }} TND</span>
-                        <span class="discount-price">{{ formatPrice(product.price, product.discount) }}</span>
-                        } @else {
-                        <span class="current-price">{{ product.price | number:'1.2-2' }} TND</span>
-                        }
+                <div class="card-body" (click)="openProductForm(product)" style="cursor: pointer;">
+                    <div class="card-meta">
+                        <span class="category-tag">{{ product.category?.name || 'N/A' }}</span>
+                        <span class="brand-tag">{{ product.brand?.name || 'N/A' }}</span>
                     </div>
-
-                    <div class="stock-section">
-                        <mat-chip
-                            [class]="'stock-chip ' + (product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : 'ok')">
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <p class="card-description">{{ product.description | slice:0:60 }}...</p>
+                    <div class="card-footer">
+                        <div class="price-section">
+                            @if (product.discount && product.discount > 0) {
+                            <span class="old-price">{{ product.price | number:'1.2-2' }} TND</span>
+                            <span class="new-price">{{ formatPrice(product.price, product.discount) }}</span>
+                            } @else {
+                            <span class="price">{{ product.price | number:'1.2-2' }} TND</span>
+                            }
+                        </div>
+                        <div class="stock-badge" [class.success]="product.stock >= 10"
+                            [class.warning]="product.stock > 0 && product.stock < 10"
+                            [class.danger]="product.stock === 0">
                             <mat-icon>inventory</mat-icon>
-                            {{ product.stock }} in stock
-                        </mat-chip>
+                            <span>{{ product.stock }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            }
+
+            @if (filteredProducts().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>inventory_2</mat-icon>
+                </div>
+                <h3>Aucun produit trouvé</h3>
+                <p>Essayez de modifier vos filtres ou ajoutez un nouveau produit</p>
+                <button class="btn-primary" (click)="openProductForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Ajouter un produit</span>
+                </button>
+            </div>
+            }
         </div>
         }
 
-        @if (filteredProducts().length === 0) {
-        <div class="no-products">
-            <mat-icon>inventory_2</mat-icon>
-            <h3>No products found</h3>
-            <p>Try adjusting your filters or add a new product</p>
-            <button mat-raised-button color="primary" (click)="openProductForm()">
-                <mat-icon>add</mat-icon>
-                Add Product
-            </button>
+        <!-- List View -->
+        @if (!loading() && viewMode() === 'list') {
+        <div class="data-table-container">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Catégorie</th>
+                        <th>Marque</th>
+                        <th>Prix</th>
+                        <th>Stock</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (product of filteredProducts(); track product.id) {
+                    <tr [class.out-of-stock]="product.stock === 0"
+                        [class.low-stock]="product.stock > 0 && product.stock < 10">
+                        <td>
+                            <div class="product-cell">
+                                <div class="product-thumb">
+                                    <img [src]="product.imageUrl" [alt]="product.name"
+                                        (error)="$any($event.target).src='https://via.placeholder.com/50'">
+                                </div>
+                                <div class="product-info">
+                                    <span class="product-name">{{ product.name }}</span>
+                                    <span class="product-desc">{{ product.description | slice:0:50 }}...</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-tag">{{ product.category?.name || 'N/A' }}</span>
+                        </td>
+                        <td>{{ product.brand?.name || 'N/A' }}</td>
+                        <td>
+                            <div class="price-cell">
+                                @if (product.discount && product.discount > 0) {
+                                <span class="old-price">{{ product.price | number:'1.2-2' }}</span>
+                                <span class="new-price">{{ formatPrice(product.price, product.discount) }}</span>
+                                } @else {
+                                <span class="price">{{ product.price | number:'1.2-2' }} TND</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <span class="stock-value" [class.success]="product.stock >= 10"
+                                [class.warning]="product.stock > 0 && product.stock < 10"
+                                [class.danger]="product.stock === 0">
+                                {{ product.stock }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-pill" [class.success]="product.stock >= 10"
+                                [class.warning]="product.stock > 0 && product.stock < 10"
+                                [class.danger]="product.stock === 0">
+                                {{ getStockStatus(product.stock) }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" matTooltip="Modifier" (click)="openProductForm(product)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="action-btn danger" matTooltip="Supprimer"
+                                    (click)="deleteProduct(product.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (filteredProducts().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>inventory_2</mat-icon>
+                </div>
+                <h3>Aucun produit trouvé</h3>
+                <p>Essayez de modifier vos filtres ou ajoutez un nouveau produit</p>
+            </div>
+            }
         </div>
         }
+    </section>
+
+    <!-- Ultra-Premium Product Form Modal -->
+    @if (showForm()) {
+    <div class="modal-overlay" (click)="closeProductForm()">
+        <div class="modal-panel slide-in" (click)="$event.stopPropagation()">
+            <!-- Premium Gradient Header -->
+            <div class="modal-header-premium">
+                <div class="modal-header-bg"></div>
+                <div class="modal-header-content">
+                    <div class="modal-icon">
+                        <mat-icon>{{ editingProduct() ? 'edit_note' : 'add_box' }}</mat-icon>
+                    </div>
+                    <div class="modal-title-section">
+                        <h2>{{ editingProduct() ? 'Modifier le produit' : 'Nouveau produit' }}</h2>
+                        <p class="modal-subtitle">{{ editingProduct() ? 'Modifiez les informations du produit' :
+                            'Ajoutez un nouveau produit au catalogue' }}</p>
+                    </div>
+                </div>
+                <button class="close-btn" (click)="closeProductForm()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+
+            <!-- Premium Scrollable Body -->
+            <div class="modal-body-premium">
+                <form [formGroup]="productForm">
+                    <!-- Product Preview (when editing) -->
+                    @if (editingProduct() && productForm.get('imageUrl')?.value) {
+                    <div class="product-preview-card">
+                        <div class="preview-image">
+                            <img [src]="productForm.get('imageUrl')?.value" alt="Preview"
+                                (error)="$any($event.target).src='https://via.placeholder.com/100'">
+                        </div>
+                        <div class="preview-info">
+                            <span class="preview-label">Aperçu en temps réel</span>
+                            <h4>{{ productForm.get('name')?.value || 'Nom du produit' }}</h4>
+                            <p>{{ productForm.get('price')?.value | number:'1.2-2' }} TND</p>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Basic Info Section -->
+                    <div class="form-section-premium">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <mat-icon>info</mat-icon>
+                            </div>
+                            <div class="section-title">
+                                <h3>Informations de base</h3>
+                                <span>Nom, description et classification</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>label</mat-icon>
+                                    Nom du produit
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" formControlName="name" placeholder="Ex: Filtre à huile Premium">
+                            </div>
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>description</mat-icon>
+                                    Description
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea formControlName="description" rows="4"
+                                    placeholder="Description détaillée du produit..."></textarea>
+                            </div>
+                            <div class="form-row-premium">
+                                <div class="form-group-premium">
+                                    <label>
+                                        <mat-icon>category</mat-icon>
+                                        Catégorie
+                                        <span class="required">*</span>
+                                    </label>
+                                    <select formControlName="categoryId">
+                                        <option value="">Sélectionner une catégorie</option>
+                                        @for (category of categories(); track category.id) {
+                                        <option [value]="category.id">{{ category.name }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group-premium">
+                                    <label>
+                                        <mat-icon>business</mat-icon>
+                                        Marque
+                                        <span class="required">*</span>
+                                    </label>
+                                    <select formControlName="brandId">
+                                        <option value="">Sélectionner une marque</option>
+                                        @for (brand of brands(); track brand.id) {
+                                        <option [value]="brand.id">{{ brand.name }}</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="form-section-premium">
+                        <div class="section-header">
+                            <div class="section-icon pricing">
+                                <mat-icon>payments</mat-icon>
+                            </div>
+                            <div class="section-title">
+                                <h3>Prix et Stock</h3>
+                                <span>Tarification et disponibilité</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="pricing-grid">
+                                <div class="form-group-premium">
+                                    <label>
+                                        <mat-icon>sell</mat-icon>
+                                        Prix (TND)
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="input-with-prefix">
+                                        <span class="prefix">TND</span>
+                                        <input type="number" formControlName="price" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium">
+                                    <label>
+                                        <mat-icon>local_offer</mat-icon>
+                                        Prix promo
+                                    </label>
+                                    <div class="input-with-prefix">
+                                        <span class="prefix">TND</span>
+                                        <input type="number" formControlName="discountPrice" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium">
+                                    <label>
+                                        <mat-icon>inventory_2</mat-icon>
+                                        Stock
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="number" formControlName="stock" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Section -->
+                    <div class="form-section-premium">
+                        <div class="section-header">
+                            <div class="section-icon image">
+                                <mat-icon>image</mat-icon>
+                            </div>
+                            <div class="section-title">
+                                <h3>Image du produit</h3>
+                                <span>URL de l'image principale</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>link</mat-icon>
+                                    URL de l'image
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" formControlName="imageUrl"
+                                    placeholder="https://example.com/image.jpg">
+                            </div>
+                            @if (productForm.get('imageUrl')?.value) {
+                            <div class="image-preview-premium">
+                                <img [src]="productForm.get('imageUrl')?.value" alt="Aperçu"
+                                    (error)="$any($event.target).src='https://via.placeholder.com/300x200'">
+                                <div class="preview-overlay">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>Aperçu</span>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Advanced Section -->
+                    <div class="form-section-premium">
+                        <div class="section-header">
+                            <div class="section-icon advanced">
+                                <mat-icon>tune</mat-icon>
+                            </div>
+                            <div class="section-title">
+                                <h3>Détails avancés</h3>
+                                <span>Spécifications et compatibilité</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>data_object</mat-icon>
+                                    Spécifications (JSON)
+                                </label>
+                                <textarea formControlName="specifications" rows="3"
+                                    placeholder='{"material": "Acier", "garantie": "2 ans", "poids": "500g"}'></textarea>
+                                <span class="hint-premium">
+                                    <mat-icon>info</mat-icon>
+                                    Format JSON pour les caractéristiques techniques
+                                </span>
+                            </div>
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>directions_car</mat-icon>
+                                    Compatibilité véhicules
+                                </label>
+                                <input type="text" formControlName="compatibility"
+                                    placeholder="Peugeot 208, Renault Clio, Citroën C3...">
+                                <span class="hint-premium">
+                                    <mat-icon>info</mat-icon>
+                                    Séparez les véhicules par des virgules
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Premium Footer -->
+            <div class="modal-footer-premium">
+                <button class="btn-cancel" (click)="closeProductForm()">
+                    <mat-icon>close</mat-icon>
+                    Annuler
+                </button>
+                <button class="btn-save" (click)="saveProduct()" [disabled]="productForm.invalid || loading()">
+                    @if (loading()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>{{ editingProduct() ? 'save' : 'add' }}</mat-icon>
+                    }
+                    <span>{{ editingProduct() ? 'Enregistrer' : 'Créer le produit' }}</span>
+                </button>
+            </div>
+        </div>
     </div>
     }
+    } <!-- End Products Tab -->
 
-    <!-- Products List View -->
-    @if (!loading() && viewMode() === 'list') {
-    <div class="products-list">
-        <table class="modern-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Brand</th>
-                    <th class="text-right">Price</th>
-                    <th class="text-center">Stock</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (product of filteredProducts(); track product.id) {
-                <tr>
-                    <td>
-                        <div class="product-cell">
-                            <div class="product-image-small">
-                                <img [src]="product.imageUrl" [alt]="product.name"
-                                    (error)="$any($event.target).src='https://via.placeholder.com/50'">
+    <!-- ===================== CATEGORIES TAB ===================== -->
+    @if (activeTab() === 'categories') {
+    <section class="tab-content">
+        <div class="data-table-container">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom de la catégorie</th>
+                        <th>Description</th>
+                        <th>Produits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (category of categories(); track category.id) {
+                    <tr>
+                        <td>
+                            <span class="id-badge">{{ category.id }}</span>
+                        </td>
+                        <td>
+                            <div class="entity-cell">
+                                <div class="entity-icon category-icon">
+                                    <mat-icon>category</mat-icon>
+                                </div>
+                                <span class="entity-name">{{ category.name }}</span>
                             </div>
-                            <div class="product-details">
-                                <strong>{{ product.name }}</strong>
-                                <p>{{ product.description | slice:0:60 }}...</p>
+                        </td>
+                        <td>
+                            <span class="description-text">{{ category.description || 'Aucune description' }}</span>
+                        </td>
+                        <td>
+                            <span class="count-badge">{{ getCategoryProductCount(category.id) }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" matTooltip="Modifier" (click)="editCategory(category)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="action-btn danger" matTooltip="Supprimer"
+                                    (click)="deleteCategory(category.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="category-badge">{{ product.category?.name || 'N/A' }}</span>
-                    </td>
-                    <td>{{ product.brand?.name || 'N/A' }}</td>
-                    <td class="text-right">
-                        @if (product.discount && product.discount > 0) {
-                        <div class="price-cell">
-                            <span class="original-price">{{ product.price | number:'1.2-2' }}</span>
-                            <strong class="discount-price">{{ formatPrice(product.price, product.discount) }}</strong>
-                        </div>
-                        } @else {
-                        <strong>{{ product.price | number:'1.2-2' }} TND</strong>
-                        }
-                    </td>
-                    <td class="text-center">
-                        <strong
-                            [class]="'stock-value ' + (product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : 'ok')">
-                            {{ product.stock }}
-                        </strong>
-                    </td>
-                    <td class="text-center">
-                        <mat-chip
-                            [class]="'stock-chip ' + (product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : 'ok')">
-                            {{ getStockStatus(product.stock) }}
-                        </mat-chip>
-                    </td>
-                    <td class="text-center">
-                        <div class="action-buttons">
-                            <button mat-icon-button (click)="openProductForm(product)" matTooltip="Edit">
-                                <mat-icon>edit</mat-icon>
-                            </button>
-                            <button mat-icon-button color="warn" (click)="deleteProduct(product.id)"
-                                matTooltip="Delete">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
 
-        @if (filteredProducts().length === 0) {
-        <div class="no-products">
-            <mat-icon>inventory_2</mat-icon>
-            <h3>No products found</h3>
-            <p>Try adjusting your filters or add a new product</p>
+            @if (categories().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>category</mat-icon>
+                </div>
+                <h3>Aucune catégorie</h3>
+                <p>Créez votre première catégorie pour organiser vos produits</p>
+                <button class="btn-primary" (click)="openCategoryForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Nouvelle Catégorie</span>
+                </button>
+            </div>
+            }
         </div>
-        }
+    </section>
+
+    <!-- Category Form Modal -->
+    @if (showCategoryForm()) {
+    <div class="modal-overlay" (click)="closeCategoryForm()">
+        <div class="modal-panel slide-in compact" (click)="$event.stopPropagation()">
+            <div class="modal-header-premium">
+                <div class="modal-header-bg category-bg"></div>
+                <div class="modal-header-content">
+                    <div class="modal-icon category">
+                        <mat-icon>{{ editingCategory() ? 'edit' : 'add_box' }}</mat-icon>
+                    </div>
+                    <div class="modal-title-section">
+                        <h2>{{ editingCategory() ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}</h2>
+                        <p class="modal-subtitle">{{ editingCategory() ? 'Modifiez les informations' : 'Créez une
+                            nouvelle catégorie' }}</p>
+                    </div>
+                </div>
+                <button class="close-btn" (click)="closeCategoryForm()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="modal-body-premium">
+                <form [formGroup]="categoryForm">
+                    <div class="form-section-premium">
+                        <div class="section-content">
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>label</mat-icon>
+                                    Nom de la catégorie
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" formControlName="name" placeholder="Ex: Filtres">
+                            </div>
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>description</mat-icon>
+                                    Description
+                                </label>
+                                <textarea formControlName="description" rows="3"
+                                    placeholder="Description de la catégorie..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer-premium">
+                <button class="btn-cancel" (click)="closeCategoryForm()">
+                    <mat-icon>close</mat-icon>
+                    Annuler
+                </button>
+                <button class="btn-save category" (click)="saveCategory()"
+                    [disabled]="categoryForm.invalid || loading()">
+                    @if (loading()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>{{ editingCategory() ? 'save' : 'add' }}</mat-icon>
+                    }
+                    <span>{{ editingCategory() ? 'Enregistrer' : 'Créer' }}</span>
+                </button>
+            </div>
+        </div>
     </div>
     }
+    } <!-- End Categories Tab -->
+
+    <!-- ===================== BRANDS TAB ===================== -->
+    @if (activeTab() === 'brands') {
+    <section class="tab-content">
+        <div class="data-table-container">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom de la marque</th>
+                        <th>Description</th>
+                        <th>Produits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (brand of brands(); track brand.id) {
+                    <tr>
+                        <td>
+                            <span class="id-badge brand">{{ brand.id }}</span>
+                        </td>
+                        <td>
+                            <div class="entity-cell">
+                                <div class="entity-icon brand-icon">
+                                    <span class="brand-initials">{{ brand.name.charAt(0) }}</span>
+                                </div>
+                                <span class="entity-name">{{ brand.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="description-text">{{ brand.description || 'Aucune description' }}</span>
+                        </td>
+                        <td>
+                            <span class="count-badge brand">{{ getBrandProductCount(brand.id) }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" matTooltip="Modifier" (click)="editBrand(brand)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="action-btn danger" matTooltip="Supprimer"
+                                    (click)="deleteBrand(brand.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (brands().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon brand">
+                    <mat-icon>label</mat-icon>
+                </div>
+                <h3>Aucune marque</h3>
+                <p>Créez votre première marque pour catégoriser vos produits</p>
+                <button class="btn-primary brand" (click)="openBrandForm()">
+                    <mat-icon>add</mat-icon>
+                    <span>Nouvelle Marque</span>
+                </button>
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- Brand Form Modal -->
+    @if (showBrandForm()) {
+    <div class="modal-overlay" (click)="closeBrandForm()">
+        <div class="modal-panel slide-in compact" (click)="$event.stopPropagation()">
+            <div class="modal-header-premium">
+                <div class="modal-header-bg brand-bg"></div>
+                <div class="modal-header-content">
+                    <div class="modal-icon brand">
+                        <mat-icon>{{ editingBrand() ? 'edit' : 'add_box' }}</mat-icon>
+                    </div>
+                    <div class="modal-title-section">
+                        <h2>{{ editingBrand() ? 'Modifier la marque' : 'Nouvelle marque' }}</h2>
+                        <p class="modal-subtitle">{{ editingBrand() ? 'Modifiez les informations' : 'Créez une nouvelle
+                            marque' }}</p>
+                    </div>
+                </div>
+                <button class="close-btn" (click)="closeBrandForm()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="modal-body-premium">
+                <form [formGroup]="brandForm">
+                    <div class="form-section-premium">
+                        <div class="section-content">
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>label</mat-icon>
+                                    Nom de la marque
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" formControlName="name" placeholder="Ex: Bosch">
+                            </div>
+                            <div class="form-group-premium">
+                                <label>
+                                    <mat-icon>description</mat-icon>
+                                    Description
+                                </label>
+                                <textarea formControlName="description" rows="3"
+                                    placeholder="Description de la marque..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer-premium">
+                <button class="btn-cancel" (click)="closeBrandForm()">
+                    <mat-icon>close</mat-icon>
+                    Annuler
+                </button>
+                <button class="btn-save brand" (click)="saveBrand()" [disabled]="brandForm.invalid || loading()">
+                    @if (loading()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>{{ editingBrand() ? 'save' : 'add' }}</mat-icon>
+                    }
+                    <span>{{ editingBrand() ? 'Enregistrer' : 'Créer' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+    } <!-- End Brands Tab -->
+
 </div>

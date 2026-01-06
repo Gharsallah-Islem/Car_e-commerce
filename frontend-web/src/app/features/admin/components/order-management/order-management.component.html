@@ -1,92 +1,322 @@
-<mat-card>
-    <div class="card-header">
-        <h2>
-            <mat-icon>receipt_long</mat-icon>
-            Gestion des commandes ({{ orders().length }})
-        </h2>
-    </div>
+<!-- ========================================================== -->
+<!-- WORLD-CLASS ORDER MANAGEMENT - Premium Enterprise UI -->
+<!-- Inspired by Shopify, Stripe, and Linear -->
+<!-- ========================================================== -->
 
-    <mat-divider></mat-divider>
+<div class="orders-container">
 
-    <div class="table-container">
-        <table mat-table [dataSource]="orders()" matSort (matSortChange)="handleSort($event)">
+    <!-- Premium Floating Header -->
+    <header class="orders-header">
+        <div class="header-left">
+            <div class="page-title-section">
+                <div class="title-badge">
+                    <mat-icon>receipt_long</mat-icon>
+                </div>
+                <div class="title-content">
+                    <h1>Gestion des Commandes</h1>
+                    <p class="breadcrumb">Admin / Commandes / {{ totalOrders() }} commandes</p>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-stats">
+                <div class="mini-stat">
+                    <span class="stat-value">{{ totalOrders() }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="mini-stat warning">
+                    <span class="stat-value">{{ getPendingCount() }}</span>
+                    <span class="stat-label">En attente</span>
+                </div>
+                <div class="mini-stat info">
+                    <span class="stat-value">{{ getShippedCount() }}</span>
+                    <span class="stat-label">Expédiées</span>
+                </div>
+                <div class="mini-stat success">
+                    <span class="stat-value">{{ getDeliveredCount() }}</span>
+                    <span class="stat-label">Livrées</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" matTooltip="Actualiser" (click)="loadOrders()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+                <button class="btn-primary" (click)="exportOrders()">
+                    <mat-icon>download</mat-icon>
+                    <span>Exporter</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-            <!-- Order Number Column -->
-            <ng-container matColumnDef="orderNumber">
-                <th mat-header-cell *matHeaderCellDef>Numéro</th>
-                <td mat-cell *matCellDef="let order">
-                    <span matTooltip="{{ order.id }}">#{{ order.id | slice:0:8 }}</span>
-                </td>
-            </ng-container>
+    <!-- Analytics Overview Section -->
+    <section class="analytics-grid">
+        <!-- Revenue Card -->
+        <div class="analytics-card revenue-card">
+            <div class="card-header">
+                <h3>Chiffre d'affaires</h3>
+                <div class="card-icon">
+                    <mat-icon>payments</mat-icon>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="big-stat">
+                    <span class="value">{{ getTotalRevenue() | number:'1.2-2' }}</span>
+                    <span class="currency">TND</span>
+                </div>
+                <div class="stat-progress">
+                    <div class="progress-bar" [style.width.%]="100"></div>
+                </div>
+                <span class="stat-label">Total des ventes</span>
+            </div>
+        </div>
 
-            <!-- Customer Column -->
-            <ng-container matColumnDef="customer">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
-                <td mat-cell *matCellDef="let order">
-                    <div class="customer-info">
-                        <strong>{{ order.user?.fullName || order.user?.username }}</strong>
-                        <span class="customer-email">{{ order.user?.email }}</span>
+        <!-- Order Status Distribution -->
+        <div class="analytics-card status-card">
+            <div class="card-header">
+                <h3>Répartition par statut</h3>
+            </div>
+            <div class="card-body">
+                <div class="status-bars">
+                    <div class="status-bar-item">
+                        <div class="bar-info">
+                            <span class="status-dot pending"></span>
+                            <span>En attente</span>
+                            <span class="count">{{ getPendingCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill pending" [style.width.%]="getStatusPercentage('PENDING')"></div>
+                        </div>
                     </div>
-                </td>
-            </ng-container>
+                    <div class="status-bar-item">
+                        <div class="bar-info">
+                            <span class="status-dot confirmed"></span>
+                            <span>Confirmées</span>
+                            <span class="count">{{ getConfirmedCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill confirmed" [style.width.%]="getStatusPercentage('CONFIRMED')"></div>
+                        </div>
+                    </div>
+                    <div class="status-bar-item">
+                        <div class="bar-info">
+                            <span class="status-dot shipped"></span>
+                            <span>Expédiées</span>
+                            <span class="count">{{ getShippedCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill shipped" [style.width.%]="getStatusPercentage('SHIPPED')"></div>
+                        </div>
+                    </div>
+                    <div class="status-bar-item">
+                        <div class="bar-info">
+                            <span class="status-dot delivered"></span>
+                            <span>Livrées</span>
+                            <span class="count">{{ getDeliveredCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill delivered" [style.width.%]="getStatusPercentage('DELIVERED')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Date Column -->
-            <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-                <td mat-cell *matCellDef="let order">
-                    {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}
-                </td>
-            </ng-container>
+        <!-- Quick Stats -->
+        <div class="analytics-card quick-stats-card">
+            <div class="card-header">
+                <h3>Statistiques rapides</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-stats-grid">
+                    <div class="quick-stat">
+                        <div class="stat-icon success">
+                            <mat-icon>check_circle</mat-icon>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value">{{ getCompletionRate() | number:'1.0-0' }}%</span>
+                            <span class="label">Taux de complétion</span>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-icon warning">
+                            <mat-icon>schedule</mat-icon>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value">{{ getAverageOrderValue() | number:'1.2-2' }}</span>
+                            <span class="label">Panier moyen (TND)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>Statut</th>
-                <td mat-cell *matCellDef="let order">
-                    <mat-form-field class="status-select" subscriptSizing="dynamic">
-                        <mat-select [value]="order.status"
-                            (selectionChange)="updateOrderStatus(order.id, $event.value)">
-                            <mat-option value="PENDING">En attente</mat-option>
-                            <mat-option value="CONFIRMED">Confirmée</mat-option>
-                            <mat-option value="SHIPPED">Expédiée</mat-option>
-                            <mat-option value="DELIVERED">Livrée</mat-option>
-                            <mat-option value="CANCELLED">Annulée</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </td>
-            </ng-container>
+        <!-- Recent Activity -->
+        <div class="analytics-card activity-card">
+            <div class="card-header">
+                <h3>Activité récente</h3>
+            </div>
+            <div class="card-body">
+                <div class="activity-list">
+                    @for (order of orders() | slice:0:3; track order.id) {
+                    <div class="activity-item">
+                        <div class="activity-icon" [class]="order.status?.toLowerCase()">
+                            <mat-icon>{{ getStatusIcon(order.status) }}</mat-icon>
+                        </div>
+                        <div class="activity-info">
+                            <span class="activity-title">Commande #{{ order.id | slice:0:8 }}</span>
+                            <span class="activity-time">{{ order.createdAt | date:'dd MMM HH:mm' }}</span>
+                        </div>
+                        <span class="activity-amount">{{ order.totalPrice | number:'1.2-2' }} TND</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Items Column -->
-            <ng-container matColumnDef="items">
-                <th mat-header-cell *matHeaderCellDef>Articles</th>
-                <td mat-cell *matCellDef="let order">
-                    {{ order.orderItems?.length || 0 }} article(s)
-                </td>
-            </ng-container>
+    <!-- Filter Bar -->
+    <section class="filter-bar">
+        <div class="filter-left">
+            <div class="search-box">
+                <mat-icon>search</mat-icon>
+                <input type="text" placeholder="Rechercher par numéro, client..." (input)="onSearch($event)">
+            </div>
+        </div>
+        <div class="filter-right">
+            <div class="filter-group">
+                <label>Statut</label>
+                <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+                    <option value="all">Tous les statuts</option>
+                    <option value="PENDING">En attente</option>
+                    <option value="CONFIRMED">Confirmées</option>
+                    <option value="SHIPPED">Expédiées</option>
+                    <option value="DELIVERED">Livrées</option>
+                    <option value="CANCELLED">Annulées</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Période</label>
+                <select [(ngModel)]="selectedPeriod" (change)="applyFilters()">
+                    <option value="all">Toutes</option>
+                    <option value="today">Aujourd'hui</option>
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                </select>
+            </div>
+        </div>
+    </section>
 
-            <!-- Total Column -->
-            <ng-container matColumnDef="total">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
-                <td mat-cell *matCellDef="let order">
-                    <strong class="total-amount">{{ order.totalPrice | number:'1.2-2' }} TND</strong>
-                </td>
-            </ng-container>
+    <!-- Main Content Area -->
+    <section class="main-content">
+        @if (loading()) {
+        <div class="loading-state">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Chargement des commandes...</p>
+        </div>
+        } @else {
+        <div class="data-table-container">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Articles</th>
+                        <th>Statut</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (order of filteredOrders(); track order.id) {
+                    <tr class="order-row" (click)="viewOrderDetails(order.id)">
+                        <td>
+                            <div class="order-number">
+                                <span class="order-badge">#{{ order.id | slice:0:8 }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="customer-cell">
+                                <div class="customer-avatar">
+                                    {{ getCustomerInitials(order) }}
+                                </div>
+                                <div class="customer-info">
+                                    <span class="customer-name">{{ order.user?.fullName || order.user?.username ||
+                                        'Client' }}</span>
+                                    <span class="customer-email">{{ order.user?.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="date-cell">
+                                <span class="date-main">{{ order.createdAt | date:'dd MMM yyyy' }}</span>
+                                <span class="date-time">{{ order.createdAt | date:'HH:mm' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="items-badge">{{ order.orderItems?.length || 0 }} articles</span>
+                        </td>
+                        <td (click)="$event.stopPropagation()">
+                            <div class="status-dropdown" [class]="order.status?.toLowerCase()">
+                                <select [value]="order.status"
+                                    (change)="updateOrderStatus(order.id, $any($event.target).value)">
+                                    <option value="PENDING">En attente</option>
+                                    <option value="CONFIRMED">Confirmée</option>
+                                    <option value="SHIPPED">Expédiée</option>
+                                    <option value="DELIVERED">Livrée</option>
+                                    <option value="CANCELLED">Annulée</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="total-amount">{{ order.totalPrice | number:'1.2-2' }} <small>TND</small></span>
+                        </td>
+                        <td (click)="$event.stopPropagation()">
+                            <div class="action-buttons">
+                                <button class="action-btn" matTooltip="Voir détails"
+                                    (click)="viewOrderDetails(order.id)">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button class="action-btn" matTooltip="Imprimer" (click)="printOrder(order)">
+                                    <mat-icon>print</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
 
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Actions</th>
-                <td mat-cell *matCellDef="let order">
-                    <button mat-icon-button color="primary" (click)="viewOrderDetails(order.id)"
-                        matTooltip="Voir les détails">
-                        <mat-icon>visibility</mat-icon>
+            @if (filteredOrders().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>receipt_long</mat-icon>
+                </div>
+                <h3>Aucune commande trouvée</h3>
+                <p>Modifiez vos filtres ou attendez de nouvelles commandes</p>
+            </div>
+            }
+
+            <!-- Pagination -->
+            <div class="pagination-bar">
+                <span class="pagination-info">
+                    Affichage de {{ pageIndex() * pageSize() + 1 }} à {{ Math.min((pageIndex() + 1) * pageSize(),
+                    totalOrders()) }} sur {{ totalOrders() }} commandes
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" [disabled]="pageIndex() === 0" (click)="previousPage()">
+                        <mat-icon>chevron_left</mat-icon>
                     </button>
-                </td>
-            </ng-container>
+                    <span class="page-info">Page {{ pageIndex() + 1 }}</span>
+                    <button class="page-btn" [disabled]="(pageIndex() + 1) * pageSize() >= totalOrders()"
+                        (click)="nextPage()">
+                        <mat-icon>chevron_right</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+        }
+    </section>
 
-            <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: orderColumns;"></tr>
-        </table>
-
-        <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]" (page)="handlePageEvent($event)">
-        </mat-paginator>
-    </div>
-</mat-card>
+</div>

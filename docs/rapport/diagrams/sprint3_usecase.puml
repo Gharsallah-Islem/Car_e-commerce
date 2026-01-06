@@ -1,0 +1,66 @@
+@startuml Sprint3_UseCase
+' ============================================================
+' SPRINT 3 - USE CASE DIAGRAM: Cart & Order Management
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Systeme Email" as EmailSys
+
+rectangle "Gestion Panier et Commandes" {
+    package "Panier" {
+        usecase "Ajouter au panier" as UC1
+        usecase "Modifier quantite" as UC2
+        usecase "Supprimer article" as UC3
+        usecase "Consulter panier" as UC4
+        usecase "Vider panier" as UC5
+        usecase "Calculer total" as UC6
+    }
+    
+    package "Commande" {
+        usecase "Passer commande" as UC10
+        usecase "Saisir adresse livraison" as UC11
+        usecase "Confirmer commande" as UC12
+        usecase "Consulter historique" as UC13
+        usecase "Suivre commande" as UC14
+        usecase "Annuler commande" as UC15
+    }
+    
+    package "Administration" {
+        usecase "Lister commandes" as UC20
+        usecase "Modifier statut" as UC21
+        usecase "Confirmer commande admin" as UC22
+        usecase "Generer numero suivi" as UC23
+    }
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC10
+User --> UC13
+User --> UC14
+User --> UC15
+
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+
+UC1 ..> UC6 : <<include>>
+UC2 ..> UC6 : <<include>>
+UC3 ..> UC6 : <<include>>
+
+UC10 ..> UC11 : <<include>>
+UC10 ..> UC12 : <<include>>
+UC12 ..> UC23 : <<include>>
+
+UC21 --> EmailSys : notifier client
+UC22 --> EmailSys : confirmation
+
+@enduml

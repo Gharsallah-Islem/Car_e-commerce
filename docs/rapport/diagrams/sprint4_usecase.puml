@@ -1,0 +1,57 @@
+@startuml Sprint4_UseCase
+' ============================================================
+' SPRINT 4 - USE CASE DIAGRAM: Payment & Inventory Management
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Stripe API" as Stripe
+
+rectangle "Paiement et Inventaire" {
+    package "Paiement Stripe" {
+        usecase "Initier paiement" as UC1
+        usecase "Creer session Stripe" as UC2
+        usecase "Saisir carte bancaire" as UC3
+        usecase "Confirmer paiement" as UC4
+        usecase "Recevoir webhook" as UC5
+        usecase "Mettre a jour statut" as UC6
+    }
+    
+    package "Gestion Inventaire" {
+        usecase "Consulter tableau de bord" as UC10
+        usecase "Voir alertes stock bas" as UC11
+        usecase "Gerer mouvements stock" as UC12
+        usecase "Enregistrer entree stock" as UC13
+        usecase "Enregistrer sortie stock" as UC14
+        usecase "Gerer fournisseurs" as UC15
+        usecase "Creer commande fournisseur" as UC16
+        usecase "Configurer seuils reappro" as UC17
+    }
+}
+
+User --> UC1
+User --> UC3
+User --> UC4
+
+Stripe --> UC5
+
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC15
+Admin --> UC16
+Admin --> UC17
+
+UC1 ..> UC2 : <<include>>
+UC2 --> Stripe : API call
+UC4 --> Stripe : Payment Intent
+UC5 ..> UC6 : <<include>>
+
+UC12 ..> UC13 : <<extend>>
+UC12 ..> UC14 : <<extend>>
+
+@enduml

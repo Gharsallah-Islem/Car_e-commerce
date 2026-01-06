@@ -1,0 +1,159 @@
+% ============================================================
+% CHAPITRE 8 : SPRINT 5 - MODULE IA
+% ============================================================
+
+\chapter{Sprint 5 : Module d'Intelligence Artificielle}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le cinquieme sprint est consacre au developpement du module d'Intelligence Artificielle, permettant la reconnaissance d'images et les recommandations personnalisees.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 5}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Module IA \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 5}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{7cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-5.1 & En tant qu'utilisateur, je veux identifier une piece a partir d'une photo & Haute & 13 \\
+\hline
+US-5.2 & En tant qu'utilisateur, je veux des recommandations basees sur mon historique & Haute & 8 \\
+\hline
+US-5.3 & En tant qu'utilisateur, je veux decrire des symptomes et obtenir des suggestions & Moyenne & 8 \\
+\hline
+US-5.4 & En tant qu'admin, je veux voir les statistiques d'utilisation de l'IA & Moyenne & 5 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas d'utilisation 5.png}
+\caption{Diagramme de cas d'utilisation - Module IA}
+\label{fig:sprint5_usecase}
+\end{figure}
+
+\textbf{Cas d'utilisation principaux :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Identifier piece :}} L'utilisateur uploade une photo pour identification
+    \item \textbf{\textcolor{darkblue}{Obtenir recommandations :}} Suggestions basees sur l'historique d'achat
+    \item \textbf{\textcolor{darkblue}{Analyser symptomes :}} Description textuelle pour suggestion de pieces
+\end{itemize}
+
+\subsection{Diagramme de Classes - Backend}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 5.png}
+\caption{Diagramme de classes - Recommendation, UserActivity et entites associees}
+\label{fig:sprint5_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{Recommendation :}} Enregistrement d'une recommandation IA. Attributs : id, confidenceScore, symptoms, aiResponse, isViewed, createdAt. Relations ManyToOne avec User et Product.
+    \item \textbf{\textcolor{navyblue}{RecommendationType :}} Enumeration definissant les types de recommandations : AI\_PART\_RECOGNITION, SYMPTOM\_ANALYSIS, SIMILAR\_PRODUCTS, PURCHASE\_HISTORY, TRENDING, FREQUENTLY\_BOUGHT.
+    \item \textbf{\textcolor{navyblue}{UserActivity :}} Historique des activites utilisateur. Attributs : id, searchQuery, timestamp. Relations ManyToOne avec User et Product.
+    \item \textbf{\textcolor{navyblue}{ActivityType :}} Enumeration des types d'activites : VIEW, SEARCH, ADD\_TO\_CART, PURCHASE, WISHLIST, AI\_IDENTIFY.
+    \item \textbf{\textcolor{navyblue}{User :}} Utilisateur pour lequel les recommandations sont generees et les activites enregistrees.
+    \item \textbf{\textcolor{navyblue}{Product :}} Produit recommande ou concerne par l'activite utilisateur.
+\end{itemize}
+
+\subsection{Diagramme de Classes - Module Python}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe ai 5.png}
+\caption{Diagramme de classes - Module IA Python (FastAPI, EfficientNetB0)}
+\label{fig:sprint5_class_ai}
+\end{figure}
+
+\textbf{Composants IA :}
+\begin{itemize}
+    \item \textbf{\textcolor{steelblue}{FastAPIApp :}} Application Python exposant les endpoints /predict et /health
+    \item \textbf{\textcolor{steelblue}{EfficientNetB0Model :}} Modele CNN pre-entraine avec 50 classes de pieces
+    \item \textbf{\textcolor{steelblue}{ImagePreprocessor :}} Traitement des images (resize 224x224, normalisation)
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence 5.png}
+\caption{Diagramme de sequence - Reconnaissance d'image IA}
+\label{fig:sprint5_sequence}
+\end{figure}
+
+\section{Realisation}
+
+\subsection{Modele de Classification}
+
+\begin{table}[htbp]
+\centering
+\caption{Specifications du modele IA}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Caracteristique} & \tableheader{Valeur} \\
+\hline
+Architecture & EfficientNetB0 (pre-entraine ImageNet) \\
+\hline
+Nombre de classes & 50 types de pieces \\
+\hline
+Taille d'entree & 224 x 224 pixels \\
+\hline
+Accuracy (validation) & 94.2\% \\
+\hline
+Temps d'inference & ~50ms \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 5}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories terminees & 4/4 \\
+\hline
+Points realises & 34 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}

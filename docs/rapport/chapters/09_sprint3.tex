@@ -1,0 +1,169 @@
+% ============================================================
+% CHAPITRE 6 : SPRINT 3 - PANIER & COMMANDES
+% ============================================================
+
+\chapter{Sprint 3 : Panier et Gestion des Commandes}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le troisieme sprint se concentre sur le developpement des fonctionnalites de panier d'achat et de gestion des commandes.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 3}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Panier et Commandes \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 3}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{7cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-3.1 & En tant qu'utilisateur, je veux ajouter des produits a mon panier & Haute & 5 \\
+\hline
+US-3.2 & En tant qu'utilisateur, je veux modifier les quantites dans mon panier & Haute & 3 \\
+\hline
+US-3.3 & En tant qu'utilisateur, je veux supprimer des articles de mon panier & Haute & 2 \\
+\hline
+US-3.4 & En tant qu'utilisateur, je veux passer une commande & Haute & 8 \\
+\hline
+US-3.5 & En tant qu'utilisateur, je veux voir l'historique de mes commandes & Haute & 5 \\
+\hline
+US-3.6 & En tant qu'admin, je veux gerer les statuts des commandes & Haute & 5 \\
+\hline
+US-3.7 & En tant qu'utilisateur, je veux recevoir une confirmation de commande & Moyenne & 3 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+Le diagramme suivant presente l'ensemble des fonctionnalites liees au panier et aux commandes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas d'utlisation 3.png}
+\caption{Diagramme de cas d'utilisation - Panier et Commandes}
+\label{fig:sprint3_usecase}
+\end{figure}
+
+\textbf{Cas d'utilisation - Panier :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Ajouter au panier :}} Ajout d'un produit avec quantite specifiee
+    \item \textbf{\textcolor{darkblue}{Modifier quantite :}} Augmentation ou diminution de la quantite
+    \item \textbf{\textcolor{darkblue}{Supprimer du panier :}} Retrait d'un article du panier
+    \item \textbf{\textcolor{darkblue}{Consulter panier :}} Visualisation du contenu et du total
+    \item \textbf{\textcolor{darkblue}{Vider panier :}} Suppression de tous les articles
+\end{itemize}
+
+\textbf{Cas d'utilisation - Commande :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Passer commande :}} Finalisation de l'achat avec adresse de livraison
+    \item \textbf{\textcolor{darkblue}{Consulter historique :}} Visualisation de toutes les commandes passees
+    \item \textbf{\textcolor{darkblue}{Suivre commande :}} Consultation du statut actuel d'une commande
+    \item \textbf{\textcolor{darkblue}{Annuler commande :}} Annulation d'une commande en attente
+\end{itemize}
+
+\textbf{Cas d'utilisation - Administration :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Lister commandes :}} Vue d'ensemble de toutes les commandes
+    \item \textbf{\textcolor{darkblue}{Modifier statut :}} Changement du statut d'une commande
+    \item \textbf{\textcolor{darkblue}{Confirmer commande :}} Validation d'une commande en attente
+\end{itemize}
+
+\subsection{Diagramme de Classes}
+
+Le diagramme suivant illustre les relations entre les entites du module panier et commandes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 3.png}
+\caption{Diagramme de classes - Entites Cart, Order, OrderItem et Product}
+\label{fig:sprint3_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{Cart :}} Panier d'achat d'un utilisateur. Attributs : id, createdAt, updatedAt. Relation OneToOne avec User, OneToMany avec CartItem. Methodes : getTotalPrice(), getTotalItems().
+    \item \textbf{\textcolor{navyblue}{CartItem :}} Article dans le panier. Attributs : id, quantity, addedAt. Relations ManyToOne avec Cart et Product. Methode : getSubtotal().
+    \item \textbf{\textcolor{navyblue}{Order :}} Commande validee. Attributs : id, totalPrice, status, deliveryAddress, trackingNumber, paymentMethod, paymentStatus, notes, timestamps. Relation ManyToOne avec User, OneToMany avec OrderItem.
+    \item \textbf{\textcolor{navyblue}{OrderItem :}} Article d'une commande avec prix fige. Attributs : id, quantity, priceAtPurchase. Relations ManyToOne avec Order et Product.
+    \item \textbf{\textcolor{navyblue}{Product :}} Produit reference par CartItem et OrderItem. Fournit les informations de prix et stock pour le calcul du panier.
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence 3.png}
+\caption{Diagramme de sequence - Creation d'une commande}
+\label{fig:sprint3_sequence}
+\end{figure}
+
+\section{Realisation}
+
+\subsection{Cycle de Vie des Commandes}
+
+\begin{table}[htbp]
+\centering
+\caption{Statuts des commandes}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Statut} & \tableheader{Description} \\
+\hline
+PENDING & Commande creee, en attente de confirmation \\
+\hline
+CONFIRMED & Commande validee par l'administrateur \\
+\hline
+SHIPPED & Commande expediee, livraison en cours \\
+\hline
+DELIVERED & Commande livree au client \\
+\hline
+CANCELLED & Commande annulee \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 3}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories terminees & 7/7 \\
+\hline
+Points realises & 31 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}

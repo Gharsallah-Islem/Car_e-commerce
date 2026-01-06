@@ -1,0 +1,127 @@
+@startuml Sprint1_Class
+' ============================================================
+' SPRINT 1 - CLASS DIAGRAM: User & Authentication Entities
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class User {
+        - id: UUID
+        - email: String
+        - password: String
+        - fullName: String
+        - phone: String
+        - address: String
+        - profilePicture: String
+        - isActive: Boolean
+        - isEmailVerified: Boolean
+        - emailVerificationToken: String
+        - passwordResetToken: String
+        - passwordResetExpiry: LocalDateTime
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        + getAuthorities(): Collection
+    }
+
+    class Role {
+        - id: UUID
+        - name: String
+    }
+
+    class Admin {
+        - id: UUID
+        - department: String
+        - permissions: String
+    }
+
+    class SuperAdmin {
+        - id: UUID
+        - accessLevel: String
+    }
+}
+
+package "Security" {
+    class JwtService {
+        - secretKey: String
+        - jwtExpiration: Long
+        + generateToken(user: User): String
+        + validateToken(token: String): Boolean
+        + extractUsername(token: String): String
+        + extractClaim(token: String): Claims
+    }
+
+    class JwtAuthenticationFilter {
+        - jwtService: JwtService
+        - userDetailsService: UserDetailsService
+        + doFilterInternal(request, response, chain): void
+    }
+
+    class SecurityConfig {
+        + filterChain(http: HttpSecurity): SecurityFilterChain
+        + passwordEncoder(): PasswordEncoder
+        + authenticationManager(): AuthenticationManager
+    }
+}
+
+package "Controller" {
+    class AuthController {
+        + register(request: RegisterRequest): AuthResponse
+        + login(request: LoginRequest): AuthResponse
+        + forgotPassword(email: String): ResponseEntity
+        + resetPassword(token: String, password: String): ResponseEntity
+        + verifyEmail(token: String): ResponseEntity
+        + refreshToken(token: String): AuthResponse
+    }
+
+    class UserController {
+        + getCurrentUser(): User
+        + updateProfile(request: UpdateProfileRequest): User
+        + changePassword(request: ChangePasswordRequest): ResponseEntity
+        + uploadProfilePicture(file: MultipartFile): ResponseEntity
+    }
+}
+
+package "Service" {
+    class AuthService {
+        + register(request: RegisterRequest): User
+        + authenticate(email: String, password: String): User
+        + generatePasswordResetToken(email: String): void
+        + resetPassword(token: String, password: String): void
+        + verifyEmail(token: String): void
+    }
+
+    class UserService {
+        + findById(id: UUID): User
+        + findByEmail(email: String): User
+        + save(user: User): User
+        + updateProfile(user: User, request: UpdateProfileRequest): User
+    }
+}
+
+package "Repository" {
+    interface UserRepository {
+        + findByEmail(email: String): Optional<User>
+        + existsByEmail(email: String): Boolean
+        + findByEmailVerificationToken(token: String): Optional<User>
+        + findByPasswordResetToken(token: String): Optional<User>
+    }
+
+    interface RoleRepository {
+        + findByName(name: String): Optional<Role>
+    }
+}
+
+User "1" -- "1" Role : has >
+Admin --|> User
+SuperAdmin --|> Admin
+
+AuthController --> AuthService
+UserController --> UserService
+AuthService --> UserRepository
+AuthService --> JwtService
+UserService --> UserRepository
+JwtAuthenticationFilter --> JwtService
+
+@enduml

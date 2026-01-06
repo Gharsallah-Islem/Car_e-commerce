@@ -19,6 +19,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { OrderService } from '../../core/services/order.service';
+import { AddressService } from '../../core/services/address.service';
 import { User, Address, Order, OrderStatus } from '../../core/models';
 import { environment } from '../../../environments/environment';
 
@@ -93,7 +94,8 @@ export class ProfileComponent implements OnInit {
         private http: HttpClient,
         private authService: AuthService,
         private notificationService: NotificationService,
-        private orderService: OrderService
+        private orderService: OrderService,
+        private addressService: AddressService
     ) {
         this.initForms();
     }
@@ -182,13 +184,14 @@ export class ProfileComponent implements OnInit {
     }
 
     loadAddresses(): void {
-        // Load addresses from user profile if available
-        const user = this.currentUser();
-        if (user && (user as any).addresses) {
-            this.addresses.set((user as any).addresses);
-        } else {
-            this.addresses.set([]);
-        }
+        this.addressService.getMyAddresses().subscribe({
+            next: (addresses) => {
+                this.addresses.set(addresses || []);
+            },
+            error: () => {
+                this.addresses.set([]);
+            }
+        });
     }
 
     toggleEditProfile(): void {
@@ -240,16 +243,31 @@ export class ProfileComponent implements OnInit {
         const user = this.currentUser();
         if (!user) return;
 
-        this.http.put<User>(`${environment.apiUrl}/users/me`, {
+        // Combine firstName and lastName into fullName for backend
+        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+
+        this.http.put<any>(`${environment.apiUrl}/users/me`, {
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
+            fullName: fullName,
             phoneNumber: user.phoneNumber,
             address: user.address,
             profilePicture: base64
         }).subscribe({
             next: (updatedUser) => {
-                this.currentUser.set(updatedUser);
+                // Update local state with correct firstName/lastName
+                const firstName = updatedUser.firstName || (fullName.split(' ')[0] || '');
+                const lastName = updatedUser.lastName || (fullName.split(' ').slice(1).join(' ') || '');
+
+                this.currentUser.set({
+                    ...updatedUser,
+                    firstName,
+                    lastName,
+                    profilePicture: base64
+                });
+
+                // Refresh auth service to persist the change
+                this.authService.getCurrentUser().subscribe();
+
                 this.notificationService.success('Photo de profil mise à jour');
                 this.uploadingPicture.set(false);
             },
@@ -315,14 +333,19 @@ export class ProfileComponent implements OnInit {
             return;
         }
 
-        const newAddress: Address = {
-            id: this.addresses().length + 1,
-            ...this.addressForm.value
-        };
-
-        this.addresses.update(addresses => [...addresses, newAddress]);
-        this.addressForm.reset({ country: 'Tunisie' });
-        this.notificationService.success('Adresse ajoutée avec succès');
+        this.loading.set(true);
+        this.addressService.addAddress(this.addressForm.value).subscribe({
+            next: (newAddress) => {
+                this.addresses.update(addresses => [...addresses, newAddress]);
+                this.addressForm.reset({ country: 'Tunisie' });
+                this.notificationService.success('Adresse ajoutée avec succès');
+                this.loading.set(false);
+            },
+            error: () => {
+                this.notificationService.error('Erreur lors de l\'ajout de l\'adresse');
+                this.loading.set(false);
+            }
+        });
     }
 
     editAddress(address: Address): void {
@@ -338,23 +361,40 @@ export class ProfileComponent implements OnInit {
 
         const id = this.editingAddress();
         if (id) {
-            this.addresses.update(addresses =>
-                addresses.map(addr =>
-                    addr.id === id ? { ...addr, ...this.addressForm.value } : addr
-                )
-            );
-            this.editingAddress.set(null);
-            this.addressForm.reset({ country: 'Tunisie' });
-            this.notificationService.success('Adresse mise à jour avec succès');
+            this.loading.set(true);
+            this.addressService.updateAddress(id, this.addressForm.value).subscribe({
+                next: (updatedAddress) => {
+                    this.addresses.update(addresses =>
+                        addresses.map(addr =>
+                            addr.id === id ? updatedAddress : addr
+                        )
+                    );
+                    this.editingAddress.set(null);
+                    this.addressForm.reset({ country: 'Tunisie' });
+                    this.notificationService.success('Adresse mise à jour avec succès');
+                    this.loading.set(false);
+                },
+                error: () => {
+                    this.notificationService.error('Erreur lors de la mise à jour de l\'adresse');
+                    this.loading.set(false);
+                }
+            });
         }
     }
 
     deleteAddress(addressId: number): void {
         if (confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')) {
-            this.addresses.update(addresses =>
-                addresses.filter(addr => addr.id !== addressId)
-            );
-            this.notificationService.success('Adresse supprimée avec succès');
+            this.addressService.deleteAddress(addressId).subscribe({
+                next: () => {
+                    this.addresses.update(addresses =>
+                        addresses.filter(addr => addr.id !== addressId)
+                    );
+                    this.notificationService.success('Adresse supprimée avec succès');
+                },
+                error: () => {
+                    this.notificationService.error('Erreur lors de la suppression de l\'adresse');
+                }
+            });
         }
     }
 

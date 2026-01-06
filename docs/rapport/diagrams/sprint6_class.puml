@@ -1,0 +1,160 @@
+@startuml Sprint6_Class
+' ============================================================
+' SPRINT 6 - CLASS DIAGRAM: Conversation, Message, Delivery, Reclamation
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class Conversation {
+        - id: UUID
+        - title: String
+        - isActive: Boolean
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        + close(): void
+    }
+
+    class Message {
+        - id: UUID
+        - content: String
+        - senderType: String
+        - isRead: Boolean
+        - createdAt: LocalDateTime
+        --
+        + SENDER_USER: String
+        + SENDER_SUPPORT: String
+        + SENDER_SYSTEM: String
+    }
+
+    class Delivery {
+        - id: UUID
+        - trackingNumber: String
+        - status: String
+        - address: String
+        - driverName: String
+        - driverPhone: String
+        - currentLatitude: Double
+        - currentLongitude: Double
+        - estimatedDelivery: LocalDateTime
+        - pickedUpAt: LocalDateTime
+        - deliveredAt: LocalDateTime
+        - createdAt: LocalDateTime
+        --
+        + STATUS_PROCESSING: String
+        + STATUS_IN_TRANSIT: String
+        + STATUS_OUT_FOR_DELIVERY: String
+        + STATUS_DELIVERED: String
+        + STATUS_FAILED: String
+        --
+        + updatePosition(lat, lng): void
+        + markAsDelivered(): void
+    }
+
+    class Driver {
+        - id: UUID
+        - name: String
+        - phone: String
+        - email: String
+        - vehicleType: String
+        - licensePlate: String
+        - isAvailable: Boolean
+        - currentLatitude: Double
+        - currentLongitude: Double
+    }
+
+    class DriverLocation {
+        - id: UUID
+        - latitude: Double
+        - longitude: Double
+        - timestamp: LocalDateTime
+        - speed: Double
+        - heading: Double
+    }
+
+    class Reclamation {
+        - id: UUID
+        - subject: String
+        - description: String
+        - status: String
+        - response: String
+        - attachmentUrl: String
+        - createdAt: LocalDateTime
+        - resolvedAt: LocalDateTime
+    }
+
+    class User {
+        - id: UUID
+        - email: String
+    }
+
+    class Order {
+        - id: UUID
+        - trackingNumber: String
+    }
+}
+
+package "Controller" {
+    class ChatController {
+        + createConversation(): Conversation
+        + sendMessage(convId: UUID, content: String): Message
+        + getMessages(convId: UUID): List<Message>
+        + getUserConversations(): List<Conversation>
+        + closeConversation(id: UUID): void
+    }
+
+    class DeliveryController {
+        + getDeliveryByOrder(orderId: UUID): Delivery
+        + getDeliveryByTracking(trackingNumber: String): Delivery
+        + updateStatus(id: UUID, status: String): Delivery
+        + assignDriver(id: UUID, driverId: UUID): Delivery
+        + startSimulation(id: UUID): void
+    }
+
+    class LocationWebSocketController {
+        + subscribeToDelivery(deliveryId: UUID): void
+        + broadcastPosition(deliveryId: UUID, position: Position): void
+    }
+}
+
+package "Service" {
+    class ChatService {
+        + createConversation(user: User): Conversation
+        + sendMessage(convId: UUID, content: String, sender: String): Message
+        + getConversationMessages(convId: UUID): List<Message>
+        + broadcastMessage(message: Message): void
+    }
+
+    class DeliveryService {
+        + createDeliveryFromOrder(order: Order): Delivery
+        + updateStatus(id: UUID, status: String): Delivery
+        + assignDriver(id: UUID, driverId: UUID): Delivery
+        + markAsDelivered(id: UUID): Delivery
+    }
+
+    class DeliverySimulationService {
+        + startSimulation(delivery: Delivery): void
+        + geocodeAddress(address: String): Coordinates
+        + calculateRoute(origin, destination): List<Coordinates>
+        + simulateMovement(delivery, route): void
+    }
+}
+
+Conversation "n" -- "1" User : initiated by >
+Conversation "1" -- "n" Message : contains >
+Message "n" -- "1" User : sent by >
+
+Delivery "1" -- "1" Order : for >
+Delivery "n" -- "1" Driver : assigned to >
+Driver "1" -- "n" DriverLocation : tracked by >
+
+Reclamation "n" -- "1" User : submitted by >
+Reclamation "n" -- "0..1" Order : about >
+
+ChatController --> ChatService
+DeliveryController --> DeliveryService
+DeliveryController --> DeliverySimulationService
+LocationWebSocketController --> DeliverySimulationService
+
+@enduml

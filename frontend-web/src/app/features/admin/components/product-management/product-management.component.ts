@@ -61,6 +61,15 @@ export class ProductManagementComponent implements OnInit {
   loading = signal<boolean>(false);
   viewMode = signal<'grid' | 'list'>('grid');
   showForm = signal<boolean>(false);
+  activeTab = signal<'products' | 'categories' | 'brands'>('products');
+
+  // Category/Brand CRUD state
+  showCategoryForm = signal<boolean>(false);
+  showBrandForm = signal<boolean>(false);
+  editingCategory = signal<Category | null>(null);
+  editingBrand = signal<Brand | null>(null);
+  categoryForm!: FormGroup;
+  brandForm!: FormGroup;
 
   // Products
   products = signal<Product[]>([]);
@@ -119,6 +128,16 @@ export class ProductManagementComponent implements OnInit {
       imageUrl: ['', [Validators.required]],
       specifications: [''],
       compatibility: ['']
+    });
+
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['']
+    });
+
+    this.brandForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['']
     });
 
     this.searchForm = this.fb.group({
@@ -393,5 +412,206 @@ export class ProductManagementComponent implements OnInit {
     this.searchForm.patchValue({ search: '' });
     this.searchQuery.set('');
     this.applyFilters();
+  }
+
+  // Analytics helper methods
+  getInStockCount(): number {
+    return this.products().filter(p => p.stock >= 10).length;
+  }
+
+  getLowStockCount(): number {
+    return this.products().filter(p => p.stock > 0 && p.stock < 10).length;
+  }
+
+  getOutOfStockCount(): number {
+    return this.products().filter(p => p.stock === 0).length;
+  }
+
+  getStockPercentage(type: string): number {
+    const total = this.products().length;
+    if (total === 0) return 0;
+
+    switch (type) {
+      case 'in_stock':
+        return (this.getInStockCount() / total) * 100;
+      case 'low_stock':
+        return (this.getLowStockCount() / total) * 100;
+      case 'out_of_stock':
+        return (this.getOutOfStockCount() / total) * 100;
+      default:
+        return 0;
+    }
+  }
+
+  getCategoryProductCount(categoryId: number): number {
+    return this.products().filter(p => p.category?.id === categoryId).length;
+  }
+
+  getBrandProductCount(brandId: number): number {
+    return this.products().filter(p => p.brand?.id === brandId).length;
+  }
+
+  // ========== CATEGORY CRUD ==========
+  openCategoryForm(category?: Category): void {
+    this.showCategoryForm.set(true);
+    if (category) {
+      this.editingCategory.set(category);
+      this.categoryForm.patchValue({
+        name: category.name,
+        description: category.description || ''
+      });
+    } else {
+      this.editingCategory.set(null);
+      this.categoryForm.reset();
+    }
+  }
+
+  editCategory(category: Category): void {
+    this.openCategoryForm(category);
+  }
+
+  closeCategoryForm(): void {
+    this.showCategoryForm.set(false);
+    this.editingCategory.set(null);
+    this.categoryForm.reset();
+  }
+
+  saveCategory(): void {
+    if (this.categoryForm.invalid) return;
+    this.loading.set(true);
+    const data = this.categoryForm.value;
+
+    if (this.editingCategory()) {
+      this.categoryService.updateCategory(this.editingCategory()!.id, data).subscribe({
+        next: () => {
+          this.notificationService.success('Catégorie mise à jour');
+          this.closeCategoryForm();
+          this.loadCategories();
+        },
+        error: () => {
+          this.notificationService.error('Erreur lors de la mise à jour');
+          this.loading.set(false);
+        }
+      });
+    } else {
+      this.categoryService.createCategory(data).subscribe({
+        next: () => {
+          this.notificationService.success('Catégorie créée');
+          this.closeCategoryForm();
+          this.loadCategories();
+        },
+        error: () => {
+          this.notificationService.error('Erreur lors de la création');
+          this.loading.set(false);
+        }
+      });
+    }
+  }
+
+  deleteCategory(id: number): void {
+    if (!confirm('Supprimer cette catégorie ?')) return;
+    this.loading.set(true);
+    this.categoryService.deleteCategory(id).subscribe({
+      next: () => {
+        this.notificationService.success('Catégorie supprimée');
+        this.loadCategories();
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors de la suppression');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  loadCategories(): void {
+    this.categoryService.getAllCategories().subscribe({
+      next: (cats) => {
+        this.categories.set(cats);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  // ========== BRAND CRUD ==========
+  openBrandForm(brand?: Brand): void {
+    this.showBrandForm.set(true);
+    if (brand) {
+      this.editingBrand.set(brand);
+      this.brandForm.patchValue({
+        name: brand.name,
+        description: brand.description || ''
+      });
+    } else {
+      this.editingBrand.set(null);
+      this.brandForm.reset();
+    }
+  }
+
+  editBrand(brand: Brand): void {
+    this.openBrandForm(brand);
+  }
+
+  closeBrandForm(): void {
+    this.showBrandForm.set(false);
+    this.editingBrand.set(null);
+    this.brandForm.reset();
+  }
+
+  saveBrand(): void {
+    if (this.brandForm.invalid) return;
+    this.loading.set(true);
+    const data = this.brandForm.value;
+
+    if (this.editingBrand()) {
+      this.brandService.updateBrand(this.editingBrand()!.id, data).subscribe({
+        next: () => {
+          this.notificationService.success('Marque mise à jour');
+          this.closeBrandForm();
+          this.loadBrands();
+        },
+        error: () => {
+          this.notificationService.error('Erreur lors de la mise à jour');
+          this.loading.set(false);
+        }
+      });
+    } else {
+      this.brandService.createBrand(data).subscribe({
+        next: () => {
+          this.notificationService.success('Marque créée');
+          this.closeBrandForm();
+          this.loadBrands();
+        },
+        error: () => {
+          this.notificationService.error('Erreur lors de la création');
+          this.loading.set(false);
+        }
+      });
+    }
+  }
+
+  deleteBrand(id: number): void {
+    if (!confirm('Supprimer cette marque ?')) return;
+    this.loading.set(true);
+    this.brandService.deleteBrand(id).subscribe({
+      next: () => {
+        this.notificationService.success('Marque supprimée');
+        this.loadBrands();
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors de la suppression');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  loadBrands(): void {
+    this.brandService.getAllBrands().subscribe({
+      next: (brands) => {
+        this.brands.set(brands);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
   }
 }

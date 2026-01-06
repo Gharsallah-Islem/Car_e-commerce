@@ -9,6 +9,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminNavigationService } from '../../../core/services/admin-navigation.service';
+import { NotificationCenterComponent } from '../components/notification-center/notification-center.component';
 
 @Component({
     selector: 'app-admin-navbar',
@@ -21,7 +22,8 @@ import { AdminNavigationService } from '../../../core/services/admin-navigation.
         MatIconModule,
         MatMenuModule,
         MatBadgeModule,
-        MatDividerModule
+        MatDividerModule,
+        NotificationCenterComponent
     ],
     templateUrl: './admin-navbar.component.html',
     styleUrls: ['./admin-navbar.component.scss']

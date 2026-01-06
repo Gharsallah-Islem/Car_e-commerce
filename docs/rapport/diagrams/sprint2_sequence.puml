@@ -1,0 +1,59 @@
+@startuml Sprint2_Sequence
+' ============================================================
+' SPRINT 2 - SEQUENCE DIAGRAM: Product Search with Filters
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "ProductController" as ProdCtrl
+participant "ProductService" as ProdSvc
+participant "ProductRepository" as ProdRepo
+participant "Specification\nBuilder" as SpecBuilder
+database "PostgreSQL" as DB
+
+== Recherche avec Filtres ==
+
+User -> Frontend : Saisir recherche + selectionner filtres
+note right of Frontend
+  search: "plaquette"
+  categoryId: uuid
+  brandId: uuid
+  minPrice: 50
+  maxPrice: 200
+end note
+
+Frontend -> ProdCtrl : GET /api/products?search=plaquette\n&categoryId=xxx&minPrice=50&maxPrice=200\n&page=0&size=12
+
+ProdCtrl -> ProdSvc : findProducts(page, size, filters)
+
+ProdSvc -> SpecBuilder : build specifications
+SpecBuilder -> SpecBuilder : addSearchSpec(search)
+SpecBuilder -> SpecBuilder : addCategorySpec(categoryId)
+SpecBuilder -> SpecBuilder : addBrandSpec(brandId)
+SpecBuilder -> SpecBuilder : addPriceRangeSpec(min, max)
+SpecBuilder --> ProdSvc : Specification<Product>
+
+ProdSvc -> ProdRepo : findAll(specification, pageable)
+ProdRepo -> DB : SELECT * FROM products\nWHERE (name LIKE '%plaquette%'\nOR description LIKE '%plaquette%')\nAND category_id = ?\nAND price BETWEEN 50 AND 200\nORDER BY created_at DESC\nLIMIT 12 OFFSET 0
+
+DB --> ProdRepo : List<Product>
+ProdRepo --> ProdSvc : Page<Product>
+
+ProdSvc --> ProdCtrl : Page<Product>
+note right of ProdCtrl
+  {
+    content: [...products],
+    totalElements: 45,
+    totalPages: 4,
+    number: 0,
+    size: 12
+  }
+end note
+
+ProdCtrl --> Frontend : 200 OK Page<Product>
+Frontend -> Frontend : Update products signal
+Frontend --> User : Afficher produits filtres\navec pagination
+
+@enduml

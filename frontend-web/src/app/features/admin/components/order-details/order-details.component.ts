@@ -157,4 +157,29 @@ export class OrderDetailsComponent implements OnInit {
             minute: '2-digit'
         });
     }
+
+    getStatusIcon(status: string): string {
+        const icons: { [key: string]: string } = {
+            PENDING: 'schedule',
+            CONFIRMED: 'check_circle',
+            PROCESSING: 'settings',
+            SHIPPED: 'local_shipping',
+            DELIVERED: 'done_all',
+            CANCELLED: 'cancel',
+            REFUNDED: 'replay',
+            PAID: 'payment'
+        };
+        return icons[status] || 'receipt';
+    }
+
+    getCustomerInitials(): string {
+        const order = this.order();
+        if (!order) return 'U';
+        const name = order.user?.fullName || order.user?.username || 'User';
+        const parts = name.split(' ');
+        if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
+    }
 }

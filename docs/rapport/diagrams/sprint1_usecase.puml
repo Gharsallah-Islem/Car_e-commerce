@@ -1,0 +1,49 @@
+@startuml Sprint1_UseCase
+' ============================================================
+' SPRINT 1 - USE CASE DIAGRAM: Authentication & User Management
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Visiteur" as Visitor
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Systeme Email" as EmailSystem
+
+rectangle "Systeme d'Authentification" {
+    usecase "S'inscrire" as UC1
+    usecase "Se connecter" as UC2
+    usecase "Se deconnecter" as UC3
+    usecase "Reinitialiser mot de passe" as UC4
+    usecase "Verifier email" as UC5
+    usecase "Gerer profil" as UC6
+    usecase "Gerer utilisateurs" as UC7
+    usecase "Attribuer roles" as UC8
+    usecase "Generer token JWT" as UC9
+    usecase "Valider token" as UC10
+    usecase "Envoyer email verification" as UC11
+}
+
+Visitor --> UC1
+Visitor --> UC2
+Visitor --> UC4
+
+User --> UC3
+User --> UC5
+User --> UC6
+User --|> Visitor
+
+Admin --> UC7
+Admin --> UC8
+Admin --|> User
+
+UC1 ..> UC11 : <<include>>
+UC4 ..> UC11 : <<include>>
+UC2 ..> UC9 : <<include>>
+UC3 ..> UC10 : <<include>>
+
+UC11 --> EmailSystem
+
+@enduml

@@ -125,10 +125,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Load cart
+        // Load cart and validate stock
         this.cartService.cart$.subscribe(cart => {
             if (cart) {
                 this.cartItems.set(cart.items);
+
+                // Validate stock for all items BEFORE allowing checkout
+                this.validateCartStock(cart.items);
             } else {
                 this.cartItems.set([]);
             }
@@ -139,6 +142,29 @@ export class CheckoutComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/cart']);
             }
         });
+    }
+
+    /**
+     * Validate that all cart items have sufficient stock
+     * Prevents proceeding to payment if stock is insufficient
+     */
+    validateCartStock(items: CartItem[]): void {
+        const insufficientItems: string[] = [];
+
+        for (const item of items) {
+            if (item.product.stock < item.quantity) {
+                insufficientItems.push(
+                    `${item.product.name}: demandé ${item.quantity}, disponible ${item.product.stock}`
+                );
+            }
+        }
+
+        if (insufficientItems.length > 0) {
+            const message = 'Stock insuffisant pour:\n' + insufficientItems.join('\n');
+            this.notificationService.error(message);
+            // Redirect back to cart to adjust quantities
+            this.router.navigate(['/cart']);
+        }
     }
 
     initializeStripe(): void {
@@ -371,7 +397,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             },
             error: (error) => {
                 console.error('Backend order creation failed:', error);
-                this.notificationService.error('Erreur lors de la création de la commande');
+
+                // Check for stock-related errors
+                const errorMessage = error.error?.message || error.message || '';
+                if (errorMessage.includes('stock') || errorMessage.includes('Insufficient')) {
+                    this.notificationService.error('Stock insuffisant pour un ou plusieurs produits. Veuillez modifier votre panier.');
+                    this.router.navigate(['/cart']);
+                } else if (errorMessage.includes('out of stock')) {
+                    this.notificationService.error('Un produit est en rupture de stock. Veuillez modifier votre panier.');
+                    this.router.navigate(['/cart']);
+                } else {
+                    this.notificationService.error('Erreur lors de la création de la commande');
+                }
                 this.processingPayment.set(false);
             }
         });

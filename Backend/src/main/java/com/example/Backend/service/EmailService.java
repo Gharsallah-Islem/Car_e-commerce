@@ -374,12 +374,12 @@ public class EmailService {
                                                             Quantity: <strong>%d</strong>
                                                         </p>
                                                         <p style="margin: 0; color: #999999; font-size: 13px;">
-                                                            Unit Price: %s MAD
+                                                            Unit Price: %s TND
                                                         </p>
                                                     </td>
                                                     <td style="text-align: right; vertical-align: top;">
                                                         <p style="margin: 0; color: #2196f3; font-size: 18px; font-weight: 700;">
-                                                            %s MAD
+                                                            %s TND
                                                         </p>
                                                     </td>
                                                 </tr>
@@ -496,11 +496,11 @@ public class EmailService {
                                                             <table role="presentation" style="width: 100%%; border-collapse: collapse;">
                                                                 <tr>
                                                                     <td style="padding: 8px 0; color: #666666; font-size: 14px;">Subtotal</td>
-                                                                    <td style="text-align: right; padding: 8px 0; color: #333333; font-size: 14px; font-weight: 500;">%s MAD</td>
+                                                                    <td style="text-align: right; padding: 8px 0; color: #333333; font-size: 14px; font-weight: 500;">%s TND</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="padding: 8px 0; color: #666666; font-size: 14px;">VAT (20%%)</td>
-                                                                    <td style="text-align: right; padding: 8px 0; color: #333333; font-size: 14px; font-weight: 500;">%s MAD</td>
+                                                                    <td style="text-align: right; padding: 8px 0; color: #333333; font-size: 14px; font-weight: 500;">%s TND</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="padding: 8px 0; color: #666666; font-size: 14px;">Shipping</td>
@@ -513,7 +513,7 @@ public class EmailService {
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="padding: 15px 0 0 0; color: #333333; font-size: 18px; font-weight: 700;">Total</td>
-                                                                    <td style="text-align: right; padding: 15px 0 0 0; color: #2196f3; font-size: 24px; font-weight: 700;">%s MAD</td>
+                                                                    <td style="text-align: right; padding: 15px 0 0 0; color: #2196f3; font-size: 24px; font-weight: 700;">%s TND</td>
                                                                 </tr>
                                                             </table>
                                                         </div>
@@ -605,7 +605,7 @@ public class EmailService {
                     String.format("%.2f", tax.setScale(2, RoundingMode.HALF_UP)),
                     shipping.compareTo(BigDecimal.ZERO) == 0
                             ? "<span style='color: #4caf50; font-weight: 600;'>FREE</span>"
-                            : String.format("%.2f", shipping.setScale(2, RoundingMode.HALF_UP)) + " MAD",
+                            : String.format("%.2f", shipping.setScale(2, RoundingMode.HALF_UP)) + " TND",
                     String.format("%.2f", total.setScale(2, RoundingMode.HALF_UP)),
                     deliveryAddress,
                     paymentMethodDisplay,
@@ -639,7 +639,7 @@ public class EmailService {
                                 <div style="background-color: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;">
                                     <h2 style="color: #333; margin-top: 0;">Order Details</h2>
                                     <p><strong>Order ID:</strong> %s</p>
-                                    <p><strong>Total:</strong> %s MAD</p>
+                                    <p><strong>Total:</strong> %s TND</p>
                                     <p><strong>Delivery Address:</strong> %s</p>
                                     <p><strong>Payment Method:</strong> %s</p>
                                     <p><strong>Order Date:</strong> %s</p>

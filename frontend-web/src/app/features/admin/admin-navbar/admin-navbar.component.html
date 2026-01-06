@@ -1,102 +1,88 @@
-<mat-toolbar class="admin-navbar">
-    <div class="navbar-content">
-        <!-- Left Section: Logo & Title -->
-        <div class="navbar-left">
-            <mat-icon class="logo-icon">admin_panel_settings</mat-icon>
-            <span class="brand-title">AutoShop Admin</span>
-            <span class="divider">|</span>
-            <span class="page-title">Tableau de bord</span>
+<nav class="admin-navbar">
+    <div class="navbar-container">
+        <!-- Left Section: Logo & Branding -->
+        <div class="navbar-brand">
+            <div class="logo-wrapper">
+                <mat-icon class="logo-icon">directions_car</mat-icon>
+                <div class="logo-glow"></div>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">Car Parts<span class="accent">Hub</span></span>
+                <span class="brand-label">Admin Portal</span>
+            </div>
         </div>
 
-        <!-- Center Section: Quick Actions -->
-        <div class="navbar-center">
-            <a mat-button class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
+        <!-- Center Section: Navigation Links -->
+        <div class="navbar-nav">
+            <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: true}">
                 <mat-icon>dashboard</mat-icon>
-                Analytics
+                <span>Analytics</span>
             </a>
-            <a mat-button class="nav-link" routerLink="/admin/inventory" routerLinkActive="active">
+            <a class="nav-item" routerLink="/admin/inventory" routerLinkActive="active">
                 <mat-icon>inventory</mat-icon>
-                Inventaire
+                <span>Inventaire</span>
             </a>
-            <a mat-button class="nav-link" routerLink="/admin/delivery" routerLinkActive="active">
+            <a class="nav-item" routerLink="/admin/delivery" routerLinkActive="active">
                 <mat-icon>local_shipping</mat-icon>
-                Livraisons
+                <span>Livraisons</span>
             </a>
-            <a mat-button class="nav-link" routerLink="/admin/products" routerLinkActive="active">
+            <a class="nav-item" routerLink="/admin/products" routerLinkActive="active">
                 <mat-icon>inventory_2</mat-icon>
-                Produits
+                <span>Produits</span>
             </a>
-            <a mat-button class="nav-link" routerLink="/admin/categories" routerLinkActive="active">
-                <mat-icon>category</mat-icon>
-                Catégories
-            </a>
-            <a mat-button class="nav-link" routerLink="/admin/brands" routerLinkActive="active">
-                <mat-icon>label</mat-icon>
-                Marques
-            </a>
-            <a mat-button class="nav-link" routerLink="/admin/orders" routerLinkActive="active">
+            <a class="nav-item" routerLink="/admin/orders" routerLinkActive="active">
                 <mat-icon>shopping_bag</mat-icon>
-                Commandes
+                <span>Commandes</span>
             </a>
-            <a mat-button class="nav-link" routerLink="/admin/users" routerLinkActive="active">
+            <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
                 <mat-icon>people</mat-icon>
-                Utilisateurs
+                <span>Utilisateurs</span>
             </a>
         </div>
 
-        <!-- Right Section: User Menu -->
-        <div class="navbar-right">
-            <!-- Notifications -->
-            <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="icon-button">
-                <mat-icon [matBadge]="3" matBadgeColor="warn" matBadgeSize="small" aria-hidden="false"
-                    aria-label="Notifications">notifications</mat-icon>
-            </button>
-            <mat-menu #notificationsMenu="matMenu" class="notifications-menu">
-                <div class="menu-header">
-                    <h3>Notifications</h3>
-                </div>
-                <mat-divider></mat-divider>
-                <button mat-menu-item>
-                    <mat-icon>shopping_cart</mat-icon>
-                    <span>3 nouvelles commandes</span>
-                </button>
-                <button mat-menu-item>
-                    <mat-icon>warning</mat-icon>
-                    <span>5 produits en rupture</span>
-                </button>
-                <button mat-menu-item>
-                    <mat-icon>person_add</mat-icon>
-                    <span>2 nouveaux utilisateurs</span>
-                </button>
-            </mat-menu>
+        <!-- Right Section: Actions & Profile -->
+        <div class="navbar-actions">
+            <!-- Real-time Notifications -->
+            <app-notification-center></app-notification-center>
 
             <!-- User Profile -->
             @if (currentUser$ | async; as user) {
-            <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-                <mat-icon>account_circle</mat-icon>
-                <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-                <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
-            </button>
-            <mat-menu #userMenu="matMenu" class="user-menu">
-                <div class="menu-header">
-                    <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-                    <p>{{ user.email }}</p>
+            <button class="user-profile-btn" [matMenuTriggerFor]="userMenu">
+                <div class="avatar">
+                    <span>{{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}</span>
                 </div>
-                <mat-divider></mat-divider>
-                <button mat-menu-item>
+                <div class="user-info">
+                    <span class="user-name">{{ user.firstName }}</span>
+                    <span class="user-role">Admin</span>
+                </div>
+                <mat-icon class="chevron">expand_more</mat-icon>
+            </button>
+            <mat-menu #userMenu="matMenu" class="premium-menu user-menu">
+                <div class="menu-header user-header">
+                    <div class="user-avatar-lg">
+                        <span>{{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}</span>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-fullname">{{ user.firstName }} {{ user.lastName }}</span>
+                        <span class="user-email">{{ user.email }}</span>
+                    </div>
+                </div>
+                <div class="menu-divider"></div>
+                <button mat-menu-item class="menu-item" routerLink="/admin/settings">
                     <mat-icon>person</mat-icon>
                     <span>Mon profil</span>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item class="menu-item" routerLink="/admin/settings">
                     <mat-icon>settings</mat-icon>
                     <span>Paramètres</span>
                 </button>
-                <mat-divider></mat-divider>
-                <button mat-menu-item (click)="goToHome()">
+                <div class="menu-divider"></div>
+                <button mat-menu-item class="menu-item" (click)="goToHome()">
                     <mat-icon>storefront</mat-icon>
                     <span>Voir le site</span>
                 </button>
-                <button mat-menu-item (click)="logout()">
+                <button mat-menu-item class="menu-item logout" (click)="logout()">
                     <mat-icon>logout</mat-icon>
                     <span>Déconnexion</span>
                 </button>
@@ -104,4 +90,4 @@
             }
         </div>
     </div>
-</mat-toolbar>
+</nav>

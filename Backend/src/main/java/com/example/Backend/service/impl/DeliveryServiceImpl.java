@@ -171,6 +171,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public Delivery markAsPickedUp(UUID deliveryId, String courierName) {
+        log.info("Marking delivery {} as picked up by courier: {}", deliveryId, courierName);
+
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("Delivery not found with id: " + deliveryId));
 
@@ -178,7 +180,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         delivery.setDriverName(courierName);
         delivery.setUpdatedAt(LocalDateTime.now());
 
-        return deliveryRepository.save(delivery);
+        Delivery savedDelivery = deliveryRepository.save(delivery);
+
+        // Start delivery simulation when courier is assigned
+        log.info("Starting delivery simulation for delivery {}", deliveryId);
+        simulationService.startSimulation(deliveryId);
+
+        return savedDelivery;
     }
 
     @Override

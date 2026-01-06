@@ -1,0 +1,33 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Diagramme de cas d'utilisation - Module Authentification}}{16}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Diagramme de classes - Entites User et Role}}{18}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Diagramme de sequence - Processus de connexion JWT}}{19}{figure.4.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramme de cas d'utilisation - Gestion des Produits}}{22}{figure.5.1}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Diagramme de classes - Entites Product, Category, Brand et Vehicle}}{23}{figure.5.2}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Diagramme de sequence - Recherche et filtrage de produits}}{24}{figure.5.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Diagramme de cas d'utilisation - Panier et Commandes}}{26}{figure.6.1}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Diagramme de classes - Entites Cart, Order, OrderItem et Product}}{28}{figure.6.2}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Diagramme de sequence - Creation d'une commande}}{29}{figure.6.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Diagramme de cas d'utilisation - Paiement et Inventaire}}{32}{figure.7.1}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Diagramme de classes - Payment, StockMovement, Supplier, PurchaseOrder et Product}}{33}{figure.7.2}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Diagramme de sequence - Paiement avec Stripe Checkout}}{34}{figure.7.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Diagramme de cas d'utilisation - Module IA}}{37}{figure.8.1}%
+\contentsline {figure}{\numberline {8.2}{\ignorespaces Diagramme de classes - Recommendation, UserActivity et entites associees}}{38}{figure.8.2}%
+\contentsline {figure}{\numberline {8.3}{\ignorespaces Diagramme de classes - Module IA Python (FastAPI, EfficientNetB0)}}{39}{figure.8.3}%
+\contentsline {figure}{\numberline {8.4}{\ignorespaces Diagramme de sequence - Reconnaissance d'image IA}}{40}{figure.8.4}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {9.1}{\ignorespaces Diagramme de cas d'utilisation - Chat et Livraison}}{43}{figure.9.1}%
+\contentsline {figure}{\numberline {9.2}{\ignorespaces Diagramme de classes - Conversation, Message, Delivery, Driver et entites associees}}{44}{figure.9.2}%
+\contentsline {figure}{\numberline {9.3}{\ignorespaces Diagramme de sequence - Suivi de livraison en temps reel}}{46}{figure.9.3}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

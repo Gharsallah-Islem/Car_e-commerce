@@ -1,0 +1,62 @@
+@startuml Sprint3_Sequence
+' ============================================================
+' SPRINT 3 - SEQUENCE DIAGRAM: Order Creation from Cart
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "OrderController" as OrderCtrl
+participant "OrderService" as OrderSvc
+participant "CartService" as CartSvc
+participant "ProductRepository" as ProdRepo
+participant "OrderRepository" as OrderRepo
+database "PostgreSQL" as DB
+
+== Creation de Commande ==
+
+User -> Frontend : Cliquer "Commander"
+Frontend -> Frontend : Afficher formulaire\n(adresse, notes)
+User -> Frontend : Saisir adresse de livraison
+Frontend -> OrderCtrl : POST /api/orders\n{deliveryAddress, paymentMethod, notes}
+
+OrderCtrl -> OrderSvc : createFromCart(user, request)
+
+OrderSvc -> CartSvc : getCart(user)
+CartSvc -> DB : SELECT cart + items
+DB --> CartSvc : Cart with CartItems
+CartSvc --> OrderSvc : Cart
+
+loop Pour chaque CartItem
+    OrderSvc -> ProdRepo : findById(productId)
+    ProdRepo --> OrderSvc : Product
+    OrderSvc -> OrderSvc : Verifier stock disponible
+    
+    alt Stock insuffisant
+        OrderSvc --> OrderCtrl : throw InsufficientStockException
+        OrderCtrl --> Frontend : 400 Bad Request
+        Frontend --> User : Afficher erreur stock
+    end
+end
+
+OrderSvc -> OrderSvc : Creer Order entity
+OrderSvc -> OrderSvc : Copier CartItems vers OrderItems
+OrderSvc -> OrderSvc : Calculer totalPrice
+OrderSvc -> OrderSvc : Generer trackingNumber\n(TRK-XXXXXX)
+OrderSvc -> OrderSvc : status = PENDING
+
+OrderSvc -> OrderRepo : save(order)
+OrderRepo -> DB : INSERT INTO orders...
+OrderRepo -> DB : INSERT INTO order_items...
+DB --> OrderRepo : Order saved
+OrderRepo --> OrderSvc : Order
+
+OrderSvc -> CartSvc : clearCart(user)
+CartSvc -> DB : DELETE FROM cart_items
+
+OrderSvc --> OrderCtrl : Order
+OrderCtrl --> Frontend : 201 Created\n{order with trackingNumber}
+Frontend --> User : Afficher confirmation\nNumero de suivi: TRK-XXXXXX
+
+@enduml

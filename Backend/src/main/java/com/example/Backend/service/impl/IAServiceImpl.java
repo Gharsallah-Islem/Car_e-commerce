@@ -202,18 +202,42 @@ public class IAServiceImpl implements IAService {
 
                     log.info("AI prediction: {} with confidence {:.2f}", partName, confidence);
 
-                    // Search for matching products in the catalog
-                    matchedProducts = productRepository.findByNameContaining(partName);
+                    // Clean up the part name for search
+                    String searchName = partName.replace("_", " ").toLowerCase().trim();
+                    log.info("Searching products with term: {}", searchName);
 
-                    // If no exact match, try searching by keywords
+                    // Search for matching products in the catalog
+                    // Try exact match first
+                    matchedProducts = productRepository.findByNameContaining(searchName);
+                    log.info("Exact search found {} products", matchedProducts.size());
+
+                    // If no exact match, try searching with the most specific keywords first
                     if (matchedProducts.isEmpty()) {
-                        // Try partial match - e.g., "BRAKE PAD" -> search for "brake" or "pad"
-                        String[] keywords = partName.toLowerCase().replace("_", " ").split(" ");
-                        for (String keyword : keywords) {
-                            if (keyword.length() > 3) { // Skip short words
-                                matchedProducts = productRepository.findByNameContaining(keyword);
-                                if (!matchedProducts.isEmpty())
-                                    break;
+                        String[] keywords = searchName.split(" ");
+
+                        // Try from most specific (longest) to least specific combinations
+                        // First try pairs of keywords (e.g., "brake rotor", "brake pad")
+                        for (int i = 0; i < keywords.length - 1 && matchedProducts.isEmpty(); i++) {
+                            String combinedKeyword = keywords[i] + " " + keywords[i + 1];
+                            if (combinedKeyword.length() > 5) {
+                                matchedProducts = productRepository.findByNameContaining(combinedKeyword);
+                                log.info("Combined search '{}' found {} products", combinedKeyword,
+                                        matchedProducts.size());
+                            }
+                        }
+
+                        // Then try individual keywords, starting with the most specific one
+                        if (matchedProducts.isEmpty()) {
+                            // Sort by length (longer keywords are usually more specific)
+                            java.util.Arrays.sort(keywords, (a, b) -> b.length() - a.length());
+
+                            for (String keyword : keywords) {
+                                if (keyword.length() > 3) { // Skip short words
+                                    matchedProducts = productRepository.findByNameContaining(keyword);
+                                    log.info("Keyword search '{}' found {} products", keyword, matchedProducts.size());
+                                    if (!matchedProducts.isEmpty())
+                                        break;
+                                }
                             }
                         }
                     }

@@ -185,6 +185,42 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80';
     }
 
+    /**
+     * Get Material icon name for a category
+     */
+    getCategoryIcon(categoryName: string): string {
+        const name = categoryName.toLowerCase();
+        if (name.includes('moteur') || name.includes('engine')) return 'settings';
+        if (name.includes('frein') || name.includes('brake')) return 'radio_button_checked';
+        if (name.includes('suspension') || name.includes('direction')) return 'swap_vert';
+        if (name.includes('electr') || name.includes('clairage') || name.includes('light')) return 'lightbulb';
+        if (name.includes('carr') || name.includes('body') || name.includes('exterieur')) return 'directions_car';
+        if (name.includes('huil') || name.includes('oil') || name.includes('filtr')) return 'water_drop';
+        if (name.includes('pneu') || name.includes('tire') || name.includes('roue') || name.includes('wheel')) return 'tire_repair';
+        if (name.includes('interieur') || name.includes('interior')) return 'airline_seat_recline_normal';
+        if (name.includes('access') || name.includes('accessoire')) return 'extension';
+        if (name.includes('transmiss') || name.includes('clutch') || name.includes('embray')) return 'sync';
+        if (name.includes('refroid') || name.includes('cool') || name.includes('radiateur')) return 'ac_unit';
+        if (name.includes('echappement') || name.includes('exhaust')) return 'air';
+        return 'build';
+    }
+
+    /**
+     * Get CSS class for category icon color
+     */
+    getCategoryIconClass(categoryName: string): string {
+        const name = categoryName.toLowerCase();
+        if (name.includes('moteur') || name.includes('engine')) return 'icon-engine';
+        if (name.includes('frein') || name.includes('brake')) return 'icon-brake';
+        if (name.includes('suspension') || name.includes('direction')) return 'icon-suspension';
+        if (name.includes('electr') || name.includes('clairage') || name.includes('light')) return 'icon-electric';
+        if (name.includes('carr') || name.includes('body') || name.includes('exterieur')) return 'icon-body';
+        if (name.includes('huil') || name.includes('oil') || name.includes('filtr')) return 'icon-oil';
+        if (name.includes('pneu') || name.includes('tire') || name.includes('roue') || name.includes('wheel')) return 'icon-tire';
+        if (name.includes('interieur') || name.includes('interior')) return 'icon-interior';
+        return 'icon-default';
+    }
+
     updateCartCount(): void {
         this.cartService.cart$.subscribe(cart => {
             const count = cart?.items?.reduce((total: number, item: CartItem) => total + item.quantity, 0) || 0;

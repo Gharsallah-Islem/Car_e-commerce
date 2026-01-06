@@ -6,6 +6,7 @@ import com.example.Backend.repository.*;
 import com.example.Backend.service.DeliveryService;
 import com.example.Backend.service.OrderService;
 import com.example.Backend.service.EmailService;
+import com.example.Backend.service.AdminNotificationService;
 import com.example.Backend.entity.StockMovement;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final DeliveryRepository deliveryRepository;
     private final DeliveryService deliveryService;
     private final StockMovementRepository stockMovementRepository;
+    private final AdminNotificationService adminNotificationService;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
@@ -45,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
             EmailService emailService,
             DeliveryRepository deliveryRepository,
             @Lazy DeliveryService deliveryService,
-            StockMovementRepository stockMovementRepository) {
+            StockMovementRepository stockMovementRepository,
+            AdminNotificationService adminNotificationService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.userRepository = userRepository;
@@ -55,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
         this.deliveryRepository = deliveryRepository;
         this.deliveryService = deliveryService;
         this.stockMovementRepository = stockMovementRepository;
+        this.adminNotificationService = adminNotificationService;
     }
 
     @Override
@@ -137,18 +141,44 @@ public class OrderServiceImpl implements OrderService {
 
         // Send order confirmation email
         try {
-            log.info("Attempting to send order confirmation email for order: {}", savedOrder.getId());
-            if (savedOrder.getOrderItems() == null || savedOrder.getOrderItems().isEmpty()) {
-                log.warn("Order {} has no order items, skipping email", savedOrder.getId());
+            log.info("=== ORDER EMAIL DEBUG ===");
+            log.info("Order ID: {}", savedOrder.getId());
+            log.info("Order User: {}", savedOrder.getUser() != null ? savedOrder.getUser().getUsername() : "NULL");
+            log.info("Order User Email: {}", savedOrder.getUser() != null ? savedOrder.getUser().getEmail() : "NULL");
+            log.info("Order Items: {}",
+                    savedOrder.getOrderItems() != null ? savedOrder.getOrderItems().size() : "NULL");
+
+            if (savedOrder.getUser() == null) {
+                log.error("Cannot send email - User is NULL for order {}", savedOrder.getId());
+            } else if (savedOrder.getUser().getEmail() == null || savedOrder.getUser().getEmail().isEmpty()) {
+                log.error("Cannot send email - User email is NULL or empty for order {}", savedOrder.getId());
+            } else if (savedOrder.getOrderItems() == null || savedOrder.getOrderItems().isEmpty()) {
+                log.warn("Order {} has no order items, sending email anyway", savedOrder.getId());
+                emailService.sendOrderConfirmationEmail(savedOrder);
+                log.info("Order confirmation email sent for order: {}", savedOrder.getId());
             } else {
-                log.info("Order {} has {} items, sending email", savedOrder.getId(), savedOrder.getOrderItems().size());
+                log.info("Sending order confirmation email to: {}", savedOrder.getUser().getEmail());
                 emailService.sendOrderConfirmationEmail(savedOrder);
                 log.info("Order confirmation email sent successfully for order: {}", savedOrder.getId());
             }
+            log.info("=== END ORDER EMAIL DEBUG ===");
         } catch (Exception e) {
             // Log but don't fail the order
             log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage(),
                     e);
+        }
+
+        // Send real-time notification to admin dashboard
+        try {
+            String customerName = savedOrder.getUser().getFullName() != null
+                    ? savedOrder.getUser().getFullName()
+                    : savedOrder.getUser().getUsername();
+            adminNotificationService.notifyNewOrder(
+                    savedOrder.getId().toString(),
+                    customerName,
+                    savedOrder.getTotalPrice().doubleValue());
+        } catch (Exception e) {
+            log.error("Failed to send admin notification for order {}: {}", savedOrder.getId(), e.getMessage());
         }
 
         return savedOrder;
@@ -195,9 +225,37 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order updateOrderStatus(UUID orderId, String status) {
         Order order = getOrderById(orderId);
+        String currentStatus = order.getStatus();
+
+        log.info("updateOrderStatus called: orderId={}, currentStatus={}, newStatus={}",
+                orderId, currentStatus, status);
+
+        // If changing to CONFIRMED from PENDING, use confirmOrder to auto-create
+        // delivery
+        if ("CONFIRMED".equals(status) && "PENDING".equals(currentStatus)) {
+            log.info("Delegating to confirmOrder for order {}", orderId);
+            return confirmOrder(orderId);
+        }
+
+        // If changing to CONFIRMED from other status, just set status and try to create
+        // delivery
+        if ("CONFIRMED".equals(status) && !"CONFIRMED".equals(currentStatus)) {
+            log.info("Setting status to CONFIRMED for order {} (was {})", orderId, currentStatus);
+            order.setStatus("CONFIRMED");
+            Order savedOrder = orderRepository.save(order);
+
+            // Try to create delivery if one doesn't exist
+            try {
+                deliveryService.createDeliveryFromOrder(savedOrder);
+                log.info("Created delivery for confirmed order {}", orderId);
+            } catch (Exception e) {
+                log.error("Failed to create delivery for order {}: {}", orderId, e.getMessage());
+            }
+            return savedOrder;
+        }
 
         // If changing to SHIPPED, use shipOrder to auto-create delivery
-        if ("SHIPPED".equals(status) && !"SHIPPED".equals(order.getStatus())) {
+        if ("SHIPPED".equals(status) && !"SHIPPED".equals(currentStatus)) {
             return shipOrder(orderId, null); // Auto-generate tracking number
         }
 
@@ -208,7 +266,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order confirmOrder(UUID orderId) {
         Order order = getOrderById(orderId);
-        if (!"PENDING".equals(order.getStatus())) {
+        String currentStatus = order.getStatus();
+
+        log.info("confirmOrder called: orderId={}, currentStatus={}", orderId, currentStatus);
+
+        if (!"PENDING".equals(currentStatus)) {
+            log.warn("Order {} is not PENDING (is {}), cannot use confirmOrder", orderId, currentStatus);
             throw new IllegalStateException("Only pending orders can be confirmed");
         }
         order.setStatus("CONFIRMED");
@@ -216,10 +279,11 @@ public class OrderServiceImpl implements OrderService {
 
         // AUTO-CREATE DELIVERY when order is confirmed
         try {
-            deliveryService.createDeliveryFromOrder(savedOrder);
-            log.info("Auto-created delivery for confirmed order {}", orderId);
+            Delivery delivery = deliveryService.createDeliveryFromOrder(savedOrder);
+            log.info("Auto-created delivery {} for confirmed order {}",
+                    delivery != null ? delivery.getId() : "null", orderId);
         } catch (Exception e) {
-            log.error("Failed to auto-create delivery for order {}: {}", orderId, e.getMessage());
+            log.error("Failed to auto-create delivery for order {}: {}", orderId, e.getMessage(), e);
         }
 
         return savedOrder;

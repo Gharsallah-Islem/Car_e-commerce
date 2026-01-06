@@ -131,6 +131,23 @@ public class OrderController {
     // ========== ADMIN ENDPOINTS ==========
 
     /**
+     * Get orders by specific user ID (Admin view user details)
+     * GET /api/orders/user/{userId}
+     * Security: ADMIN or SUPER_ADMIN role required
+     */
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Page<Order>> getOrdersByUserId(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orders = orderService.getOrdersByUser(userId, pageable);
+        return ResponseEntity.ok(orders);
+    }
+
+    /**
      * Get all orders (Admin dashboard)
      * GET /api/orders?page=0&size=20
      * Security: ADMIN or SUPER_ADMIN role required

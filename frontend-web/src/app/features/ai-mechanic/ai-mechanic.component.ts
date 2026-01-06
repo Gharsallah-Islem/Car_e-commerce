@@ -104,6 +104,36 @@ export class AiMechanicComponent implements OnInit {
         this.fileInput.nativeElement.click();
     }
 
+    onDrop(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const files = event.dataTransfer?.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                this.notificationService.error('Veuillez sélectionner une image valide');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                this.notificationService.error('L\'image ne doit pas dépasser 5 MB');
+                return;
+            }
+
+            // Read and display image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.uploadedImage.set(e.target?.result as string);
+                this.identifyPart();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     clearImage(): void {
         this.uploadedImage.set(null);
         this.identificationResult.set(null);
@@ -186,11 +216,18 @@ export class AiMechanicComponent implements OnInit {
     viewProductDetails(): void {
         const result = this.identificationResult();
         if (result?.products && result.products.length > 0) {
-            this.router.navigate(['/products', result.products[0].id]);
-        } else {
-            this.router.navigate(['/products'], {
-                queryParams: { search: result?.partName || '' }
+            // Navigate to the first matching product
+            const productId = result.products[0].id;
+            console.log('Navigating to product:', productId);
+            this.router.navigate(['/products', productId]);
+        } else if (result?.partName) {
+            // If no exact product match, search in catalog by part name
+            console.log('No products found, searching catalog for:', result.partName);
+            this.router.navigate(['/catalogue'], {
+                queryParams: { search: result.partName }
             });
+        } else {
+            this.notificationService.warning('Aucun produit correspondant trouvé');
         }
     }
 
@@ -199,6 +236,15 @@ export class AiMechanicComponent implements OnInit {
     }
 
     addToCart(): void {
-        this.notificationService.success('Produit ajouté au panier');
+        const result = this.identificationResult();
+        if (result?.products && result.products.length > 0) {
+            const product = result.products[0];
+            // Import CartService and add the product
+            // For now, navigate to the product page where user can add to cart
+            this.router.navigate(['/products', product.id]);
+            this.notificationService.info('Cliquez sur "Ajouter au panier" sur la page du produit');
+        } else {
+            this.notificationService.warning('Aucun produit trouvé à ajouter au panier');
+        }
     }
 }

@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -40,7 +41,8 @@ import { Product, Category, Brand, ProductFilter } from '../../../core/models';
         MatProgressSpinnerModule,
         MatButtonToggleModule,
         MatCheckboxModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatSlideToggleModule
     ],
     templateUrl: './product-list.component.html',
     styleUrls: ['./product-list.component.scss']

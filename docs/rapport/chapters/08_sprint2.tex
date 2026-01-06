@@ -1,0 +1,139 @@
+% ============================================================
+% CHAPITRE 5 : SPRINT 2 - GESTION DES PRODUITS
+% ============================================================
+
+\chapter{Sprint 2 : Gestion des Produits et Catalogue}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le deuxieme sprint se concentre sur le developpement du catalogue de produits, incluant les fonctionnalites de recherche, de filtrage et l'interface d'administration pour la gestion des produits.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 2}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Gestion des Produits \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 2}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{7cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-2.1 & En tant qu'utilisateur, je veux parcourir les produits par categorie & Haute & 5 \\
+\hline
+US-2.2 & En tant qu'utilisateur, je veux rechercher des produits par mot-cle & Haute & 5 \\
+\hline
+US-2.3 & En tant qu'utilisateur, je veux filtrer les produits par prix et marque & Haute & 5 \\
+\hline
+US-2.4 & En tant qu'admin, je veux ajouter de nouveaux produits & Haute & 8 \\
+\hline
+US-2.5 & En tant qu'admin, je veux modifier et supprimer des produits & Haute & 5 \\
+\hline
+US-2.6 & En tant qu'admin, je veux gerer les categories et marques & Moyenne & 5 \\
+\hline
+US-2.7 & En tant qu'utilisateur, je veux voir les details d'un produit & Haute & 3 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+Le diagramme suivant presente les fonctionnalites de gestion du catalogue differenciees par acteur.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas utilisation 2.png}
+\caption{Diagramme de cas d'utilisation - Gestion des Produits}
+\label{fig:sprint2_usecase}
+\end{figure}
+
+\textbf{Cas d'utilisation principaux :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Parcourir le catalogue :}} Navigation dans les produits avec pagination
+    \item \textbf{\textcolor{darkblue}{Rechercher des produits :}} Recherche textuelle par nom ou description
+    \item \textbf{\textcolor{darkblue}{Filtrer par criteres :}} Application de filtres (categorie, marque, prix)
+    \item \textbf{\textcolor{darkblue}{Gerer les produits :}} Operations CRUD sur les produits (Admin)
+\end{itemize}
+
+\subsection{Diagramme de Classes}
+
+Ce diagramme presente la structure des entites produit avec leurs relations.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 2.png}
+\caption{Diagramme de classes - Entites Product, Category, Brand et Vehicle}
+\label{fig:sprint2_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{Product :}} Entite centrale representant une piece automobile. Attributs : id (UUID), name, description, price, stock, model, year, compatibility, imageUrl, isActive, timestamps. Relations ManyToOne avec Category et Brand, et ManyToMany avec Vehicle.
+    \item \textbf{\textcolor{navyblue}{Category :}} Classification hierarchique des produits (Freinage, Moteur, Electricite, Suspension). Attributs : id, name, description.
+    \item \textbf{\textcolor{navyblue}{Brand :}} Marques des pieces automobiles (Bosch, Valeo, Brembo). Attributs : id, name, country, description, logoUrl.
+    \item \textbf{\textcolor{navyblue}{Vehicle :}} Vehicule compatible avec les pieces. Attributs : id, brand, model, year, engineType. Un produit peut etre compatible avec plusieurs vehicules.
+    \item \textbf{\textcolor{navyblue}{ProductImage :}} Images additionnelles d'un produit. Attributs : id, imageUrl, isPrimary, sortOrder. Relation ManyToOne vers Product.
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+Le diagramme illustre le flux de recherche avec filtres multiples.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence 2.png}
+\caption{Diagramme de sequence - Recherche et filtrage de produits}
+\label{fig:sprint2_sequence}
+\end{figure}
+
+\section{Realisation}
+
+\subsection{Architecture du Catalogue}
+
+\begin{itemize}
+    \item \textbf{\textcolor{steelblue}{ProductController :}} Endpoints REST pour consultation et administration
+    \item \textbf{\textcolor{steelblue}{ProductService :}} Logique metier incluant recherche avec Specifications JPA
+    \item \textbf{\textcolor{steelblue}{ProductRepository :}} Interface Spring Data JPA avec methodes personnalisees
+\end{itemize}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 2}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories terminees & 7/7 \\
+\hline
+Points realises & 36 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}

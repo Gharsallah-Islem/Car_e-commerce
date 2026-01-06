@@ -1,0 +1,234 @@
+% ============================================================
+% CHAPITRE 2 : ÉTAT DE L'ART
+% ============================================================
+
+\chapter{État de l'Art}
+
+\section{Introduction}
+
+Ce chapitre présente une étude approfondie des solutions existantes dans le domaine de l'e-commerce automobile, ainsi qu'une analyse des technologies qui seront utilisées dans notre projet. Cette étude nous permettra de positionner notre solution et de justifier nos choix technologiques.
+
+\section{Étude des Plateformes E-Commerce Existantes}
+
+\subsection{Plateformes Internationales}
+
+\subsubsection{Amazon Auto Parts}
+
+Amazon propose une section dédiée aux pièces automobiles avec plusieurs fonctionnalités intéressantes :
+
+\begin{itemize}
+    \item Recherche par compatibilité véhicule (marque, modèle, année)
+    \item Large catalogue de produits avec avis clients
+    \item Système de recommandation basé sur l'historique d'achat
+    \item Livraison rapide via Amazon Prime
+\end{itemize}
+
+\textbf{Limites :} Pas de reconnaissance d'images, interface générique non spécialisée.
+
+\subsubsection{RockAuto}
+
+RockAuto est une référence dans le domaine des pièces automobiles en ligne :
+
+\begin{itemize}
+    \item Spécialisation dans les pièces automobiles
+    \item Catalogue très complet avec diagrammes techniques
+    \item Prix compétitifs avec multiple fournisseurs
+    \item Recherche avancée par numéro de pièce OEM
+\end{itemize}
+
+\textbf{Limites :} Interface datée, pas d'IA, pas d'application mobile native.
+
+\subsubsection{eBay Motors}
+
+eBay Motors offre une marketplace pour les pièces automobiles :
+
+\begin{itemize}
+    \item Pièces neuves et d'occasion
+    \item Système d'enchères et d'achat immédiat
+    \item Garantie acheteur
+    \item Vendeurs particuliers et professionnels
+\end{itemize}
+
+\textbf{Limites :} Qualité variable des vendeurs, pas de reconnaissance d'images.
+
+\subsection{Plateformes Régionales et Tunisiennes}
+
+En Tunisie, le marché des pièces automobiles en ligne est encore émergent. Les solutions existantes se limitent généralement à :
+
+\begin{itemize}
+    \item Des pages Facebook de revendeurs
+    \item Des sites vitrine sans fonctionnalités e-commerce complètes
+    \item Des applications basiques sans intelligence artificielle
+\end{itemize}
+
+\subsection{Tableau Comparatif}
+
+\begin{table}[htbp]
+\centering
+\caption{Comparaison des plateformes existantes}
+\label{tab:comparaison_plateformes}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Fonctionnalité} & \textbf{Amazon} & \textbf{RockAuto} & \textbf{eBay} & \textbf{Local} & \textbf{Notre Solution} \\
+\hline
+Catalogue complet & \checkmark & \checkmark & \checkmark & -- & \checkmark \\
+\hline
+Application mobile & \checkmark & -- & \checkmark & -- & \checkmark \\
+\hline
+Reconnaissance IA & -- & -- & -- & -- & \checkmark \\
+\hline
+Recommandations IA & \checkmark & -- & -- & -- & \checkmark \\
+\hline
+Chat support & \checkmark & -- & \checkmark & -- & \checkmark \\
+\hline
+Suivi temps réel & \checkmark & -- & -- & -- & \checkmark \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Intelligence Artificielle dans l'E-Commerce}
+
+\subsection{Reconnaissance d'Images}
+
+La reconnaissance d'images est devenue un outil puissant dans l'e-commerce moderne. Elle permet :
+
+\begin{itemize}
+    \item \textbf{Recherche visuelle :} L'utilisateur peut prendre une photo d'un produit pour le rechercher.
+    \item \textbf{Identification de pièces :} Particulièrement utile dans l'automobile où les pièces sont difficiles à nommer.
+    \item \textbf{Contrôle qualité :} Détection automatique des défauts sur les produits.
+\end{itemize}
+
+\subsubsection{Réseaux de Neurones Convolutifs (CNN)}
+
+Les CNN sont la technologie de référence pour la classification d'images. Les architectures les plus utilisées incluent :
+
+\begin{itemize}
+    \item \textbf{VGG16/VGG19 :} Architecture simple mais efficace, souvent utilisée comme baseline.
+    \item \textbf{ResNet :} Introduit les connexions résiduelles pour les réseaux profonds.
+    \item \textbf{EfficientNet :} Optimise le compromis entre précision et efficacité computationnelle.
+    \item \textbf{MobileNet :} Conçu pour les appareils mobiles avec ressources limitées.
+\end{itemize}
+
+Pour notre projet, nous avons choisi \textbf{EfficientNetB0} car il offre un excellent équilibre entre précision et taille du modèle, ce qui est crucial pour un déploiement en production.
+
+\subsection{Systèmes de Recommandation}
+
+Les systèmes de recommandation sont essentiels pour personnaliser l'expérience utilisateur. On distingue trois approches principales :
+
+\begin{enumerate}
+    \item \textbf{Filtrage collaboratif :} Recommande des produits basés sur les préférences d'utilisateurs similaires.
+    
+    \item \textbf{Filtrage basé sur le contenu :} Recommande des produits similaires à ceux déjà consultés ou achetés.
+    
+    \item \textbf{Approche hybride :} Combine les deux méthodes pour de meilleures recommandations.
+\end{enumerate}
+
+Notre système utilisera une approche hybride, combinant l'analyse du comportement utilisateur avec les caractéristiques des produits.
+
+\section{Technologies et Frameworks}
+
+\subsection{Frontend : Angular}
+
+Angular est un framework développé par Google pour la création d'applications web SPA (Single Page Application).
+
+\textbf{Avantages :}
+\begin{itemize}
+    \item Architecture modulaire et maintenable
+    \item TypeScript pour un typage fort
+    \item Système de composants réutilisables
+    \item Injection de dépendances intégrée
+    \item Écosystème riche (Angular Material, RxJS)
+\end{itemize}
+
+\subsection{Mobile : Kotlin Android}
+
+Kotlin est le langage officiel recommandé par Google pour le développement d'applications Android natives.
+
+\textbf{Avantages :}
+\begin{itemize}
+    \item Langage moderne et concis
+    \item Interopérabilité complète avec Java
+    \item Null safety intégré
+    \item Coroutines pour la programmation asynchrone
+    \item Support officiel de Google et JetBrains
+\end{itemize}
+
+Notre application mobile Android utilise Kotlin avec les composants :
+\begin{itemize}
+    \item Retrofit pour les appels API REST vers le backend Spring Boot
+    \item Coroutines pour la gestion asynchrone
+    \item View Binding pour la liaison des vues
+    \item Material Design 3 pour l'interface utilisateur
+\end{itemize}
+
+\subsection{Backend : Spring Boot}
+
+Spring Boot est un framework Java qui simplifie le développement d'applications d'entreprise.
+
+\textbf{Avantages :}
+\begin{itemize}
+    \item Configuration automatique
+    \item Sécurité intégrée (Spring Security)
+    \item Support JPA/Hibernate pour l'ORM
+    \item Écosystème mature et documenté
+    \item WebSocket pour la communication temps réel
+\end{itemize}
+
+\subsection{Base de Données : PostgreSQL}
+
+PostgreSQL est un système de gestion de base de données relationnelle open source.
+
+\textbf{Avantages :}
+\begin{itemize}
+    \item Fiabilité et robustesse
+    \item Support des types de données complexes (JSON, arrays)
+    \item Performances optimisées pour les grandes bases
+    \item Conformité ACID
+\end{itemize}
+
+\subsection{Module IA : FastAPI et TensorFlow}
+
+\textbf{FastAPI :}
+\begin{itemize}
+    \item Framework Python moderne et rapide
+    \item Documentation automatique (OpenAPI/Swagger)
+    \item Support asynchrone natif
+    \item Validation automatique des données
+\end{itemize}
+
+\textbf{TensorFlow/Keras :}
+\begin{itemize}
+    \item Bibliothèque de deep learning de Google
+    \item Support GPU pour l'entraînement
+    \item Large communauté et documentation
+    \item Modèles pré-entraînés disponibles
+\end{itemize}
+
+\subsection{Autres Technologies}
+
+\begin{table}[htbp]
+\centering
+\caption{Technologies complémentaires utilisées}
+\label{tab:technologies}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Composant} & \textbf{Technologie} & \textbf{Utilisation} \\
+\hline
+Paiement & Stripe & Transactions sécurisées \\
+\hline
+Cartographie & Leaflet + OpenRouteService & Suivi de livraison \\
+\hline
+Temps réel & WebSocket (STOMP) & Chat, notifications \\
+\hline
+Authentification & JWT & Tokens sécurisés \\
+\hline
+Conteneurisation & Docker & Déploiement \\
+\hline
+Versioning & Git/GitHub & Gestion du code source \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+Cette étude de l'état de l'art nous a permis d'identifier les lacunes des solutions existantes et de définir les caractéristiques différenciatrices de notre plateforme. Notre solution se distingue par l'intégration de l'intelligence artificielle pour la reconnaissance d'images et les recommandations, ainsi que par un système de livraison avec suivi en temps réel.

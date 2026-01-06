@@ -44,9 +44,9 @@ public class DeliverySimulationService {
     private final Map<UUID, ScheduledFuture<?>> activeSimulations = new ConcurrentHashMap<>();
     private final Map<UUID, SimulationState> simulationStates = new ConcurrentHashMap<>();
 
-    // Depot location: Boumhal, Tunis
-    private static final double DEPOT_LAT = 36.7284;
-    private static final double DEPOT_LNG = 10.2039;
+    // Depot location: El Menzah, Tunis (West side, avoids crossing Lac de Tunis)
+    private static final double DEPOT_LAT = 36.8283;
+    private static final double DEPOT_LNG = 10.1583;
 
     // OpenRouteService API key (full token from user)
     private static final String ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImJkYzNjYjZlODY5NDQ5MGU4M2RjMWEwYjk5NjM2OWE0IiwiaCI6Im11cm11cjY0In0=";
@@ -87,13 +87,21 @@ public class DeliverySimulationService {
             return;
         }
 
+        log.info("=== STARTING DELIVERY SIMULATION ===");
+        log.info("Delivery ID: {}", deliveryId);
+        log.info("Delivery Address: '{}'", delivery.getAddress());
+        log.info("Depot Location: ({}, {})", DEPOT_LAT, DEPOT_LNG);
+
         // Geocode destination from address
         double[] destCoords = geocodeAddress(delivery.getAddress());
         double destLat = destCoords[0];
         double destLng = destCoords[1];
 
+        log.info("Geocoded Destination: ({}, {})", destLat, destLng);
+
         // Generate route waypoints using OpenRouteService
         List<double[]> waypoints = generateRoute(DEPOT_LAT, DEPOT_LNG, destLat, destLng, TOTAL_STEPS);
+        log.info("Generated {} waypoints for route", waypoints.size());
 
         // Create simulation state with destination and route
         SimulationState state = new SimulationState(deliveryId, waypoints, destLat, destLng);
@@ -108,6 +116,7 @@ public class DeliverySimulationService {
         activeSimulations.put(deliveryId, future);
         log.info("Started delivery simulation for {} with {} waypoints. Destination: ({}, {})",
                 deliveryId, waypoints.size(), destLat, destLng);
+        log.info("=== SIMULATION STARTED ===");
 
         // Broadcast initial position WITH FULL ROUTE WAYPOINTS
         broadcastInitialRoute(deliveryId, DEPOT_LAT, DEPOT_LNG, destLat, destLng, waypoints);
@@ -285,19 +294,40 @@ public class DeliverySimulationService {
     }
 
     /**
-     * Geocode address to coordinates using OpenRouteService Geocoding API
+     * Geocode address to coordinates.
+     * PRIORITY: 1) Known Tunisian location keywords (accurate)
+     * 2) OpenRouteService Geocoding API (may be inaccurate for Tunisia)
      */
     private double[] geocodeAddress(String address) {
+        log.info("Geocoding address: '{}'", address);
+
         if (address == null || address.trim().isEmpty()) {
-            log.warn("Empty address, using default Tunis center");
+            log.warn("Empty address provided, using default Tunis center");
             return new double[] { 36.8065, 10.1815 };
         }
 
+        // STEP 1: Check for known Tunisian location keywords FIRST
+        // These are more accurate than ORS for specific Tunisian neighborhoods
+        double keywordLat = getDestinationLatitude(null, address);
+        double keywordLng = getDestinationLongitude(null, address);
+
+        // Check if we found a specific keyword match (not the default random)
+        // Default is 36.8065 ± 0.02 for lat and 10.1815 ± 0.02 for lng
+        boolean isKeywordMatch = !(keywordLat > 36.78 && keywordLat < 36.83 &&
+                keywordLng > 10.16 && keywordLng < 10.20);
+
+        if (isKeywordMatch) {
+            log.info("Using keyword-based coordinates for '{}': ({}, {})", address, keywordLat, keywordLng);
+            return new double[] { keywordLat, keywordLng };
+        }
+
+        // STEP 2: Try ORS Geocoding API for addresses without keyword matches
         try {
-            // Use ORS Geocoding API
             String encodedAddress = java.net.URLEncoder.encode(address + ", Tunisia", "UTF-8");
             String geocodeUrl = "https://api.openrouteservice.org/geocode/search?api_key=" + ORS_API_KEY
                     + "&text=" + encodedAddress + "&size=1";
+
+            log.debug("Geocoding URL: {}", geocodeUrl);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(geocodeUrl))
@@ -307,6 +337,7 @@ public class DeliverySimulationService {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            log.debug("Geocoding response status: {}", response.statusCode());
 
             if (response.statusCode() == 200) {
                 JsonNode root = objectMapper.readTree(response.body());
@@ -318,75 +349,254 @@ public class DeliverySimulationService {
                         // GeoJSON is [lng, lat]
                         double lng = coords.get(0).asDouble();
                         double lat = coords.get(1).asDouble();
-                        log.info("Geocoded '{}' to ({}, {})", address, lat, lng);
+                        log.info("ORS geocoded '{}' to ({}, {})", address, lat, lng);
                         return new double[] { lat, lng };
                     }
                 }
+                log.warn("Geocoding returned no features for '{}'", address);
+            } else {
+                log.error("Geocoding API returned status {}: {}", response.statusCode(), response.body());
             }
 
-            log.warn("Geocoding failed for '{}', using fallback", address);
         } catch (Exception e) {
-            log.error("Geocoding error: {}", e.getMessage());
+            log.error("Geocoding error for '{}': {}", address, e.getMessage(), e);
         }
 
-        // Fallback: use keyword-based coordinates
-        return new double[] { getDestinationLatitude(null, address), getDestinationLongitude(null, address) };
+        // STEP 3: Fallback to Tunis center with small random offset
+        log.warn("Using default Tunis center for unknown address: '{}'", address);
+        return new double[] { 36.8065 + (Math.random() - 0.5) * 0.01,
+                10.1815 + (Math.random() - 0.5) * 0.01 };
     }
 
     /**
      * Fallback destination latitude based on address keywords
+     * Extended with more Tunisian neighborhoods for better accuracy
      */
     private double getDestinationLatitude(Delivery delivery, String address) {
         if (address != null) {
             String addr = address.toLowerCase();
-            if (addr.contains("bardo"))
-                return 36.8085;
-            if (addr.contains("ariana"))
-                return 36.8667;
-            if (addr.contains("manouba"))
-                return 36.8081;
+
+            // Ben Arous Governorate
+            if (addr.contains("mourouj"))
+                return 36.7405;
+            if (addr.contains("mégrine") || addr.contains("megrine"))
+                return 36.7678;
+            if (addr.contains("radès") || addr.contains("rades"))
+                return 36.7694;
+            if (addr.contains("hammam lif"))
+                return 36.7306;
+            if (addr.contains("ezzahra") || addr.contains("zahra"))
+                return 36.7469;
+            if (addr.contains("fouchana"))
+                return 36.7042;
             if (addr.contains("ben arous"))
                 return 36.7472;
-            if (addr.contains("sousse"))
-                return 35.8288;
-            if (addr.contains("sfax"))
-                return 34.7406;
+            if (addr.contains("bou mhel"))
+                return 36.7267;
+            if (addr.contains("nouvelle medina"))
+                return 36.7578;
+
+            // Tunis Areas
+            if (addr.contains("lac") && addr.contains("1"))
+                return 36.8325;
+            if (addr.contains("lac") && addr.contains("2"))
+                return 36.8467;
             if (addr.contains("lac"))
                 return 36.8325;
             if (addr.contains("marsa"))
                 return 36.8775;
             if (addr.contains("carthage"))
                 return 36.8528;
+            if (addr.contains("sidi bou said") || addr.contains("sidi bou"))
+                return 36.8685;
+            if (addr.contains("gammarth"))
+                return 36.9106;
+            if (addr.contains("goulette"))
+                return 36.8183;
+            if (addr.contains("kram"))
+                return 36.8331;
+            if (addr.contains("aouina"))
+                return 36.8439;
+            if (addr.contains("bardo"))
+                return 36.8085;
+            if (addr.contains("menzah"))
+                return 36.8283;
+            if (addr.contains("manar"))
+                return 36.8300;
+            if (addr.contains("ennasr"))
+                return 36.8400;
+            if (addr.contains("el omrane") || addr.contains("omrane"))
+                return 36.8206;
+            if (addr.contains("ain zaghouan"))
+                return 36.8189;
+            if (addr.contains("médina") || addr.contains("medina"))
+                return 36.7986;
+
+            // Ariana Governorate
+            if (addr.contains("ariana ville") || addr.contains("ariana centre"))
+                return 36.8620;
+            if (addr.contains("ariana"))
+                return 36.8667;
+            if (addr.contains("raoued"))
+                return 36.9458;
+            if (addr.contains("soukra"))
+                return 36.8903;
+            if (addr.contains("mnihla"))
+                return 36.8314;
+            if (addr.contains("ettadhamen"))
+                return 36.8272;
+            if (addr.contains("ghazela"))
+                return 36.8917;
+
+            // Manouba Governorate
+            if (addr.contains("manouba"))
+                return 36.8081;
+            if (addr.contains("denden"))
+                return 36.8025;
+            if (addr.contains("oued ellil"))
+                return 36.7931;
+            if (addr.contains("douar hicher"))
+                return 36.7794;
+
+            // Other major cities
+            if (addr.contains("sousse"))
+                return 35.8288;
+            if (addr.contains("sfax"))
+                return 34.7406;
+            if (addr.contains("monastir"))
+                return 35.7833;
+            if (addr.contains("mahdia"))
+                return 35.5047;
+            if (addr.contains("nabeul"))
+                return 36.4561;
+            if (addr.contains("hammamet"))
+                return 36.4000;
+            if (addr.contains("bizerte"))
+                return 37.2744;
+            if (addr.contains("kairouan"))
+                return 35.6781;
+            if (addr.contains("gabes") || addr.contains("gabès"))
+                return 33.8881;
         }
-        return 36.8065 + (Math.random() - 0.5) * 0.03;
+
+        // Default: Tunis city center with small random offset
+        log.warn("No location keyword found in '{}', using Tunis center", address);
+        return 36.8065 + (Math.random() - 0.5) * 0.02;
     }
 
     /**
      * Fallback destination longitude based on address keywords
+     * Extended with more Tunisian neighborhoods for better accuracy
      */
     private double getDestinationLongitude(Delivery delivery, String address) {
         if (address != null) {
             String addr = address.toLowerCase();
-            if (addr.contains("bardo"))
-                return 10.1358;
-            if (addr.contains("ariana"))
-                return 10.1667;
-            if (addr.contains("manouba"))
-                return 10.0992;
+
+            // Ben Arous Governorate
+            if (addr.contains("mourouj"))
+                return 10.1927;
+            if (addr.contains("mégrine") || addr.contains("megrine"))
+                return 10.2333;
+            if (addr.contains("radès") || addr.contains("rades"))
+                return 10.2756;
+            if (addr.contains("hammam lif"))
+                return 10.3361;
+            if (addr.contains("ezzahra") || addr.contains("zahra"))
+                return 10.3058;
+            if (addr.contains("fouchana"))
+                return 10.1433;
             if (addr.contains("ben arous"))
                 return 10.2333;
-            if (addr.contains("sousse"))
-                return 10.6083;
-            if (addr.contains("sfax"))
-                return 10.7603;
+            if (addr.contains("bou mhel"))
+                return 10.1942;
+            if (addr.contains("nouvelle medina"))
+                return 10.1758;
+
+            // Tunis Areas
+            if (addr.contains("lac") && addr.contains("1"))
+                return 10.2167;
+            if (addr.contains("lac") && addr.contains("2"))
+                return 10.2342;
             if (addr.contains("lac"))
                 return 10.2167;
             if (addr.contains("marsa"))
                 return 10.3242;
             if (addr.contains("carthage"))
                 return 10.3306;
+            if (addr.contains("sidi bou said") || addr.contains("sidi bou"))
+                return 10.3472;
+            if (addr.contains("gammarth"))
+                return 10.2906;
+            if (addr.contains("goulette"))
+                return 10.3053;
+            if (addr.contains("kram"))
+                return 10.2917;
+            if (addr.contains("aouina"))
+                return 10.2353;
+            if (addr.contains("bardo"))
+                return 10.1358;
+            if (addr.contains("menzah"))
+                return 10.1583;
+            if (addr.contains("manar"))
+                return 10.1500;
+            if (addr.contains("ennasr"))
+                return 10.1700;
+            if (addr.contains("el omrane") || addr.contains("omrane"))
+                return 10.1453;
+            if (addr.contains("ain zaghouan"))
+                return 10.1553;
+            if (addr.contains("médina") || addr.contains("medina"))
+                return 10.1708;
+
+            // Ariana Governorate
+            if (addr.contains("ariana ville") || addr.contains("ariana centre"))
+                return 10.1867;
+            if (addr.contains("ariana"))
+                return 10.1667;
+            if (addr.contains("raoued"))
+                return 10.1931;
+            if (addr.contains("soukra"))
+                return 10.1931;
+            if (addr.contains("mnihla"))
+                return 10.1206;
+            if (addr.contains("ettadhamen"))
+                return 10.0956;
+            if (addr.contains("ghazela"))
+                return 10.1833;
+
+            // Manouba Governorate
+            if (addr.contains("manouba"))
+                return 10.0992;
+            if (addr.contains("denden"))
+                return 10.0878;
+            if (addr.contains("oued ellil"))
+                return 10.0586;
+            if (addr.contains("douar hicher"))
+                return 10.0350;
+
+            // Other major cities
+            if (addr.contains("sousse"))
+                return 10.6083;
+            if (addr.contains("sfax"))
+                return 10.7603;
+            if (addr.contains("monastir"))
+                return 10.8333;
+            if (addr.contains("mahdia"))
+                return 11.0622;
+            if (addr.contains("nabeul"))
+                return 10.7350;
+            if (addr.contains("hammamet"))
+                return 10.6167;
+            if (addr.contains("bizerte"))
+                return 9.8739;
+            if (addr.contains("kairouan"))
+                return 10.1006;
+            if (addr.contains("gabes") || addr.contains("gabès"))
+                return 10.0975;
         }
-        return 10.1815 + (Math.random() - 0.5) * 0.03;
+
+        // Default: Tunis city center with small random offset
+        return 10.1815 + (Math.random() - 0.5) * 0.02;
     }
 
     /**

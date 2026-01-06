@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -23,6 +23,7 @@ import { filter } from 'rxjs/operators';
     CommonModule,
     RouterOutlet,
     RouterLink,
+    RouterLinkActive,
     FormsModule,
     MatProgressSpinnerModule,
     MatToolbarModule,
@@ -62,29 +63,64 @@ export class AppComponent {
   // Cart state
   cartItemCount = computed(() => this.cartService.cartItemCount());
 
+  // UI State
+  isScrolled = signal(false);
+  mobileMenuOpen = signal(false);
+  searchOpen = signal(false);
+
   constructor() {
     // Check initial route
     const currentUrl = this.router.url;
     this.showNavbar.set(!currentUrl.includes('/admin'));
 
-    // Listen to route changes to hide/show navbar
+    // Listen to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const url = event.url;
       this.showNavbar.set(!url.includes('/admin'));
+      this.mobileMenuOpen.set(false); // Close mobile menu on route change
+      this.searchOpen.set(false); // Close search on route change
     });
+
+    // Add scroll listener
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        this.isScrolled.set(window.scrollY > 20);
+      });
+    }
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+    if (this.mobileMenuOpen()) {
+      this.searchOpen.set(false);
+    }
+  }
+
+  toggleSearch(): void {
+    this.searchOpen.update(v => !v);
+    if (this.searchOpen()) {
+      this.mobileMenuOpen.set(false);
+      // Focus input after a small delay to allow DOM to render
+      setTimeout(() => {
+        const input = document.querySelector('.search-modal input') as HTMLElement;
+        if (input) input.focus();
+      }, 100);
+    }
   }
 
   onSearch(): void {
     const query = this.searchQuery();
     if (query.trim()) {
       this.router.navigate(['/products'], { queryParams: { search: query } });
+      this.searchOpen.set(false);
     }
   }
 
   onLogout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
+    this.mobileMenuOpen.set(false);
   }
 }

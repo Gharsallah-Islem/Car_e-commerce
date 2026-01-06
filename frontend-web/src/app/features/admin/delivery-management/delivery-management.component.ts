@@ -22,6 +22,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { NotificationService } from '../../../core/services/notification.service';
+import { ExportService } from '../../../core/services/export.service';
 import { DeliveryService, Delivery as DeliveryModel, DeliveryStats as DeliveryStatsModel } from '../../../core/services/delivery.service';
 import { DeliveryDetailDialogComponent } from './delivery-detail-dialog/delivery-detail-dialog.component';
 
@@ -112,7 +113,7 @@ export class DeliveryManagementComponent implements OnInit {
     deliveryColumns: string[] = ['trackingNumber', 'order', 'customer', 'address', 'status', 'courier', 'estimated', 'actions'];
 
     // Pagination
-    pageSize = signal<number>(10);
+    pageSize = signal<number>(100);
     pageIndex = signal<number>(0);
 
     // Couriers
@@ -126,7 +127,8 @@ export class DeliveryManagementComponent implements OnInit {
         private notificationService: NotificationService,
         private deliveryService: DeliveryService,
         private dialog: MatDialog,
-        private router: Router
+        private router: Router,
+        private exportService: ExportService
     ) {
         this.initForms();
     }
@@ -246,6 +248,24 @@ export class DeliveryManagementComponent implements OnInit {
     }
 
     assignCourier(deliveryId: string, courierName: string): void {
+        // Guard: skip if empty value selected (placeholder)
+        if (!courierName || courierName === '') {
+            return;
+        }
+
+        // Guard: check if delivery already has this driver assigned
+        const delivery = this.deliveries().find(d => d.id === deliveryId);
+        if (delivery && delivery.driverName === courierName) {
+            console.log('Courier already assigned to this delivery');
+            return;
+        }
+
+        // Guard: skip if already IN_TRANSIT (already assigned)
+        if (delivery && delivery.status !== 'PROCESSING') {
+            console.log('Delivery already in transit, skipping assignment');
+            return;
+        }
+
         this.deliveryService.markAsPickedUp(deliveryId, courierName).subscribe({
             next: (updated) => {
                 this.deliveries.update(deliveries =>
@@ -310,14 +330,40 @@ export class DeliveryManagementComponent implements OnInit {
         return progress[status] || 0;
     }
 
+    // Analytics helper methods
+    getDeliverySuccessRate(): number {
+        const total = this.stats().totalDeliveries || 0;
+        const delivered = this.stats().delivered || 0;
+        if (total === 0) return 0;
+        return Math.round((delivered / total) * 100);
+    }
+
+    getStatusPercentage(type: string): number {
+        const total = this.stats().totalDeliveries || 0;
+        if (total === 0) return 0;
+
+        switch (type) {
+            case 'processing':
+                return ((this.stats().processing || 0) / total) * 100;
+            case 'transit':
+                return (((this.stats().inTransit || 0) + (this.stats().outForDelivery || 0)) / total) * 100;
+            case 'delivered':
+                return ((this.stats().delivered || 0) / total) * 100;
+            case 'failed':
+                return ((this.stats().failed || 0) / total) * 100;
+            default:
+                return 0;
+        }
+    }
+
     handlePageEvent(event: PageEvent): void {
         this.pageSize.set(event.pageSize);
         this.pageIndex.set(event.pageIndex);
     }
 
     exportToCSV(): void {
-        this.notificationService.info('Export en cours...');
-        // Implement CSV export logic
+        this.exportService.exportDeliveries(this.deliveries());
+        this.notificationService.success('Export livraisons téléchargé');
     }
 
     printDeliveryLabel(deliveryId: string): void {

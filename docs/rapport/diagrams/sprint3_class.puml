@@ -1,0 +1,119 @@
+@startuml Sprint3_Class
+' ============================================================
+' SPRINT 3 - CLASS DIAGRAM: Cart, Order, OrderItem Entities
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class Cart {
+        - id: UUID
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        + getTotalPrice(): Double
+        + getTotalItems(): Integer
+    }
+
+    class CartItem {
+        - id: UUID
+        - quantity: Integer
+        - addedAt: LocalDateTime
+        + getSubtotal(): Double
+    }
+
+    class Order {
+        - id: UUID
+        - totalPrice: Double
+        - status: String
+        - deliveryAddress: String
+        - trackingNumber: String
+        - paymentMethod: String
+        - paymentStatus: String
+        - notes: String
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        - deliveredAt: LocalDateTime
+        --
+        + STATUS_PENDING: String
+        + STATUS_CONFIRMED: String
+        + STATUS_SHIPPED: String
+        + STATUS_DELIVERED: String
+        + STATUS_CANCELLED: String
+        --
+        + isConfirmed(): Boolean
+        + isShipped(): Boolean
+        + markAsDelivered(): void
+    }
+
+    class OrderItem {
+        - id: UUID
+        - quantity: Integer
+        - priceAtPurchase: Double
+        + getSubtotal(): Double
+    }
+
+    class User {
+        - id: UUID
+        - email: String
+        - fullName: String
+    }
+
+    class Product {
+        - id: UUID
+        - name: String
+        - price: Double
+        - stock: Integer
+    }
+}
+
+package "Controller" {
+    class CartController {
+        + getCart(): Cart
+        + addToCart(productId: UUID, quantity: int): Cart
+        + updateQuantity(itemId: UUID, quantity: int): Cart
+        + removeItem(itemId: UUID): Cart
+        + clearCart(): void
+    }
+
+    class OrderController {
+        + createOrder(request: CreateOrderRequest): Order
+        + getUserOrders(): List<Order>
+        + getOrderById(id: UUID): Order
+        + updateStatus(id: UUID, status: String): Order
+        + confirmOrder(id: UUID): Order
+        + cancelOrder(id: UUID): Order
+    }
+}
+
+package "Service" {
+    class CartService {
+        + getOrCreateCart(user: User): Cart
+        + addItem(user: User, productId: UUID, qty: int): Cart
+        + updateItemQuantity(user: User, itemId: UUID, qty: int): Cart
+        + removeItem(user: User, itemId: UUID): Cart
+        + clearCart(user: User): void
+    }
+
+    class OrderService {
+        + createFromCart(user: User, request: CreateOrderRequest): Order
+        + findByUser(user: User): List<Order>
+        + updateStatus(id: UUID, status: String): Order
+        + confirmOrder(id: UUID): Order
+        + shipOrder(id: UUID): Order
+        + generateTrackingNumber(): String
+    }
+}
+
+Cart "1" -- "1" User : belongs to >
+Cart "1" -- "n" CartItem : contains >
+CartItem "n" -- "1" Product : references >
+
+Order "n" -- "1" User : placed by >
+Order "1" -- "n" OrderItem : contains >
+OrderItem "n" -- "1" Product : references >
+
+CartController --> CartService
+OrderController --> OrderService
+
+@enduml

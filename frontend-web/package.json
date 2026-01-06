@@ -28,6 +28,8 @@
     "@types/leaflet": "^1.9.21",
     "chart.js": "^4.5.1",
     "echarts": "^6.0.0",
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.7",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "ngx-echarts": "^20.0.2",

@@ -38,6 +38,14 @@ export class RegisterComponent {
     hideConfirmPassword = signal(true);
     isLoading = signal(false);
 
+    // Form field focus states for custom styling
+    firstNameFocused = false;
+    lastNameFocused = false;
+    emailFocused = false;
+    phoneFocused = false;
+    passwordFocused = false;
+    confirmPasswordFocused = false;
+
     benefits = [
         {
             number: '01',

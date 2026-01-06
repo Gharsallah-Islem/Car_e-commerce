@@ -37,6 +37,10 @@ export class LoginComponent {
     hidePassword = signal(true);
     isLoading = signal(false);
 
+    // Form field focus states for custom styling
+    emailFocused = false;
+    passwordFocused = false;
+
     features = [
         {
             icon: 'inventory_2',

@@ -1,130 +1,900 @@
-// World-Class Admin Delivery Dashboard
-// Inspired by Stripe, Linear, Shopify - Clean, Minimal, Professional
+// =========================================================
+// WORLD-CLASS DELIVERY MANAGEMENT - Premium Enterprise UI
+// Inspired by Shopify, Square, and Linear
+// =========================================================
 
-// Design System
-$white: #FFFFFF;
-$gray-50: #F9FAFB;
-$gray-100: #F3F4F6;
-$gray-200: #E5E7EB;
-$gray-300: #D1D5DB;
-$gray-400: #9CA3AF;
-$gray-500: #6B7280;
-$gray-600: #4B5563;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+// =========================================================
+// DESIGN TOKENS
+// =========================================================
+
+// Colors
+$purple-50: #faf5ff;
+$purple-100: #f3e8ff;
+$purple-200: #e9d5ff;
+$purple-300: #d8b4fe;
+$purple-400: #c084fc;
+$purple-500: #a855f7;
+$purple-600: #9333ea;
+$purple-700: #7c3aed;
+$purple-800: #6b21a8;
+$purple-900: #581c87;
+
+$white: #ffffff;
+$gray-25: #fcfcfd;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
 $gray-700: #374151;
-$gray-800: #1F2937;
+$gray-800: #1f2937;
 $gray-900: #111827;
 
-$primary: #6366F1;
-$primary-light: #818CF8;
-$primary-50: #EEF2FF;
+$success: #10b981;
+$success-50: #ecfdf5;
+$success-100: #d1fae5;
+$warning: #f59e0b;
+$warning-50: #fffbeb;
+$warning-100: #fef3c7;
+$danger: #ef4444;
+$danger-50: #fef2f2;
+$danger-100: #fee2e2;
+$info: #3b82f6;
+$info-50: #eff6ff;
+$info-100: #dbeafe;
 
-$success: #10B981;
-$success-50: #ECFDF5;
-$success-100: #D1FAE5;
+// Premium Easing
+$ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+$ease-out-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-$warning: #F59E0B;
-$warning-50: #FFFBEB;
-$warning-100: #FEF3C7;
+// =========================================================
+// ANIMATIONS
+// =========================================================
 
-$danger: #EF4444;
-$danger-50: #FEF2F2;
-$danger-100: #FEE2E2;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
 
-$blue: #3B82F6;
-$blue-50: #EFF6FF;
-
-$purple: #8B5CF6;
-$purple-50: #F5F3FF;
-
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-
-$radius-sm: 6px;
-$radius: 8px;
-$radius-md: 12px;
-$radius-lg: 16px;
-
-// Base Container
-:host {
-    display: block;
-    background: $gray-50;
-    min-height: 100vh;
-    padding: 32px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    color: $gray-900;
+    to {
+        opacity: 1;
+    }
 }
 
-// Page Header
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+// =========================================================
+// MAIN CONTAINER
+// =========================================================
+
+.delivery-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: $gray-50;
+    min-height: 100vh;
+    padding: 0 0 48px 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+// =========================================================
+// FLOATING HEADER
+// =========================================================
+
 .delivery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    background: $white;
+    border-bottom: 1px solid $gray-200;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .page-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            .title-badge {
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, $info 0%, #2563eb 100%);
+                border-radius: 14px;
+                box-shadow: 0 8px 24px rgba($info, 0.3);
+
+                mat-icon {
+                    color: $white;
+                    font-size: 24px;
+                    width: 24px;
+                    height: 24px;
+                }
+            }
+
+            .title-content {
+                h1 {
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: $gray-900;
+                    margin: 0 0 2px 0;
+                    letter-spacing: -0.02em;
+                }
+
+                .breadcrumb {
+                    font-size: 13px;
+                    color: $gray-400;
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+
+        .header-stats {
+            display: flex;
+            gap: 12px;
+
+            .mini-stat {
+                text-align: center;
+                padding: 8px 14px;
+                background: $gray-50;
+                border-radius: 10px;
+                border: 1px solid $gray-100;
+                transition: all 0.3s $ease-out-expo;
+
+                .stat-value {
+                    display: block;
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: $gray-900;
+                }
+
+                .stat-label {
+                    font-size: 10px;
+                    color: $gray-500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                &.warning {
+                    background: $warning-50;
+                    border-color: rgba($warning, 0.2);
+
+                    .stat-value {
+                        color: $warning;
+                    }
+                }
+
+                &.info {
+                    background: $info-50;
+                    border-color: rgba($info, 0.2);
+
+                    .stat-value {
+                        color: $info;
+                    }
+                }
+
+                &.danger {
+                    background: $danger-50;
+                    border-color: rgba($danger, 0.2);
+
+                    .stat-value {
+                        color: $danger;
+                    }
+
+                    &.pulse {
+                        animation: pulse 2s infinite;
+                    }
+                }
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+    }
+}
+
+// Buttons
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $gray-100;
+    border: 1px solid $gray-200;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s $ease-out-expo;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: $gray-600;
+    }
+
+    &:hover {
+        background: $gray-200;
+        transform: translateY(-2px);
+    }
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
     background: $white;
     border: 1px solid $gray-200;
-    border-radius: $radius-lg;
-    padding: 24px 32px;
-    margin-bottom: 24px;
-    box-shadow: $shadow-sm;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-700;
+    cursor: pointer;
+    transition: all 0.25s $ease-out-expo;
 
-    .header-content {
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        background: $gray-50;
+        border-color: $gray-300;
+        transform: translateY(-2px);
+    }
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, $info 0%, #2563eb 100%);
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $white;
+    cursor: pointer;
+    transition: all 0.25s $ease-out-expo;
+    box-shadow: 0 4px 12px rgba($info, 0.25);
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba($info, 0.35);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+// =========================================================
+// ANALYTICS GRID
+// =========================================================
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 28px 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.analytics-card {
+    background: $white;
+    border-radius: 16px;
+    border: 1px solid $gray-100;
+    overflow: hidden;
+    animation: slideUp 0.6s $ease-out-expo backwards;
+
+    &:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    &:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+
+    &:nth-child(3) {
+        animation-delay: 0.15s;
+    }
+
+    &:nth-child(4) {
+        animation-delay: 0.2s;
+    }
+
+    .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid $gray-50;
+
+        h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: $gray-800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+                color: $info;
+            }
+        }
+
+        .trend-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+
+            mat-icon {
+                font-size: 14px;
+                width: 14px;
+                height: 14px;
+            }
+
+            &.positive {
+                background: $success-50;
+                color: $success;
+            }
+        }
+    }
+
+    .card-body {
+        padding: 20px 24px 24px;
+    }
+}
+
+// Delivery Performance Card
+.delivery-performance {
+    .card-body {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+    }
+
+    .performance-chart {
+        .donut-chart {
+            position: relative;
+            width: 110px;
+            height: 110px;
+
+            .circular-chart {
+                width: 100%;
+                height: 100%;
+                transform: rotate(-90deg);
+
+                .circle-bg {
+                    fill: none;
+                    stroke: $gray-100;
+                    stroke-width: 3;
+                }
+
+                .circle {
+                    fill: none;
+                    stroke-width: 3;
+                    stroke-linecap: round;
+                    transition: stroke-dasharray 1s $ease-out-expo;
+
+                    &.success {
+                        stroke: $success;
+                    }
+                }
+            }
+
+            .chart-center {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+
+                .percentage {
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: $gray-900;
+                }
+
+                .label {
+                    font-size: 10px;
+                    color: $gray-400;
+                    text-transform: uppercase;
+                }
+            }
+        }
+    }
+
+    .performance-legend {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+            }
+
+            .name {
+                flex: 1;
+                font-size: 12px;
+                color: $gray-600;
+            }
+
+            .value {
+                font-size: 13px;
+                font-weight: 600;
+                color: $gray-900;
+            }
+
+            &.success .dot {
+                background: $success;
+            }
+
+            &.warning .dot {
+                background: $warning;
+            }
+
+            &.danger .dot {
+                background: $danger;
+            }
+        }
+    }
+}
+
+// Status Overview Card
+.status-overview {
+    .status-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .status-bar-item {
+        display: grid;
+        grid-template-columns: 100px 1fr 40px;
+        align-items: center;
+        gap: 12px;
+
+        .bar-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: $gray-600;
+
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+
+                &.preparing {
+                    background: $warning;
+                }
+
+                &.transit {
+                    background: $info;
+                }
+
+                &.delivered {
+                    background: $success;
+                }
+
+                &.failed {
+                    background: $danger;
+                }
+            }
+        }
+
+        .bar-container {
+            height: 8px;
+            background: $gray-100;
+            border-radius: 4px;
+            overflow: hidden;
+
+            .bar {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.8s $ease-out-expo;
+
+                &.preparing {
+                    background: linear-gradient(90deg, $warning, #fbbf24);
+                }
+
+                &.transit {
+                    background: linear-gradient(90deg, $info, #60a5fa);
+                }
+
+                &.delivered {
+                    background: linear-gradient(90deg, $success, #34d399);
+                }
+
+                &.failed {
+                    background: linear-gradient(90deg, $danger, #f87171);
+                }
+            }
+        }
+
+        .bar-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: $gray-800;
+            text-align: right;
+        }
+    }
+}
+
+// Quick Tracking Card
+.quick-tracking {
+    .tracking-form {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+
+        .tracking-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: $gray-50;
+            border: 1px solid $gray-200;
+            border-radius: 12px;
+            transition: all 0.25s $ease-out-expo;
+
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: $gray-400;
+            }
+
+            input {
+                flex: 1;
+                border: none;
+                background: transparent;
+                font-size: 14px;
+                color: $gray-800;
+                outline: none;
+
+                &::placeholder {
+                    color: $gray-400;
+                }
+            }
+
+            &:focus-within {
+                border-color: $info;
+                background: $white;
+                box-shadow: 0 0 0 4px rgba($info, 0.1);
+            }
+        }
+    }
+
+    .tracking-hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: $gray-400;
+
+        mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+        }
+    }
+}
+
+// Metrics Panel
+.metrics-panel {
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
 
-    .title-section {
+    .metric-item {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 12px;
+        padding: 14px;
+        background: $gray-50;
+        border-radius: 12px;
+        transition: all 0.3s $ease-out-expo;
 
-        .header-icon {
-            width: 48px;
-            height: 48px;
-            background: $primary-50;
-            border-radius: $radius-md;
+        &:hover {
+            background: $white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: $primary;
-            font-size: 24px;
+            border-radius: 10px;
+
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: $white;
+            }
+
+            &.purple {
+                background: linear-gradient(135deg, $purple-500, $purple-600);
+            }
+
+            &.green {
+                background: linear-gradient(135deg, $success, #059669);
+            }
+
+            &.blue {
+                background: linear-gradient(135deg, $info, #2563eb);
+            }
+
+            &.orange {
+                background: linear-gradient(135deg, $warning, #d97706);
+            }
         }
 
-        h1 {
-            margin: 0;
-            font-size: 24px;
+        .metric-content {
+            display: flex;
+            flex-direction: column;
+
+            .metric-value {
+                font-size: 18px;
+                font-weight: 700;
+                color: $gray-900;
+            }
+
+            .metric-label {
+                font-size: 11px;
+                color: $gray-500;
+            }
+        }
+    }
+}
+
+// =========================================================
+// MAIN CONTENT (TABS)
+// =========================================================
+
+.main-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+// Premium Tabs
+::ng-deep .premium-tabs {
+    .mat-mdc-tab-header {
+        background: $white;
+        border-radius: 16px 16px 0 0;
+        border: 1px solid $gray-100;
+        border-bottom: none;
+        padding: 8px 8px 0;
+    }
+
+    .mat-mdc-tab {
+        height: 52px;
+        min-width: 140px;
+        opacity: 0.7;
+        transition: all 0.3s $ease-out-expo;
+
+        &.mdc-tab--active {
+            opacity: 1;
+        }
+
+        .mdc-tab__content {
             font-weight: 600;
-            color: $gray-900;
-            letter-spacing: -0.025em;
         }
 
-        .subtitle {
-            margin: 4px 0 0 0;
-            font-size: 14px;
-            color: $gray-500;
-            font-weight: 400;
+        .mdc-tab-indicator__content--underline {
+            border-color: $info !important;
+            border-width: 3px !important;
+            border-radius: 3px 3px 0 0 !important;
         }
     }
 
-    .header-actions {
+    .mat-mdc-tab-body-wrapper {
+        background: $white;
+        border: 1px solid $gray-100;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+    }
+}
+
+.tab-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    .tab-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: $info-100;
+        color: $info;
+
+        &.warning {
+            background: $warning-100;
+            color: $warning;
+        }
+
+        &.success {
+            background: $success-100;
+            color: $success;
+        }
+
+        &.danger {
+            background: $danger-100;
+            color: $danger;
+        }
+    }
+}
+
+.tab-panel {
+    padding: 28px;
+}
+
+// =========================================================
+// PREMIUM TABLES
+// =========================================================
+
+.data-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid $gray-100;
+}
+
+.premium-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    thead {
+        tr {
+            background: $gray-50;
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $gray-500;
+            border-bottom: 1px solid $gray-100;
+            white-space: nowrap;
+        }
+    }
+
+    tbody {
+        tr {
+            transition: background 0.2s;
+
+            &:hover {
+                background: $info-50;
+            }
+
+            &.completed {
+                background: rgba($success, 0.02);
+
+                &:hover {
+                    background: rgba($success, 0.05);
+                }
+            }
+
+            &.failed {
+                background: rgba($danger, 0.02);
+
+                &:hover {
+                    background: rgba($danger, 0.05);
+                }
+            }
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid $gray-100;
+            color: $gray-700;
+            vertical-align: middle;
+        }
+    }
+
+    // Tracking Cell
+    .tracking-cell {
         display: flex;
+        align-items: center;
         gap: 12px;
 
-        button {
-            display: inline-flex;
+        .tracking-badge {
+            width: 36px;
+            height: 36px;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: $radius;
-            border: 1px solid $gray-300;
-            background: $white;
-            color: $gray-700;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: $shadow-sm;
+            justify-content: center;
+            border-radius: 10px;
 
             mat-icon {
                 font-size: 18px;
@@ -132,666 +902,405 @@ $radius-lg: 16px;
                 height: 18px;
             }
 
-            &:hover {
-                background: $gray-50;
-                border-color: $gray-400;
+            &.waiting {
+                background: $warning-50;
+
+                mat-icon {
+                    color: $warning;
+                }
             }
 
-            &.primary {
-                background: $primary;
-                color: $white;
-                border-color: $primary;
+            &.active {
+                background: $info-50;
 
-                &:hover {
-                    background: darken($primary, 5%);
+                mat-icon {
+                    color: $info;
                 }
+            }
+
+            &.success {
+                background: $success-50;
+
+                mat-icon {
+                    color: $success;
+                }
+            }
+
+            &.danger {
+                background: $danger-50;
+
+                mat-icon {
+                    color: $danger;
+                }
+            }
+        }
+
+        .tracking-code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: $gray-100;
+            border-radius: 6px;
+            color: $gray-700;
+        }
+    }
+
+    // Order ID
+    .order-id {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 12px;
+        color: $gray-600;
+    }
+
+    // Customer Cell
+    .customer-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .customer-name {
+            font-weight: 600;
+            color: $gray-900;
+        }
+
+        .customer-phone {
+            font-size: 12px;
+            color: $gray-400;
+        }
+    }
+
+    // Address Cell
+    .address-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 200px;
+
+        mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: $gray-400;
+            flex-shrink: 0;
+        }
+
+        span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    // Courier Cell
+    .courier-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .courier-avatar {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: $gray-100;
+            color: $gray-600;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 12px;
+
+            &.success {
+                background: $success-50;
+                color: $success;
             }
         }
     }
-}
 
-// Stats Grid - Clean Card Design
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-
-    .stat-card {
+    // Courier Select
+    .courier-select {
+        width: 160px;
+        padding: 8px 12px;
         background: $white;
         border: 1px solid $gray-200;
-        border-radius: $radius-md;
-        box-shadow: $shadow-sm;
-        transition: all 0.2s ease;
-        overflow: visible;
+        border-radius: 8px;
+        font-size: 13px;
+        color: $gray-700;
+        cursor: pointer;
+        transition: all 0.2s;
 
-        &:hover {
-            box-shadow: $shadow-md;
-            border-color: $gray-300;
+        &:focus {
+            outline: none;
+            border-color: $info;
+            box-shadow: 0 0 0 3px rgba($info, 0.1);
         }
+    }
 
-        .stat-content {
-            padding: 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
+    // Date Cell
+    .date-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
 
-            .stat-icon {
-                width: 44px;
-                height: 44px;
-                border-radius: $radius;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
+        .date-text {
+            font-weight: 600;
+            color: $gray-800;
 
-                mat-icon {
-                    font-size: 20px;
-                    width: 20px;
-                    height: 20px;
-                }
-            }
-
-            .stat-details {
-                flex: 1;
-                min-width: 0;
-
-                h3 {
-                    margin: 0;
-                    font-size: 28px;
-                    font-weight: 600;
-                    color: $gray-900;
-                    letter-spacing: -0.025em;
-                    line-height: 1.2;
-                }
-
-                p {
-                    margin: 4px 0 0 0;
-                    font-size: 13px;
-                    color: $gray-500;
-                    font-weight: 500;
-                }
+            &.success {
+                color: $success;
             }
         }
 
-        // Color variants
-        &.stat-primary .stat-icon {
-            background: $primary-50;
-            color: $primary;
+        .date-label {
+            font-size: 10px;
+            color: $gray-400;
+            text-transform: uppercase;
+        }
+    }
+
+    // Status Pills
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+
+        mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
         }
 
-        &.stat-success .stat-icon {
-            background: $success-50;
-            color: $success;
-        }
-
-        &.stat-warning .stat-icon {
+        &.status-processing {
             background: $warning-50;
             color: $warning;
         }
 
-        &.stat-danger .stat-icon {
+        &.status-in-transit,
+        &.status-out-for-delivery {
+            background: $info-50;
+            color: $info;
+        }
+
+        &.status-delivered {
+            background: $success-50;
+            color: $success;
+        }
+
+        &.status-failed,
+        &.status-cancelled {
             background: $danger-50;
             color: $danger;
         }
-
-        &.stat-info .stat-icon {
-            background: $blue-50;
-            color: $blue;
-        }
-
-        &.stat-purple .stat-icon {
-            background: $purple-50;
-            color: $purple;
-        }
-
-        &.stat-teal .stat-icon {
-            background: #F0FDFA;
-            color: #14B8A6;
-        }
-    }
-}
-
-// Search/Tracking Card
-.tracking-card {
-    background: $white;
-    border: 1px solid $gray-200;
-    border-radius: $radius-md;
-    box-shadow: $shadow-sm;
-    margin-bottom: 24px;
-    overflow: hidden;
-
-    .card-header {
-        padding: 16px 24px;
-        border-bottom: 1px solid $gray-100;
-        background: $gray-50;
-
-        h2 {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            color: $gray-700;
-
-            mat-icon {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-                color: $gray-400;
-            }
-        }
     }
 
-    .tracking-form {
-        padding: 20px 24px;
+    // Action Buttons
+    .action-buttons {
         display: flex;
-        gap: 12px;
-        align-items: flex-end;
-
-        .tracking-input {
-            flex: 1;
-            max-width: 400px;
-
-            ::ng-deep {
-                .mat-mdc-form-field {
-                    width: 100%;
-                }
-
-                .mat-mdc-text-field-wrapper {
-                    background: $gray-50;
-                    border-radius: $radius;
-                    border: 1px solid $gray-300;
-
-                    &:hover {
-                        border-color: $gray-400;
-                    }
-                }
-
-                .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-                    background: transparent;
-                }
-
-                .mat-mdc-form-field-focus-overlay {
-                    display: none;
-                }
-
-                .mdc-line-ripple {
-                    display: none;
-                }
-
-                input {
-                    color: $gray-900;
-                    font-size: 14px;
-
-                    &::placeholder {
-                        color: $gray-400;
-                    }
-                }
-
-                .mat-mdc-floating-label {
-                    color: $gray-500;
-                }
-
-                .mdc-text-field--focused {
-                    .mat-mdc-text-field-wrapper {
-                        border-color: $primary;
-                        box-shadow: 0 0 0 3px rgba($primary, 0.1);
-                    }
-                }
-            }
-        }
-
-        button {
-            height: 44px;
-            padding: 0 20px;
-            background: $primary;
-            color: $white;
-            border: none;
-            border-radius: $radius;
-            font-weight: 500;
-            box-shadow: $shadow-sm;
-            transition: all 0.15s;
-
-            &:hover {
-                background: darken($primary, 5%);
-                box-shadow: $shadow;
-            }
-
-            &:disabled {
-                background: $gray-300;
-                cursor: not-allowed;
-            }
-        }
+        gap: 6px;
     }
-}
 
-// Tabs - Clean Minimal Design
-.delivery-tabs {
-    ::ng-deep {
-        .mat-mdc-tab-header {
-            background: $white;
-            border: 1px solid $gray-200;
-            border-radius: $radius-md $radius-md 0 0;
-            border-bottom: none;
-        }
-
-        .mat-mdc-tab {
-            color: $gray-500;
-            font-weight: 500;
-            font-size: 14px;
-            min-width: 120px;
-
-            &.mdc-tab--active {
-                color: $primary;
-            }
-
-            .mdc-tab__text-label {
-                color: inherit;
-            }
-
-            .mdc-tab-indicator__content--underline {
-                border-color: $primary;
-                border-width: 2px;
-            }
-        }
-
-        .mat-mdc-tab-body-wrapper {
-            background: $white;
-            border: 1px solid $gray-200;
-            border-top: none;
-            border-radius: 0 0 $radius-md $radius-md;
-        }
-    }
-}
-
-.tab-content {
-    padding: 0;
-}
-
-// Data Cards
-mat-card {
-    background: $white;
-    border: 1px solid $gray-200;
-    border-radius: $radius-md;
-    box-shadow: $shadow-sm;
-    overflow: hidden;
-
-    .card-header {
+    .action-btn {
+        width: 36px;
+        height: 36px;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 16px 24px;
+        justify-content: center;
         background: $gray-50;
-        border-bottom: 1px solid $gray-100;
+        border: 1px solid $gray-100;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.25s $ease-out-expo;
 
-        h2 {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            color: $gray-700;
-
-            mat-icon {
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-                color: $primary;
-            }
-        }
-    }
-
-    mat-divider {
-        display: none;
-    }
-}
-
-// Table - Professional Data Display
-.table-container {
-    padding: 0;
-    overflow-x: auto;
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-
-        th {
-            font-weight: 500;
-            font-size: 12px;
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
             color: $gray-500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: $gray-50;
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid $gray-200;
-            white-space: nowrap;
         }
-
-        td {
-            padding: 16px;
-            color: $gray-900;
-            font-size: 14px;
-            border-bottom: 1px solid $gray-100;
-            vertical-align: middle;
-        }
-
-        tr {
-            transition: background 0.1s;
-
-            &:hover td {
-                background: $gray-50;
-            }
-
-            &:last-child td {
-                border-bottom: none;
-            }
-        }
-
-        // Cell Styles
-        .tracking-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            .tracking-icon {
-                color: $primary;
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
-            }
-
-            strong {
-                font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-                font-size: 13px;
-                color: $primary;
-                font-weight: 500;
-            }
-        }
-
-        .customer-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-
-            strong {
-                font-weight: 500;
-                color: $gray-900;
-            }
-
-            .phone {
-                font-size: 13px;
-                color: $gray-500;
-            }
-        }
-
-        .address-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            max-width: 220px;
-            font-size: 13px;
-            color: $gray-600;
-            line-height: 1.4;
-
-            mat-icon {
-                color: $gray-400;
-                font-size: 16px;
-                width: 16px;
-                height: 16px;
-                flex-shrink: 0;
-            }
-        }
-
-        .status-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 140px;
-
-            mat-chip {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                font-weight: 500;
-                font-size: 12px;
-                padding: 4px 10px;
-                border-radius: 9999px;
-                background: $success-100;
-                color: darken($success, 10%);
-                border: none;
-                height: auto;
-
-                mat-icon {
-                    font-size: 14px;
-                    width: 14px;
-                    height: 14px;
-                }
-            }
-
-            mat-progress-bar {
-                height: 4px;
-                border-radius: 2px;
-                background: $gray-200;
-
-                ::ng-deep .mdc-linear-progress__bar-inner {
-                    border-color: $success;
-                }
-            }
-        }
-
-        .courier-select {
-            width: 150px;
-
-            ::ng-deep {
-                .mat-mdc-form-field-subscript-wrapper {
-                    display: none;
-                }
-
-                .mat-mdc-text-field-wrapper {
-                    background: $gray-50;
-                    border: 1px solid $gray-300;
-                    border-radius: $radius-sm;
-                    padding: 0 8px;
-                }
-
-                .mat-mdc-select-value {
-                    color: $gray-700;
-                    font-size: 13px;
-                }
-            }
-        }
-
-        .date-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-
-            strong {
-                font-weight: 500;
-                color: $gray-900;
-                font-size: 14px;
-            }
-
-            .label {
-                font-size: 11px;
-                color: $gray-500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-            }
-        }
-    }
-
-    // Empty State
-    .mat-mdc-no-data-row td {
-        text-align: center;
-        padding: 48px;
-        color: $gray-500;
-    }
-}
-
-// Paginator
-::ng-deep {
-    .mat-mdc-paginator {
-        background: $gray-50;
-        color: $gray-600;
-        border-top: 1px solid $gray-200;
-        font-size: 13px;
-
-        .mat-mdc-paginator-container {
-            min-height: 52px;
-            padding: 0 16px;
-        }
-
-        .mat-mdc-select-value,
-        .mat-mdc-paginator-page-size-label,
-        .mat-mdc-paginator-range-label {
-            color: $gray-600;
-        }
-
-        .mat-mdc-icon-button {
-            color: $gray-500;
-
-            &:hover {
-                background: $gray-200;
-            }
-
-            &:disabled {
-                color: $gray-300;
-            }
-        }
-    }
-}
-
-// Menu Dropdown
-::ng-deep {
-    .mat-mdc-menu-panel {
-        background: $white;
-        border: 1px solid $gray-200;
-        border-radius: $radius;
-        box-shadow: $shadow-lg;
-        min-width: 180px;
-
-        .mat-mdc-menu-item {
-            color: $gray-700;
-            font-size: 14px;
-            min-height: 40px;
-
-            mat-icon {
-                color: $gray-500;
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
-            }
-
-            &:hover {
-                background: $gray-50;
-            }
-        }
-
-        mat-divider {
-            margin: 4px 0;
-            border-color: $gray-200;
-        }
-    }
-}
-
-// Icon Buttons
-::ng-deep {
-    .mat-mdc-icon-button {
-        color: $gray-500;
 
         &:hover {
-            background: $gray-100;
-            color: $gray-700;
+            background: $info-50;
+            border-color: $info-100;
+
+            mat-icon {
+                color: $info;
+            }
+        }
+
+        &.success:hover {
+            background: $success-50;
+            border-color: $success-100;
+
+            mat-icon {
+                color: $success;
+            }
+        }
+
+        &.danger:hover {
+            background: $danger-50;
+            border-color: $danger-100;
+
+            mat-icon {
+                color: $danger;
+            }
         }
     }
 }
 
-// Loading Spinner
-::ng-deep {
-    .mat-mdc-progress-spinner circle {
-        stroke: $primary;
+// Empty State
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $info-50;
+        border-radius: 50%;
+        margin-bottom: 24px;
+
+        mat-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: $info;
+        }
+
+        &.success {
+            background: $success-50;
+
+            mat-icon {
+                color: $success;
+            }
+        }
+    }
+
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray-800;
+        margin: 0 0 8px 0;
+    }
+
+    p {
+        font-size: 14px;
+        color: $gray-400;
+        margin: 0;
+    }
+
+    &.success-state {
+        .empty-icon {
+            background: $success-50;
+
+            mat-icon {
+                color: $success;
+            }
+        }
     }
 }
 
-// Responsive
-@media (max-width: 1024px) {
-    :host {
-        padding: 20px;
-    }
+// =========================================================
+// RESPONSIVE
+// =========================================================
 
-    .stats-grid {
-        grid-template-columns: repeat(3, 1fr);
+@media (max-width: 1280px) {
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .delivery-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+
+        .header-left,
+        .header-right {
+            width: 100%;
+        }
+
+        .header-right {
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
     }
 }
 
 @media (max-width: 768px) {
-    :host {
-        padding: 16px;
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        padding: 20px 16px;
     }
 
-    .delivery-header {
+    .main-content {
+        padding: 0 16px;
+    }
+
+    .tab-panel {
         padding: 20px;
-
-        .header-content {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .title-section h1 {
-            font-size: 20px;
-        }
-
-        .header-actions {
-            width: 100%;
-
-            button {
-                flex: 1;
-            }
-        }
     }
 
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-
-        .stat-card .stat-content {
-            padding: 16px;
-
-            .stat-details h3 {
-                font-size: 22px;
-            }
-        }
-    }
-
-    .tracking-card .tracking-form {
-        flex-direction: column;
-
-        .tracking-input {
-            max-width: 100%;
-        }
-
-        button {
-            width: 100%;
-        }
-    }
-
-    .table-container table {
-        font-size: 13px;
+    .premium-table {
+        display: block;
+        overflow-x: auto;
 
         th,
         td {
-            padding: 12px;
+            white-space: nowrap;
+            padding: 12px 16px !important;
         }
     }
 }
 
-@media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
+// Premium Menu
+::ng-deep .premium-menu {
+    .mat-mdc-menu-panel {
+        border-radius: 12px !important;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid $gray-100 !important;
+    }
+
+    .mat-mdc-menu-content {
+        padding: 8px !important;
+    }
+
+    .mat-mdc-menu-item {
+        border-radius: 8px;
+        margin: 2px 0;
+        min-height: 44px;
+
+        mat-icon {
+            margin-right: 12px;
+            color: $gray-500;
+        }
+
+        &:hover {
+            background: $info-50;
+
+            mat-icon {
+                color: $info;
+            }
+        }
+
+        &.danger {
+            &:hover {
+                background: $danger-50;
+
+                mat-icon {
+                    color: $danger;
+                }
+            }
+        }
     }
 }

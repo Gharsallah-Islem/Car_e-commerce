@@ -1,0 +1,112 @@
+% ============================================================
+% CHAPITRE 1 : INTRODUCTION GÉNÉRALE
+% ============================================================
+
+\chapter{Introduction Générale}
+
+\section{Contexte du Projet}
+
+Le secteur de l'e-commerce connaît une croissance exponentielle à l'échelle mondiale, transformant profondément les habitudes de consommation. En Tunisie, comme dans de nombreux pays, cette transformation numérique s'accélère, offrant de nouvelles opportunités aux entreprises et aux consommateurs.
+
+Le marché des pièces détachées automobiles représente un segment particulièrement dynamique de l'économie. Avec un parc automobile en constante évolution et une demande croissante de pièces de rechange, ce secteur fait face à des défis majeurs : la diversité des modèles de véhicules, la complexité de l'identification des pièces compatibles, et la nécessité de garantir la qualité des produits.
+
+Traditionnellement, les automobilistes doivent se rendre chez des garagistes ou des revendeurs spécialisés pour identifier et acheter les pièces dont ils ont besoin. Ce processus est souvent long, fastidieux et peut conduire à des erreurs coûteuses lorsque la pièce commandée n'est pas compatible avec le véhicule.
+
+L'émergence de l'Intelligence Artificielle (IA) et des technologies de reconnaissance d'images ouvre de nouvelles perspectives pour résoudre ces problématiques. En permettant aux utilisateurs d'identifier des pièces automobiles simplement en prenant une photo, ces technologies peuvent révolutionner l'expérience d'achat dans ce domaine.
+
+\section{Problématique}
+
+Les acheteurs de pièces détachées automobiles sont confrontés à plusieurs difficultés majeures :
+
+\begin{itemize}
+    \item \textbf{Difficulté d'identification :} La plupart des automobilistes ne connaissent pas le nom exact des pièces dont ils ont besoin, ce qui complique leur recherche.
+    
+    \item \textbf{Problème de compatibilité :} Chaque véhicule a des spécifications propres, et une pièce qui semble identique peut ne pas être compatible avec tous les modèles.
+    
+    \item \textbf{Fragmentation du marché :} Les pièces sont dispersées entre de nombreux fournisseurs, rendant la comparaison des prix et de la disponibilité difficile.
+    
+    \item \textbf{Manque de conseil :} Les plateformes e-commerce classiques ne fournissent pas de recommandations personnalisées basées sur les symptômes ou les besoins spécifiques de l'utilisateur.
+    
+    \item \textbf{Suivi de livraison limité :} Le suivi des commandes est souvent rudimentaire, sans visibilité en temps réel sur la position du livreur.
+\end{itemize}
+
+Face à ces constats, la question qui se pose est la suivante : \textit{Comment concevoir une plateforme e-commerce intelligente capable d'assister les utilisateurs dans l'identification, le choix et l'achat de pièces détachées automobiles, tout en offrant une expérience utilisateur optimale ?}
+
+\section{Objectifs du Projet}
+
+Notre projet vise à développer une plateforme e-commerce complète et intelligente pour les pièces détachées automobiles. Les objectifs principaux sont :
+
+\subsection{Objectifs Fonctionnels}
+
+\begin{enumerate}
+    \item \textbf{Système d'authentification sécurisé :} Permettre aux utilisateurs de créer un compte, se connecter et gérer leur profil de manière sécurisée.
+    
+    \item \textbf{Catalogue de produits complet :} Offrir un catalogue riche de pièces automobiles avec des fonctionnalités de recherche avancée et de filtrage.
+    
+    \item \textbf{Gestion du panier et des commandes :} Permettre aux utilisateurs d'ajouter des produits au panier, de passer des commandes et de suivre leur historique.
+    
+    \item \textbf{Paiement sécurisé :} Intégrer un système de paiement en ligne sécurisé via Stripe.
+    
+    \item \textbf{Reconnaissance d'images par IA :} Développer un module de reconnaissance d'images capable d'identifier les pièces automobiles à partir de photos.
+    
+    \item \textbf{Système de recommandation :} Proposer des recommandations personnalisées basées sur le comportement de l'utilisateur et l'analyse des symptômes.
+    
+    \item \textbf{Chat de support :} Mettre en place un système de chat en temps réel pour l'assistance client.
+    
+    \item \textbf{Suivi de livraison :} Offrir un suivi en temps réel des livraisons avec visualisation sur carte.
+\end{enumerate}
+
+\subsection{Objectifs Techniques}
+
+\begin{enumerate}
+    \item Adopter une architecture moderne et scalable basée sur les microservices.
+    
+    \item Utiliser les meilleures pratiques de développement (Clean Code, Design Patterns).
+    
+    \item Assurer la sécurité de l'application (authentification JWT, HTTPS, validation des données).
+    
+    \item Développer une interface utilisateur responsive et accessible (Web et Mobile).
+    
+    \item Intégrer des services tiers (Stripe, OpenRouteService) de manière robuste.
+\end{enumerate}
+
+\section{Périmètre et Limites}
+
+\subsection{Périmètre du Projet}
+
+Le projet couvre les aspects suivants :
+
+\begin{itemize}
+    \item Application web complète avec panneau d'administration
+    \item Application mobile native Android (Kotlin) pour les utilisateurs
+    \item Backend API RESTful
+    \item Module d'Intelligence Artificielle pour la reconnaissance d'images
+    \item Système de livraison simulé avec suivi en temps réel
+\end{itemize}
+
+\subsection{Limites}
+
+Certaines fonctionnalités ne sont pas incluses dans le périmètre initial :
+
+\begin{itemize}
+    \item Les paiements réels sont simulés via le mode test de Stripe
+    \item Le système de livraison utilise une simulation de mouvement du livreur
+    \item L'application mobile n'inclut pas le panneau d'administration
+    \item Le modèle d'IA est entraîné sur un jeu de données limité (50 classes de pièces)
+\end{itemize}
+
+\section{Organisation du Rapport}
+
+Ce rapport est organisé en plusieurs chapitres :
+
+\begin{itemize}
+    \item \textbf{Chapitre 2 - État de l'Art :} Présente une étude des solutions existantes et des technologies utilisées.
+    
+    \item \textbf{Chapitre 3 - Méthodologie :} Décrit la méthodologie Scrum adoptée et l'environnement de développement.
+    
+    \item \textbf{Chapitres 4 à 9 - Sprints :} Détaillent le développement de chaque sprint avec les user stories, les fonctionnalités implémentées et les diagrammes UML.
+    
+    \item \textbf{Chapitre 10 - Tests et Validation :} Présente la stratégie de tests et les résultats de validation.
+    
+    \item \textbf{Chapitre 11 - Conclusion :} Synthétise les réalisations et propose des perspectives d'amélioration.
+\end{itemize}

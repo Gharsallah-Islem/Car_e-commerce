@@ -1,0 +1,126 @@
+@startuml Sprint5_Class
+' ============================================================
+' SPRINT 5 - CLASS DIAGRAM: Recommendation, UserActivity, AI Components
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class Recommendation {
+        - id: UUID
+        - confidenceScore: Double
+        - symptoms: String
+        - aiResponse: String
+        - isViewed: Boolean
+        - createdAt: LocalDateTime
+    }
+
+    enum RecommendationType {
+        AI_PART_RECOGNITION
+        SYMPTOM_ANALYSIS
+        SIMILAR_PRODUCTS
+        PURCHASE_HISTORY
+        TRENDING
+        FREQUENTLY_BOUGHT
+    }
+
+    class UserActivity {
+        - id: UUID
+        - searchQuery: String
+        - timestamp: LocalDateTime
+    }
+
+    enum ActivityType {
+        VIEW
+        SEARCH
+        ADD_TO_CART
+        PURCHASE
+        WISHLIST
+        AI_IDENTIFY
+    }
+
+    class User {
+        - id: UUID
+        - email: String
+    }
+
+    class Product {
+        - id: UUID
+        - name: String
+        - category: Category
+    }
+}
+
+package "Controller" {
+    class IAController {
+        + identifyPart(image: MultipartFile): PredictionResponse
+        + analyzeSymptoms(symptoms: String): List<Product>
+        + getRecommendations(userId: UUID): List<Recommendation>
+    }
+
+    class RecommendationController {
+        + getUserRecommendations(): List<Recommendation>
+        + getSimilarProducts(productId: UUID): List<Product>
+        + getTrendingProducts(): List<Product>
+        + markAsViewed(id: UUID): void
+    }
+
+    class UserActivityController {
+        + trackActivity(dto: UserActivityDTO): void
+        + getUserHistory(): List<UserActivity>
+    }
+}
+
+package "Service" {
+    class AIService {
+        + identifyPart(image: MultipartFile): PredictionResult
+        + analyzeSymptoms(symptoms: String): List<String>
+        + callFastAPIPredict(imageBytes: byte[]): PredictionResponse
+    }
+
+    class RecommendationService {
+        + generateForUser(user: User): List<Recommendation>
+        + findSimilarProducts(product: Product): List<Product>
+        + getTrendingProducts(): List<Product>
+        + saveRecommendation(rec: Recommendation): void
+    }
+}
+
+package "AI Module (Python)" <<Cloud>> {
+    class FastAPIApp {
+        + predict(image: File): PredictionResponse
+        + health(): HealthStatus
+    }
+
+    class EfficientNetB0Model {
+        - model: TensorFlow.Model
+        - classes: List<String>
+        + preprocess(image: ndarray): ndarray
+        + predict(image: ndarray): List<Prediction>
+        + load_model(path: String): void
+    }
+
+    class ImagePreprocessor {
+        + resize(image, size): ndarray
+        + normalize(image): ndarray
+        + to_tensor(image): ndarray
+    }
+}
+
+Recommendation "n" -- "1" User : for >
+Recommendation "n" -- "1" Product : suggests >
+Recommendation -- RecommendationType : type
+UserActivity "n" -- "1" User : by >
+UserActivity "n" -- "1" Product : on >
+UserActivity -- ActivityType : type
+
+IAController --> AIService
+RecommendationController --> RecommendationService
+UserActivityController --> RecommendationService
+
+AIService ..> FastAPIApp : HTTP REST
+FastAPIApp --> EfficientNetB0Model
+FastAPIApp --> ImagePreprocessor
+
+@enduml

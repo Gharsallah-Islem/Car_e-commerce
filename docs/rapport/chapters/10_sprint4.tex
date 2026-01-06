@@ -1,0 +1,140 @@
+% ============================================================
+% CHAPITRE 7 : SPRINT 4 - PAIEMENT & INVENTAIRE
+% ============================================================
+
+\chapter{Sprint 4 : Paiement Stripe et Gestion d'Inventaire}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le quatrieme sprint vise a integrer le systeme de paiement securise Stripe et a developper un module de gestion d'inventaire.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 4}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Paiement et Inventaire \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 4}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{7cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-4.1 & En tant qu'utilisateur, je veux payer par carte bancaire & Haute & 8 \\
+\hline
+US-4.2 & En tant qu'utilisateur, je veux un paiement securise & Haute & 5 \\
+\hline
+US-4.3 & En tant qu'admin, je veux suivre les niveaux de stock & Haute & 5 \\
+\hline
+US-4.4 & En tant qu'admin, je veux des alertes de stock bas & Moyenne & 5 \\
+\hline
+US-4.5 & En tant qu'admin, je veux gerer les fournisseurs & Moyenne & 5 \\
+\hline
+US-4.6 & En tant qu'admin, je veux creer des commandes de reapprovisionnement & Moyenne & 5 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas d'itlisation 4.png}
+\caption{Diagramme de cas d'utilisation - Paiement et Inventaire}
+\label{fig:sprint4_usecase}
+\end{figure}
+
+\textbf{Cas d'utilisation - Paiement :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Initier paiement :}} Demarrage du processus de paiement
+    \item \textbf{\textcolor{darkblue}{Saisir carte :}} Entree des informations bancaires via Stripe
+    \item \textbf{\textcolor{darkblue}{Confirmer paiement :}} Validation de la transaction
+\end{itemize}
+
+\textbf{Cas d'utilisation - Inventaire :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Consulter tableau de bord :}} Vue d'ensemble des stocks
+    \item \textbf{\textcolor{darkblue}{Gerer mouvements :}} Enregistrement des entrees/sorties de stock
+    \item \textbf{\textcolor{darkblue}{Gerer fournisseurs :}} CRUD sur les fournisseurs
+    \item \textbf{\textcolor{darkblue}{Commander reapprovisionnement :}} Creation de commandes fournisseurs
+\end{itemize}
+
+\subsection{Diagramme de Classes}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 4.png}
+\caption{Diagramme de classes - Payment, StockMovement, Supplier, PurchaseOrder et Product}
+\label{fig:sprint4_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{Payment :}} Enregistrement d'un paiement. Attributs : id, amount, currency (TND), status (PENDING, COMPLETED, FAILED, REFUNDED), stripePaymentId, stripeSessionId, paymentMethod, timestamps. Relation OneToOne avec Order.
+    \item \textbf{\textcolor{navyblue}{Order :}} Commande associee au paiement. Le paiement reference la commande pour laquelle il a ete effectue.
+    \item \textbf{\textcolor{navyblue}{StockMovement :}} Historique des mouvements de stock. Attributs : id, quantity, type (IN, OUT, ADJUSTMENT), reason, reference, createdBy, createdAt. Relation ManyToOne avec Product.
+    \item \textbf{\textcolor{navyblue}{Product :}} Produit dont le stock est affecte par les mouvements. Le stock est mis a jour automatiquement.
+    \item \textbf{\textcolor{navyblue}{Supplier :}} Fournisseur de pieces. Attributs : id, name, email, phone, address, contactPerson, isActive.
+    \item \textbf{\textcolor{navyblue}{PurchaseOrder :}} Commande de reapprovisionnement. Attributs : id, orderNumber, status, totalAmount, expectedDelivery, notes. Relation ManyToOne avec Supplier, OneToMany avec PurchaseOrderItem.
+    \item \textbf{\textcolor{navyblue}{PurchaseOrderItem :}} Article d'une commande fournisseur. Attributs : id, quantity, unitPrice, receivedQuantity. Relation ManyToOne avec Product.
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence 4.png}
+\caption{Diagramme de sequence - Paiement avec Stripe Checkout}
+\label{fig:sprint4_sequence}
+\end{figure}
+
+\section{Realisation}
+
+\subsection{Integration Stripe}
+
+\begin{itemize}
+    \item \textbf{\textcolor{steelblue}{Stripe Checkout :}} Interface hebergee par Stripe, conforme PCI-DSS
+    \item \textbf{\textcolor{steelblue}{Webhooks :}} Endpoint securise pour confirmation asynchrone
+    \item \textbf{\textcolor{steelblue}{Mode Test :}} Cles API de test pour simulation
+\end{itemize}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 4}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories terminees & 6/6 \\
+\hline
+Points realises & 33 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}

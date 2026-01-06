@@ -1,196 +1,261 @@
-<div class="ai-mechanic-container">
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="title-section">
-                <mat-icon>psychology</mat-icon>
-                <div>
-                    <h1>Assistant Mécanique IA</h1>
-                    <p>Identification de pièces et assistance technique</p>
+<div class="ai-mechanic-page">
+    <!-- Hero Section with Animated Background -->
+    <section class="hero-section">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="ai-badge">
+                <mat-icon>auto_awesome</mat-icon>
+                <span>Propulsé par l'Intelligence Artificielle</span>
+            </div>
+            <h1>Assistant Mécanique <span class="gradient-text">IA</span></h1>
+            <p class="hero-subtitle">
+                Identifiez instantanément n'importe quelle pièce automobile grâce à notre technologie
+                de reconnaissance d'image avancée
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-value">50+</span>
+                    <span class="stat-label">Types de pièces</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value">97%</span>
+                    <span class="stat-label">Précision</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value">&lt;3s</span>
+                    <span class="stat-label">Temps d'analyse</span>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Feature Cards -->
-    <div class="features-grid">
-        <mat-card class="feature-card">
-            <mat-icon>photo_camera</mat-icon>
-            <h3>Identification par image</h3>
-            <p>Prenez une photo de la pièce pour l'identifier automatiquement</p>
-        </mat-card>
-
-        <mat-card class="feature-card">
-            <mat-icon>search</mat-icon>
-            <h3>Recherche intelligente</h3>
-            <p>Trouvez rapidement les pièces compatibles avec votre véhicule</p>
-        </mat-card>
-
-        <mat-card class="feature-card">
-            <mat-icon>support_agent</mat-icon>
-            <h3>Support Client</h3>
-            <p>Besoin d'aide ? Contactez notre équipe via la page Support</p>
-        </mat-card>
-    </div>
-
-    <!-- Tabs -->
-    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)">
-
-        <!-- Image Identification Tab -->
-        <mat-tab label="Identification par image">
-            <div class="tab-content">
-                <mat-card class="identification-card">
-
-                    @if (!uploadedImage()) {
-                    <!-- Upload Area -->
-                    <div class="upload-area" (click)="triggerFileInput()">
-                        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
-                            style="display: none;" />
-
-                        <div class="upload-content">
-                            <mat-icon>cloud_upload</mat-icon>
-                            <h2>Télécharger une image</h2>
-                            <p>Cliquez pour sélectionner ou glissez-déposez une image de la pièce</p>
-                            <p class="upload-hint">
-                                <mat-icon>info</mat-icon>
-                                Formats acceptés : JPG, PNG, WEBP (max 5 MB)
-                            </p>
-                            <button mat-raised-button color="primary">
-                                <mat-icon>add_photo_alternate</mat-icon>
-                                Choisir une image
-                            </button>
-                        </div>
+    <!-- Features Bento Grid -->
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card feature-main">
+                <div class="feature-icon-wrapper">
+                    <mat-icon>photo_camera</mat-icon>
+                </div>
+                <h3>Identification Instantanée</h3>
+                <p>Prenez une photo de n'importe quelle pièce automobile et notre IA l'identifiera en quelques secondes
+                </p>
+                <div class="feature-visual">
+                    <div class="scan-animation">
+                        <div class="scan-line"></div>
                     </div>
-                    } @else {
-                    <!-- Image Preview & Results -->
-                    <div class="identification-content">
+                </div>
+            </div>
 
-                        <!-- Uploaded Image -->
-                        <div class="image-section">
-                            <div class="image-header">
-                                <h3>
-                                    <mat-icon>image</mat-icon>
-                                    Image téléchargée
-                                </h3>
-                                <button mat-icon-button (click)="clearImage()" matTooltip="Supprimer l'image">
-                                    <mat-icon>close</mat-icon>
-                                </button>
-                            </div>
+            <div class="feature-card feature-secondary">
+                <div class="feature-icon-wrapper secondary">
+                    <mat-icon>search</mat-icon>
+                </div>
+                <h3>Base de données étendue</h3>
+                <p>Plus de 50 catégories de pièces pour tous types de véhicules</p>
+            </div>
 
-                            <div class="image-preview">
-                                <img [src]="uploadedImage()" alt="Uploaded part image" />
-                            </div>
+            <div class="feature-card feature-secondary">
+                <div class="feature-icon-wrapper tertiary">
+                    <mat-icon>verified</mat-icon>
+                </div>
+                <h3>Précision Garantie</h3>
+                <p>Modèle entraîné sur des milliers d'images pour une fiabilité maximale</p>
+            </div>
+        </div>
+    </section>
 
-                            @if (identificationLoading()) {
-                            <div class="analysis-overlay">
-                                <mat-spinner diameter="60"></mat-spinner>
-                                <p>Analyse de l'image en cours...</p>
-                                <p class="analysis-detail">Intelligence artificielle en action</p>
-                            </div>
-                            }
+    <!-- Main Identification Section -->
+    <section class="identification-section">
+        <div class="section-header">
+            <h2>Identifier une pièce</h2>
+            <p>Téléchargez une image claire de la pièce que vous souhaitez identifier</p>
+        </div>
+
+        <div class="identification-container">
+            @if (!uploadedImage()) {
+            <!-- Upload Zone -->
+            <div class="upload-zone" (click)="triggerFileInput()" (dragover)="$event.preventDefault()"
+                (drop)="onDrop($event)">
+                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+
+                <div class="upload-icon-wrapper">
+                    <mat-icon>cloud_upload</mat-icon>
+                    <div class="upload-pulse"></div>
+                </div>
+
+                <h3>Glissez-déposez votre image ici</h3>
+                <p>ou cliquez pour parcourir vos fichiers</p>
+
+                <button class="upload-btn" mat-flat-button>
+                    <mat-icon>add_photo_alternate</mat-icon>
+                    Choisir une image
+                </button>
+
+                <div class="upload-info">
+                    <mat-icon>info_outline</mat-icon>
+                    <span>Formats acceptés: JPG, PNG, WEBP • Max 5 MB</span>
+                </div>
+            </div>
+            } @else {
+            <!-- Image Preview & Results -->
+            <div class="analysis-wrapper">
+                <div class="image-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <mat-icon>image</mat-icon>
+                            <span>Image téléchargée</span>
                         </div>
+                        <button class="clear-btn" (click)="clearImage()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
 
-                        <!-- Identification Results -->
-                        @if (identificationResult() && !identificationLoading()) {
-                        <div class="results-section">
-                            <div class="results-header">
-                                <h3>
-                                    <mat-icon>check_circle</mat-icon>
-                                    Résultat de l'identification
-                                </h3>
-                                <mat-chip [color]="identificationResult()!.confidence > 90 ? 'primary' : 'accent'">
-                                    <mat-icon>trending_up</mat-icon>
-                                    {{ identificationResult()!.confidence }}% de confiance
-                                </mat-chip>
+                    <div class="image-container">
+                        <img [src]="uploadedImage()" alt="Uploaded part" />
+
+                        @if (identificationLoading()) {
+                        <div class="analysis-overlay">
+                            <div class="loader">
+                                <div class="loader-ring"></div>
+                                <div class="loader-ring"></div>
+                                <div class="loader-ring"></div>
                             </div>
-
-                            <mat-divider></mat-divider>
-
-                            <div class="result-details">
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>label</mat-icon>
-                                        Nom de la pièce
-                                    </span>
-                                    <span class="value">{{ identificationResult()!.partName }}</span>
-                                </div>
-
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>tag</mat-icon>
-                                        Référence
-                                    </span>
-                                    <span class="value">{{ identificationResult()!.partNumber }}</span>
-                                </div>
-
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>category</mat-icon>
-                                        Catégorie
-                                    </span>
-                                    <span class="value">{{ identificationResult()!.category }}</span>
-                                </div>
-
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>verified</mat-icon>
-                                        Marque
-                                    </span>
-                                    <span class="value">{{ identificationResult()!.brand }}</span>
-                                </div>
-
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>payments</mat-icon>
-                                        Prix
-                                    </span>
-                                    <span class="value price">{{ identificationResult()!.price | number:'1.2-2' }}
-                                        DT</span>
-                                </div>
-
-                                <div class="detail-row">
-                                    <span class="label">
-                                        <mat-icon>inventory</mat-icon>
-                                        Stock
-                                    </span>
-                                    <span class="value stock">{{ identificationResult()!.stock }} unités</span>
-                                </div>
-                            </div>
-
-                            <mat-divider></mat-divider>
-
-                            <div class="compatibility-section">
-                                <h4>
-                                    <mat-icon>build</mat-icon>
-                                    Compatibilité
-                                </h4>
-                                <div class="compatibility-chips">
-                                    @for (vehicle of identificationResult()!.compatibility; track vehicle) {
-                                    <mat-chip>
-                                        <mat-icon>directions_car</mat-icon>
-                                        {{ vehicle }}
-                                    </mat-chip>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="actions">
-                                <button mat-raised-button color="primary" (click)="addToCart()">
-                                    <mat-icon>shopping_cart</mat-icon>
-                                    Ajouter au panier
-                                </button>
-                                <button mat-stroked-button color="primary" (click)="viewProductDetails()">
-                                    <mat-icon>visibility</mat-icon>
-                                    Voir les détails
-                                </button>
-                            </div>
+                            <h4>Analyse en cours...</h4>
+                            <p>Notre IA examine votre image</p>
                         </div>
                         }
                     </div>
-                    }
-                </mat-card>
-            </div>
-        </mat-tab>
+                </div>
 
-    </mat-tab-group>
+                @if (identificationResult() && !identificationLoading()) {
+                <div class="results-panel">
+                    <div class="results-header">
+                        <div class="success-badge">
+                            <mat-icon>check_circle</mat-icon>
+                            <span>Pièce identifiée</span>
+                        </div>
+                        <div class="confidence-badge" [class.high]="identificationResult()!.confidence > 90">
+                            <mat-icon>trending_up</mat-icon>
+                            <span>{{ identificationResult()!.confidence }}% confiance</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <div class="result-main">
+                            <h3>{{ identificationResult()!.partName }}</h3>
+                            <span class="result-ref">Réf: {{ identificationResult()!.partNumber }}</span>
+                        </div>
+
+                        <div class="result-details-grid">
+                            <div class="detail-item">
+                                <mat-icon>category</mat-icon>
+                                <div class="detail-content">
+                                    <span class="detail-label">Catégorie</span>
+                                    <span class="detail-value">{{ identificationResult()!.category }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <mat-icon>verified</mat-icon>
+                                <div class="detail-content">
+                                    <span class="detail-label">Marque</span>
+                                    <span class="detail-value">{{ identificationResult()!.brand }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-item highlight">
+                                <mat-icon>payments</mat-icon>
+                                <div class="detail-content">
+                                    <span class="detail-label">Prix</span>
+                                    <span class="detail-value price">{{ identificationResult()!.price | number:'1.2-2'
+                                        }} DT</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <mat-icon>inventory_2</mat-icon>
+                                <div class="detail-content">
+                                    <span class="detail-label">Stock</span>
+                                    <span class="detail-value stock">{{ identificationResult()!.stock }} unités</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="compatibility-section">
+                            <h4>
+                                <mat-icon>directions_car</mat-icon>
+                                Véhicules compatibles
+                            </h4>
+                            <div class="compatibility-tags">
+                                @for (vehicle of identificationResult()!.compatibility; track vehicle) {
+                                <span class="compatibility-tag">{{ vehicle }}</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="action-btn primary" (click)="addToCart()">
+                            <mat-icon>shopping_cart</mat-icon>
+                            Ajouter au panier
+                        </button>
+                        <button class="action-btn secondary" (click)="viewProductDetails()">
+                            <mat-icon>visibility</mat-icon>
+                            Voir les détails
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="section-header">
+            <h2>Comment ça marche</h2>
+            <p>Un processus simple en 3 étapes</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <mat-icon>photo_camera</mat-icon>
+                </div>
+                <h3>Prenez une photo</h3>
+                <p>Photographiez la pièce que vous souhaitez identifier</p>
+            </div>
+
+            <div class="step-connector">
+                <mat-icon>arrow_forward</mat-icon>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <mat-icon>psychology</mat-icon>
+                </div>
+                <h3>Analyse IA</h3>
+                <p>Notre intelligence artificielle analyse l'image instantanément</p>
+            </div>
+
+            <div class="step-connector">
+                <mat-icon>arrow_forward</mat-icon>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <mat-icon>check_circle</mat-icon>
+                </div>
+                <h3>Résultats</h3>
+                <p>Recevez les détails complets et commandez directement</p>
+            </div>
+        </div>
+    </section>
 </div>

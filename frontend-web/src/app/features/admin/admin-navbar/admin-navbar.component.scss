@@ -1,231 +1,560 @@
+// ================================
+// ADMIN NAVBAR - PREMIUM WHITE & PURPLE DESIGN
+// Clean, Modern, Elegant
+// ================================
+
+// Design Tokens
+$purple: #9333EA;
+$purple-light: #A855F7;
+$purple-50: #FAF5FF;
+$purple-100: #F3E8FF;
+$purple-600: #9333EA;
+$purple-700: #7C3AED;
+$purple-800: #6B21A8;
+
+$white: #FFFFFF;
+$gray-50: #FAFAFA;
+$gray-100: #F4F4F5;
+$gray-200: #E4E4E7;
+$gray-300: #D4D4D8;
+$gray-400: #A1A1AA;
+$gray-500: #71717A;
+$gray-600: #52525B;
+$gray-700: #3F3F46;
+$gray-800: #27272A;
+$gray-900: #18181B;
+
+$success: #10B981;
+$warning: #F59E0B;
+$danger: #EF4444;
+
+$ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+// ===== Main Navbar =====
 .admin-navbar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: $white;
+    border-bottom: 1px solid $gray-100;
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: 64px;
-    padding: 0 24px;
+    height: 68px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
 
-    .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 100%;
-        max-width: 1920px;
-        margin: 0 auto;
-    }
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
 
-    .navbar-left {
+// ===== Brand Section =====
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .logo-wrapper {
+        position: relative;
+        width: 44px;
+        height: 44px;
         display: flex;
         align-items: center;
-        gap: 16px;
+        justify-content: center;
+        background: linear-gradient(135deg, $purple-600 0%, $purple-700 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba($purple, 0.25);
 
         .logo-icon {
-            font-size: 32px;
-            width: 32px;
-            height: 32px;
-            color: white;
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            color: $white;
         }
 
-        .brand-title {
-            font-size: 20px;
+        .logo-glow {
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, rgba($purple, 0.2), transparent);
+            border-radius: 15px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        &:hover .logo-glow {
+            opacity: 1;
+        }
+    }
+
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+
+        .brand-name {
+            font-size: 18px;
             font-weight: 700;
+            color: $gray-900;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+
+            .accent {
+                color: $purple;
+            }
+        }
+
+        .brand-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: $gray-400;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        .divider {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 20px;
-        }
-
-        .page-title {
-            font-size: 16px;
-            font-weight: 400;
-            opacity: 0.9;
-        }
     }
+}
 
-    .navbar-center {
-        display: flex;
-        gap: 8px;
+// ===== Navigation Links =====
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 
-        .nav-link {
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 0 16px;
-            height: 40px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-
-            mat-icon {
-                margin-right: 8px;
-                font-size: 20px;
-                width: 20px;
-                height: 20px;
-            }
-
-            &:hover {
-                background: rgba(255, 255, 255, 0.15);
-            }
-
-            &.active {
-                background: rgba(255, 255, 255, 0.2);
-                font-weight: 600;
-            }
-        }
-    }
-
-    .navbar-right {
+    .nav-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: $gray-600;
+        text-decoration: none;
+        transition: all 0.25s $ease-out-expo;
+        position: relative;
 
-        .icon-button {
-            color: white;
-            width: 40px;
-            height: 40px;
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: $gray-400;
+            transition: color 0.25s ease;
+        }
+
+        &:hover {
+            background: $gray-50;
+            color: $gray-900;
 
             mat-icon {
-                font-size: 24px;
-                width: 24px;
-                height: 24px;
-            }
-
-            &:hover {
-                background: rgba(255, 255, 255, 0.15);
+                color: $purple;
             }
         }
 
-        .user-button {
-            color: white;
-            padding: 0 12px;
-            height: 48px;
-            border-radius: 24px;
-            transition: all 0.3s ease;
+        &.active {
+            background: $purple-50;
+            color: $purple-700;
 
-            mat-icon:first-child {
-                margin-right: 8px;
-                font-size: 24px;
-                width: 24px;
-                height: 24px;
+            mat-icon {
+                color: $purple;
             }
+
+            // Indicator line
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 20px;
+                height: 3px;
+                background: $purple;
+                border-radius: 3px 3px 0 0;
+            }
+        }
+    }
+}
+
+// ===== Actions Section =====
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .action-btn {
+        position: relative;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: $gray-50;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s $ease-out-expo;
+
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: $gray-600;
+            transition: color 0.25s ease;
+        }
+
+        &:hover {
+            background: $purple-50;
+            transform: translateY(-2px);
+
+            mat-icon {
+                color: $purple;
+            }
+        }
+
+        .badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: $danger;
+            color: $white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 0 4px;
+            box-shadow: 0 2px 6px rgba($danger, 0.4);
+        }
+    }
+
+    .user-profile-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 12px 6px 6px;
+        background: $gray-50;
+        border: 1px solid $gray-100;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: all 0.25s $ease-out-expo;
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, $purple-600 0%, $purple-700 100%);
+            border-radius: 50%;
+            color: $white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
 
             .user-name {
-                font-size: 14px;
-                font-weight: 500;
-                max-width: 150px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                font-size: 13px;
+                font-weight: 600;
+                color: $gray-900;
+                line-height: 1.2;
             }
 
-            .dropdown-icon {
-                margin-left: 4px;
+            .user-role {
+                font-size: 11px;
+                color: $gray-400;
+                font-weight: 500;
+            }
+        }
+
+        .chevron {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: $gray-400;
+            margin-left: 2px;
+            transition: transform 0.25s ease;
+        }
+
+        &:hover {
+            background: $white;
+            border-color: $purple-100;
+            box-shadow: 0 4px 12px rgba($purple, 0.1);
+
+            .chevron {
+                transform: rotate(180deg);
+            }
+        }
+    }
+}
+
+// ===== Premium Menus =====
+::ng-deep .premium-menu {
+    .mat-mdc-menu-panel {
+        border-radius: 16px !important;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid $gray-100 !important;
+        min-width: 280px;
+        overflow: hidden;
+    }
+
+    .mat-mdc-menu-content {
+        padding: 0 !important;
+    }
+
+    .menu-header {
+        padding: 16px 20px;
+        background: $gray-50;
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .header-title {
+                font-size: 15px;
+                font-weight: 600;
+                color: $gray-900;
+            }
+
+            .header-badge {
+                font-size: 11px;
+                font-weight: 600;
+                color: $white;
+                background: $purple;
+                padding: 3px 8px;
+                border-radius: 6px;
+            }
+        }
+    }
+
+    .menu-divider {
+        height: 1px;
+        background: $gray-100;
+    }
+
+    .menu-footer {
+        padding: 12px 16px;
+        background: $gray-50;
+        text-align: center;
+
+        .view-all-btn {
+            color: $purple;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    }
+
+    // Notification Items
+    .notification-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
+        padding: 14px 20px !important;
+        height: auto !important;
+        min-height: 64px;
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            mat-icon {
                 font-size: 20px;
                 width: 20px;
                 height: 20px;
             }
 
-            &:hover {
-                background: rgba(255, 255, 255, 0.15);
+            &.order {
+                background: rgba($success, 0.1);
+
+                mat-icon {
+                    color: $success;
+                }
             }
+
+            &.warning {
+                background: rgba($warning, 0.1);
+
+                mat-icon {
+                    color: $warning;
+                }
+            }
+
+            &.user {
+                background: rgba($purple, 0.1);
+
+                mat-icon {
+                    color: $purple;
+                }
+            }
+        }
+
+        .notification-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .notification-text {
+                font-size: 13px;
+                font-weight: 500;
+                color: $gray-800;
+            }
+
+            .notification-time {
+                font-size: 11px;
+                color: $gray-400;
+            }
+        }
+
+        &:hover {
+            background: $gray-50 !important;
         }
     }
 
-    // Menu styles
-    ::ng-deep .notifications-menu,
-    ::ng-deep .user-menu {
-        .mat-mdc-menu-content {
-            padding: 0;
-        }
+    // User Menu
+    &.user-menu {
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px;
+            background: linear-gradient(135deg, $purple-50 0%, $white 100%);
 
-        .menu-header {
-            padding: 16px;
-            background: #f5f5f5;
-
-            h3 {
-                margin: 0 0 4px 0;
+            .user-avatar-lg {
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, $purple-600 0%, $purple-700 100%);
+                border-radius: 50%;
+                color: $white;
                 font-size: 16px;
                 font-weight: 600;
-                color: #333;
+                box-shadow: 0 4px 12px rgba($purple, 0.25);
             }
 
-            p {
-                margin: 0;
-                font-size: 13px;
-                color: #666;
+            .user-details {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                .user-fullname {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: $gray-900;
+                }
+
+                .user-email {
+                    font-size: 12px;
+                    color: $gray-500;
+                }
             }
         }
 
-        .mat-mdc-menu-item {
-            height: 48px;
-            padding: 0 16px;
+        .menu-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 12px 20px !important;
+            height: auto !important;
+            min-height: 48px;
 
             mat-icon {
-                margin-right: 12px;
-                color: #666;
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: $gray-500;
             }
 
             span {
                 font-size: 14px;
-                color: #333;
+                color: $gray-700;
             }
 
             &:hover {
-                background: #f5f5f5;
+                background: $gray-50 !important;
 
                 mat-icon {
-                    color: #667eea;
+                    color: $purple;
+                }
+            }
+
+            &.logout {
+                mat-icon {
+                    color: $danger;
+                }
+
+                span {
+                    color: $danger;
+                }
+
+                &:hover {
+                    background: rgba($danger, 0.05) !important;
                 }
             }
         }
     }
+}
 
-    // Responsive
-    @media (max-width: 1024px) {
-        .navbar-center {
+// ===== Responsive =====
+@media (max-width: 1280px) {
+    .navbar-nav {
+        gap: 2px;
+
+        .nav-item {
+            padding: 8px 12px;
+            font-size: 12px;
+
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .navbar-nav {
+        display: none;
+    }
+
+    .navbar-container {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        .brand-text {
             display: none;
         }
-
-        .navbar-left {
-            .page-title {
-                display: none;
-            }
-        }
     }
 
-    @media (max-width: 768px) {
-        padding: 0 16px;
-
-        .navbar-left {
-            gap: 12px;
-
-            .brand-title {
-                font-size: 18px;
-            }
-
-            .divider {
+    .navbar-actions {
+        .user-profile-btn {
+            .user-info {
                 display: none;
             }
-        }
 
-        .navbar-right {
-            .user-button {
-                .user-name {
-                    display: none;
-                }
+            padding: 6px;
+            border-radius: 50%;
 
-                padding: 0 8px;
-            }
-        }
-    }
-
-    @media (max-width: 480px) {
-        .navbar-left {
-            .brand-title {
+            .chevron {
                 display: none;
             }
         }

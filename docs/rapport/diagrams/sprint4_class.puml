@@ -1,0 +1,132 @@
+@startuml Sprint4_Class
+' ============================================================
+' SPRINT 4 - CLASS DIAGRAM: Payment, StockMovement, Supplier
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class Payment {
+        - id: UUID
+        - amount: Double
+        - currency: String
+        - status: String
+        - stripePaymentId: String
+        - stripeSessionId: String
+        - paymentMethod: String
+        - createdAt: LocalDateTime
+        - completedAt: LocalDateTime
+        --
+        + STATUS_PENDING: String
+        + STATUS_COMPLETED: String
+        + STATUS_FAILED: String
+        + STATUS_REFUNDED: String
+        --
+        + isCompleted(): Boolean
+        + markAsCompleted(): void
+    }
+
+    class StockMovement {
+        - id: UUID
+        - quantity: Integer
+        - type: String
+        - reason: String
+        - reference: String
+        - createdAt: LocalDateTime
+        - createdBy: String
+        --
+        + TYPE_IN: String
+        + TYPE_OUT: String
+        + TYPE_ADJUSTMENT: String
+    }
+
+    class Supplier {
+        - id: UUID
+        - name: String
+        - email: String
+        - phone: String
+        - address: String
+        - contactPerson: String
+        - isActive: Boolean
+        - createdAt: LocalDateTime
+    }
+
+    class PurchaseOrder {
+        - id: UUID
+        - orderNumber: String
+        - status: String
+        - totalAmount: Double
+        - expectedDelivery: LocalDate
+        - notes: String
+        - createdAt: LocalDateTime
+    }
+
+    class PurchaseOrderItem {
+        - id: UUID
+        - quantity: Integer
+        - unitPrice: Double
+        - receivedQuantity: Integer
+    }
+
+    class ReorderSetting {
+        - id: UUID
+        - minimumStock: Integer
+        - reorderQuantity: Integer
+        - isAutoReorder: Boolean
+    }
+
+    class Order {
+        - id: UUID
+        - paymentStatus: String
+    }
+
+    class Product {
+        - id: UUID
+        - name: String
+        - stock: Integer
+    }
+}
+
+package "Controller" {
+    class PaymentController {
+        + createCheckoutSession(orderId: UUID): CheckoutSessionResponse
+        + handleWebhook(payload: String, signature: String): void
+        + getPaymentStatus(orderId: UUID): Payment
+    }
+
+    class InventoryController {
+        + getDashboard(): InventoryDashboard
+        + getLowStockAlerts(): List<Product>
+        + createStockMovement(dto: StockMovementDTO): StockMovement
+        + getMovementHistory(productId: UUID): List<StockMovement>
+    }
+}
+
+package "Service" {
+    class PaymentService {
+        + createStripeSession(order: Order): String
+        + handleStripeWebhook(event: Event): void
+        + updatePaymentStatus(sessionId: String, status: String): void
+        + processSuccessfulPayment(order: Order): void
+    }
+
+    class InventoryService {
+        + recordMovement(productId: UUID, qty: int, type: String): StockMovement
+        + getLowStockProducts(threshold: int): List<Product>
+        + updateStock(productId: UUID, delta: int): void
+        + calculateStockValue(): Double
+    }
+}
+
+Payment "1" -- "1" Order : for >
+StockMovement "n" -- "1" Product : affects >
+PurchaseOrder "n" -- "1" Supplier : from >
+PurchaseOrder "1" -- "n" PurchaseOrderItem : contains >
+PurchaseOrderItem "n" -- "1" Product : for >
+ReorderSetting "1" -- "1" Product : configures >
+
+PaymentController --> PaymentService
+InventoryController --> InventoryService
+
+@enduml

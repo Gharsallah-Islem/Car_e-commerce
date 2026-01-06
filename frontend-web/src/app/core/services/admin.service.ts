@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { User, UserRole } from '../models';
 
@@ -75,5 +76,14 @@ export class AdminService {
      */
     updateUserRole(id: string, role: UserRole): Observable<User> {
         return this.apiService.patch<User>(`users/${id}/role`, {}, { role });
+    }
+
+    /**
+     * Get user orders by user ID
+     */
+    getUserOrders(userId: string): Observable<any[]> {
+        return this.apiService.get<any>(`orders/user/${userId}`).pipe(
+            map((response: any) => response.content || response || [])
+        );
     }
 }

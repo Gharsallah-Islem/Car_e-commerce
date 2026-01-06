@@ -1,0 +1,282 @@
+% ============================================================
+% CHAPITRE 3 : MÉTHODOLOGIE ET GESTION DE PROJET
+% ============================================================
+
+\chapter{Méthodologie et Gestion de Projet}
+
+\section{Introduction}
+
+Ce chapitre présente la méthodologie de développement adoptée pour notre projet, ainsi que les outils et l'environnement de travail utilisés. L'organisation rigoureuse du projet est essentielle pour garantir la qualité des livrables et le respect des délais.
+
+\section{Méthodologie Scrum}
+
+\subsection{Présentation de Scrum}
+
+Scrum est un cadre de travail agile qui permet de gérer des projets complexes de manière itérative et incrémentale. Il est particulièrement adapté aux projets de développement logiciel où les exigences peuvent évoluer.
+
+\imagePlaceholder{scrum_framework}{Cadre de travail Scrum}
+
+\subsection{Rôles Scrum}
+
+Notre équipe est organisée selon les rôles Scrum suivants :
+
+\begin{itemize}
+    \item \textbf{Product Owner :} Mme. Lamia Mansouri (encadrante) - Définit les priorités et valide les fonctionnalités.
+    
+    \item \textbf{Scrum Master :} Gharsallah Islem - Facilite les cérémonies Scrum et résout les obstacles.
+    
+    \item \textbf{Équipe de développement :}
+    \begin{itemize}
+        \item Gharsallah Islem - Backend, IA
+        \item Ben Jemaa Mohamed Malek - Frontend Web, Mobile
+        \item Hammi Youssef - Base de données, Tests
+    \end{itemize}
+\end{itemize}
+
+\subsection{Cérémonies Scrum}
+
+Nous avons mis en place les cérémonies suivantes :
+
+\begin{enumerate}
+    \item \textbf{Sprint Planning :} Réunion de planification au début de chaque sprint pour définir les objectifs et sélectionner les user stories.
+    
+    \item \textbf{Daily Scrum :} Réunions quotidiennes de 15 minutes pour synchroniser l'équipe.
+    
+    \item \textbf{Sprint Review :} Démonstration des fonctionnalités développées à la fin du sprint.
+    
+    \item \textbf{Sprint Retrospective :} Analyse de ce qui a bien fonctionné et des axes d'amélioration.
+\end{enumerate}
+
+\subsection{Artefacts Scrum}
+
+\begin{itemize}
+    \item \textbf{Product Backlog :} Liste priorisée de toutes les fonctionnalités du projet.
+    
+    \item \textbf{Sprint Backlog :} Sous-ensemble du Product Backlog sélectionné pour le sprint en cours.
+    
+    \item \textbf{Increment :} Version potentiellement livrable du produit à la fin de chaque sprint.
+\end{itemize}
+
+\section{Organisation des Sprints}
+
+Le projet est divisé en \textbf{6 sprints} de 2 semaines chacun :
+
+\begin{table}[htbp]
+\centering
+\caption{Planification des sprints}
+\label{tab:sprints}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Sprint} & \textbf{Thème} & \textbf{Objectifs principaux} \\
+\hline
+1 & Fondation \& Authentification & Setup, Auth, Gestion utilisateurs \\
+\hline
+2 & Gestion des Produits & Catalogue, Recherche, Admin produits \\
+\hline
+3 & Panier \& Commandes & Panier, Checkout, Gestion commandes \\
+\hline
+4 & Paiement \& Inventaire & Stripe, Gestion stocks, Réapprovisionnement \\
+\hline
+5 & Module IA & Reconnaissance images, Recommandations \\
+\hline
+6 & Chat, Livraison \& Validation & Support, Suivi livraison, Tests finaux \\
+\hline
+\end{tabular}
+\end{table}
+
+\imagePlaceholder{gantt_chart}{Diagramme de Gantt du projet}
+
+\section{Environnement de Développement}
+
+\subsection{Outils de Développement}
+
+\begin{table}[htbp]
+\centering
+\caption{Outils de développement utilisés}
+\label{tab:outils}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Catégorie} & \textbf{Outil} & \textbf{Version} \\
+\hline
+IDE Backend & IntelliJ IDEA & 2024.x \\
+\hline
+IDE Frontend & Visual Studio Code & 1.85+ \\
+\hline
+IDE Python & PyCharm / VS Code & 2024.x \\
+\hline
+SGBD & PostgreSQL & 15.x \\
+\hline
+Admin BDD & pgAdmin & 4.x \\
+\hline
+API Testing & Postman & 10.x \\
+\hline
+Versioning & Git & 2.x \\
+\hline
+Repository & GitHub & - \\
+\hline
+Conteneurs & Docker & 24.x \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Configuration des Environnements}
+
+Notre projet utilise trois environnements distincts :
+
+\begin{enumerate}
+    \item \textbf{Développement :} Configuration locale pour le développement et les tests unitaires.
+    
+    \item \textbf{Staging :} Environnement de pré-production pour les tests d'intégration.
+    
+    \item \textbf{Production :} Environnement final déployé via Docker.
+\end{enumerate}
+
+\section{Architecture Globale du Système}
+
+\subsection{Architecture en Couches}
+
+Notre application suit une architecture en couches classique :
+
+\imagePlaceholder{architecture_globale}{Architecture globale du système}
+
+\begin{enumerate}
+    \item \textbf{Couche Présentation :} 
+    \begin{itemize}
+        \item Application Web (Angular 18)
+        \item Application Mobile (Kotlin Android native)
+    \end{itemize}
+    
+    \item \textbf{Couche API :}
+    \begin{itemize}
+        \item Backend Spring Boot (REST API)
+        \item Module IA FastAPI
+    \end{itemize}
+    
+    \item \textbf{Couche Métier :}
+    \begin{itemize}
+        \item Services Spring Boot
+        \item Logique de recommandation
+    \end{itemize}
+    
+    \item \textbf{Couche Données :}
+    \begin{itemize}
+        \item PostgreSQL (base principale)
+        \item Modèles TensorFlow (IA)
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Diagramme de Déploiement}
+
+\imagePlaceholder{diagramme_deploiement}{Diagramme de déploiement UML}
+
+\section{Stack Technologique Détaillée}
+
+\subsection{Frontend}
+
+\begin{table}[htbp]
+\centering
+\caption{Technologies Frontend}
+\label{tab:frontend_tech}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Technologie} & \textbf{Utilisation} \\
+\hline
+Angular 18 & Framework principal \\
+\hline
+TypeScript & Langage de programmation \\
+\hline
+Angular Material & Composants UI \\
+\hline
+RxJS & Programmation réactive \\
+\hline
+SCSS & Stylisation \\
+\hline
+Leaflet & Cartographie \\
+\hline
+Chart.js & Graphiques analytics \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Backend}
+
+\begin{table}[htbp]
+\centering
+\caption{Technologies Backend}
+\label{tab:backend_tech}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Technologie} & \textbf{Utilisation} \\
+\hline
+Spring Boot 3 & Framework principal \\
+\hline
+Java 17 & Langage de programmation \\
+\hline
+Spring Security & Sécurité, JWT \\
+\hline
+Spring Data JPA & ORM, accès données \\
+\hline
+Hibernate & Implémentation JPA \\
+\hline
+WebSocket (STOMP) & Communication temps réel \\
+\hline
+Lombok & Réduction boilerplate \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Module IA}
+
+\begin{table}[htbp]
+\centering
+\caption{Technologies Module IA}
+\label{tab:ia_tech}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Technologie} & \textbf{Utilisation} \\
+\hline
+Python 3.10 & Langage de programmation \\
+\hline
+FastAPI & Framework API \\
+\hline
+TensorFlow 2.12 & Deep learning \\
+\hline
+Keras & API haut niveau \\
+\hline
+NumPy & Calcul numérique \\
+\hline
+Pillow & Traitement images \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Gestion de la Qualité}
+
+\subsection{Standards de Code}
+
+Nous avons adopté les pratiques suivantes :
+
+\begin{itemize}
+    \item \textbf{Clean Code :} Nommage explicite, fonctions courtes, commentaires pertinents
+    \item \textbf{Design Patterns :} Repository, Service, Factory, Singleton
+    \item \textbf{SOLID Principles :} Respect des principes de conception orientée objet
+\end{itemize}
+
+\subsection{Revue de Code}
+
+Chaque fonctionnalité fait l'objet d'une Pull Request sur GitHub, revue par au moins un autre membre de l'équipe avant fusion.
+
+\subsection{Tests}
+
+Notre stratégie de tests comprend :
+
+\begin{itemize}
+    \item Tests unitaires (JUnit, Jasmine)
+    \item Tests d'intégration (Spring Boot Test)
+    \item Tests API (Postman)
+    \item Tests manuels de validation
+\end{itemize}
+
+\section{Conclusion}
+
+L'adoption de la méthodologie Scrum et la mise en place d'un environnement de développement structuré nous ont permis de gérer efficacement ce projet complexe. Les six sprints planifiés couvrent l'ensemble des fonctionnalités de la plateforme, de l'authentification jusqu'au système de livraison.

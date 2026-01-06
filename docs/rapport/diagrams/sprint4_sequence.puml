@@ -1,0 +1,72 @@
+@startuml Sprint4_Sequence
+' ============================================================
+' SPRINT 4 - SEQUENCE DIAGRAM: Stripe Checkout Payment Flow
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "PaymentController" as PayCtrl
+participant "PaymentService" as PaySvc
+participant "OrderService" as OrderSvc
+participant "Stripe API" as Stripe
+database "PostgreSQL" as DB
+
+== Initiation du Paiement ==
+
+User -> Frontend : Cliquer "Payer"
+Frontend -> PayCtrl : POST /api/payments/create-session\n{orderId}
+
+PayCtrl -> PaySvc : createCheckoutSession(orderId)
+PaySvc -> OrderSvc : findById(orderId)
+OrderSvc -> DB : SELECT order
+DB --> OrderSvc : Order
+OrderSvc --> PaySvc : Order
+
+PaySvc -> Stripe : Stripe.checkout.sessions.create(\n  line_items, mode, success_url, cancel_url)
+note right of Stripe
+  Stripe API cree une
+  session de paiement
+  hebergee
+end note
+Stripe --> PaySvc : Session {id, url}
+
+PaySvc -> DB : INSERT payment (PENDING)
+PaySvc --> PayCtrl : {sessionId, checkoutUrl}
+PayCtrl --> Frontend : 200 OK {checkoutUrl}
+
+Frontend -> Frontend : window.location.href = checkoutUrl
+Frontend --> User : Redirection vers Stripe Checkout
+
+== Page Stripe (hebergee) ==
+
+User -> Stripe : Saisir informations carte
+User -> Stripe : Confirmer paiement
+Stripe -> Stripe : Valider et traiter paiement
+
+alt Paiement reussi
+    Stripe --> User : Redirection vers success_url
+    
+    == Webhook Stripe ==
+    
+    Stripe -> PayCtrl : POST /api/payments/webhook\n{checkout.session.completed}
+    PayCtrl -> PaySvc : handleWebhook(event)
+    
+    PaySvc -> PaySvc : Verifier signature webhook
+    PaySvc -> DB : UPDATE payment SET status = COMPLETED
+    PaySvc -> OrderSvc : updatePaymentStatus(orderId, PAID)
+    OrderSvc -> DB : UPDATE order SET payment_status = PAID
+    
+    PaySvc --> PayCtrl : 200 OK
+    
+else Paiement echoue
+    Stripe --> User : Redirection vers cancel_url
+    Stripe -> PayCtrl : POST webhook {payment_failed}
+    PayCtrl -> PaySvc : handleWebhook(event)
+    PaySvc -> DB : UPDATE payment SET status = FAILED
+end
+
+Frontend --> User : Page confirmation commande
+
+@enduml

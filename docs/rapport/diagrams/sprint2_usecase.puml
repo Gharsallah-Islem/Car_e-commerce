@@ -1,0 +1,57 @@
+@startuml Sprint2_UseCase
+' ============================================================
+' SPRINT 2 - USE CASE DIAGRAM: Product Management & Catalog
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Visiteur" as Visitor
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+
+rectangle "Gestion des Produits" {
+    usecase "Parcourir catalogue" as UC1
+    usecase "Rechercher produits" as UC2
+    usecase "Filtrer par categorie" as UC3
+    usecase "Filtrer par marque" as UC4
+    usecase "Filtrer par prix" as UC5
+    usecase "Consulter details produit" as UC6
+    usecase "Voir images produit" as UC7
+    
+    usecase "Gerer produits (CRUD)" as UC10
+    usecase "Ajouter produit" as UC11
+    usecase "Modifier produit" as UC12
+    usecase "Supprimer produit" as UC13
+    usecase "Gerer categories" as UC14
+    usecase "Gerer marques" as UC15
+    usecase "Uploader images" as UC16
+}
+
+Visitor --> UC1
+Visitor --> UC2
+Visitor --> UC6
+
+User --|> Visitor
+User --> UC3
+User --> UC4
+User --> UC5
+
+Admin --|> User
+Admin --> UC10
+Admin --> UC14
+Admin --> UC15
+
+UC10 ..> UC11 : <<include>>
+UC10 ..> UC12 : <<include>>
+UC10 ..> UC13 : <<include>>
+
+UC2 ..> UC3 : <<extend>>
+UC2 ..> UC4 : <<extend>>
+UC2 ..> UC5 : <<extend>>
+
+UC6 ..> UC7 : <<include>>
+UC11 ..> UC16 : <<include>>
+
+@enduml

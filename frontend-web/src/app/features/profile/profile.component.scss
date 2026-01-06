@@ -527,6 +527,29 @@ $border-subtle: rgba(0, 0, 0, 0.06);
             .mdc-notched-outline__trailing {
                 border-color: rgba(0, 0, 0, 0.08);
             }
+
+            // Fix prefix icon spacing to prevent label overlap
+            .mat-mdc-form-field-icon-prefix {
+                padding: 0 12px 0 12px;
+
+                mat-icon {
+                    color: $text-tertiary;
+                }
+            }
+
+            // Ensure label is properly positioned when there's a prefix
+            .mdc-floating-label {
+                left: 40px !important;
+            }
+
+            .mdc-floating-label--float-above {
+                left: 8px !important;
+            }
+
+            // Fix notch position for the label
+            .mdc-notched-outline__notch {
+                margin-left: 32px;
+            }
         }
     }
 

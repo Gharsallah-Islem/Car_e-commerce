@@ -1,0 +1,186 @@
+% ============================================================
+% CHAPITRE 4 : SPRINT 1 - FONDATION & AUTHENTIFICATION
+% ============================================================
+
+\chapter{Sprint 1 : Fondation et Authentification}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le premier sprint constitue la fondation de notre projet. Il vise a mettre en place l'infrastructure technique et le systeme d'authentification securise.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 1}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Fondation et Authentification \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Objectifs Detailles}
+
+\begin{enumerate}
+    \item Configuration de l'environnement de developpement (Angular, Spring Boot, PostgreSQL)
+    \item Mise en place de l'architecture du projet selon le pattern MVC
+    \item Developpement du systeme d'authentification (inscription, connexion, deconnexion)
+    \item Gestion des utilisateurs et des roles (CLIENT, ADMIN, DRIVER, SUPPORT, SUPER\_ADMIN)
+    \item Securisation des API avec JWT (JSON Web Token)
+    \item Verification d'email et reinitialisation de mot de passe
+\end{enumerate}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 1}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{7cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-1.1 & En tant qu'utilisateur, je veux creer un compte avec mon email et mot de passe & Haute & 5 \\
+\hline
+US-1.2 & En tant qu'utilisateur, je veux me connecter de maniere securisee & Haute & 5 \\
+\hline
+US-1.3 & En tant qu'utilisateur, je veux reinitialiser mon mot de passe oublie & Moyenne & 3 \\
+\hline
+US-1.4 & En tant qu'admin, je veux gerer les roles des utilisateurs & Haute & 5 \\
+\hline
+US-1.5 & En tant qu'utilisateur, je veux verifier mon email & Moyenne & 3 \\
+\hline
+US-1.6 & En tant qu'utilisateur, je veux mettre a jour mon profil & Moyenne & 3 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+Le diagramme de cas d'utilisation suivant presente les fonctionnalites d'authentification et de gestion des utilisateurs. Il identifie les acteurs principaux : le Visiteur (non authentifie), l'Utilisateur authentifie, l'Administrateur avec privileges etendus, et le Systeme Email pour les notifications.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas utilisation 1.png}
+\caption{Diagramme de cas d'utilisation - Module Authentification}
+\label{fig:sprint1_usecase}
+\end{figure}
+
+\textbf{Acteurs identifies :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Visiteur :}} Utilisateur non authentifie pouvant s'inscrire ou se connecter
+    \item \textbf{\textcolor{darkblue}{Utilisateur :}} Utilisateur authentifie avec acces aux fonctionnalites de base
+    \item \textbf{\textcolor{darkblue}{Administrateur :}} Utilisateur avec privileges de gestion complete
+    \item \textbf{\textcolor{darkblue}{Systeme :}} Responsable de l'envoi d'emails et de la validation des tokens
+\end{itemize}
+
+\subsection{Diagramme de Classes}
+
+Le diagramme de classes ci-dessous presente l'architecture des entites liees a la gestion des utilisateurs et a l'authentification.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 1.png}
+\caption{Diagramme de classes - Entites User et Role}
+\label{fig:sprint1_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{User :}} Entite principale representant un utilisateur du systeme. Elle contient les attributs : id (UUID), email, password (hash BCrypt), fullName, phone, address, profilePicture, isActive, isEmailVerified, emailVerificationToken, passwordResetToken, et les timestamps de creation/modification.
+    \item \textbf{\textcolor{navyblue}{Role :}} Entite definissant les differents roles possibles dans le systeme. Les roles disponibles sont : CLIENT (client standard), ADMIN (administrateur), DRIVER (livreur), SUPPORT (agent de support), et SUPER\_ADMIN (super administrateur avec tous les privileges). Relation ManyToOne avec User.
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+Le diagramme de sequence suivant illustre le processus complet de connexion avec generation et validation du token JWT.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence 1.png}
+\caption{Diagramme de sequence - Processus de connexion JWT}
+\label{fig:sprint1_sequence}
+\end{figure}
+
+\textbf{Description du flux de connexion :}
+\begin{enumerate}
+    \item L'utilisateur saisit ses identifiants (email, mot de passe) dans le formulaire
+    \item Le frontend Angular envoie une requete POST vers /api/auth/login
+    \item Le backend verifie les identifiants avec BCrypt
+    \item Si valides, un token JWT est genere avec les claims (sub, role, exp)
+    \item Le token est stocke dans localStorage cote client
+    \item Les requetes suivantes incluent le token dans l'en-tete Authorization
+\end{enumerate}
+
+\section{Realisation}
+
+\subsection{Architecture d'Authentification}
+
+L'architecture d'authentification mise en place repose sur plusieurs composants :
+\begin{itemize}
+    \item \textbf{\textcolor{steelblue}{SecurityConfig :}} Configuration Spring Security avec routes publiques et protegees
+    \item \textbf{\textcolor{steelblue}{JwtAuthenticationFilter :}} Filtre interceptant chaque requete pour valider le JWT
+    \item \textbf{\textcolor{steelblue}{AuthService :}} Logique metier d'inscription, connexion et reinitialisation
+\end{itemize}
+
+\subsection{Gestion des Roles}
+
+\begin{table}[htbp]
+\centering
+\caption{Roles et permissions}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|p{7cm}|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Role} & \tableheader{Permissions} \\
+\hline
+CLIENT & Acces au catalogue, panier, commandes, profil \\
+\hline
+ADMIN & Gestion produits, commandes, utilisateurs, analytics \\
+\hline
+DRIVER & Acces aux livraisons assignees, mise a jour des statuts \\
+\hline
+SUPPORT & Acces au chat support, gestion des reclamations \\
+\hline
+SUPER\_ADMIN & Tous les privileges, gestion des admins, configuration systeme \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 1}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories planifiees & 6 \\
+\hline
+User Stories terminees & 6 \\
+\hline
+Points planifies & 24 \\
+\hline
+Points realises & 24 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Le Sprint 1 a ete complete avec succes, etablissant une base solide pour les sprints suivants.

@@ -1,0 +1,224 @@
+% ============================================================
+% Rapport de Projet d'Integration
+% Plateforme E-Commerce Intelligente pour Pieces Automobiles
+% ============================================================
+
+\documentclass[12pt,a4paper,french]{report}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+
+% Encodage et langue
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% Mise en page
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Polices
+\usepackage{lmodern}
+
+% Graphiques et couleurs
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{xcolor}
+\usepackage{float}
+
+% ============================================================
+% DEFINITION DES COULEURS PROFESSIONNELLES
+% ============================================================
+
+% Couleurs principales
+\definecolor{darkblue}{RGB}{0, 51, 102}
+\definecolor{navyblue}{RGB}{0, 63, 114}
+\definecolor{steelblue}{RGB}{70, 130, 180}
+\definecolor{darkgray}{RGB}{64, 64, 64}
+\definecolor{mediumgray}{RGB}{128, 128, 128}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{accentblue}{RGB}{41, 128, 185}
+
+% ============================================================
+% STYLE DES TITRES (titlesec)
+% ============================================================
+
+\usepackage{titlesec}
+
+% Style des chapitres
+\titleformat{\chapter}[display]
+{\normalfont\Huge\bfseries\color{darkblue}}
+{\chaptertitlename\ \thechapter}{20pt}{\Huge\color{darkblue}}
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+% Style des sections
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{navyblue}}
+{\thesection}{1em}{}
+\titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+% Style des sous-sections
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{steelblue}}
+{\thesubsection}{1em}{}
+
+% Style des sous-sous-sections
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries\color{darkgray}}
+{\thesubsubsection}{1em}{}
+
+% ============================================================
+% TABLEAUX AVEC COULEURS
+% ============================================================
+
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{colortbl}
+
+% Style pour les en-tetes de tableaux
+\newcommand{\tableheader}[1]{\textbf{\textcolor{white}{#1}}}
+\newcommand{\headerrow}{\rowcolor{darkblue}}
+
+% ============================================================
+% LISTES
+% ============================================================
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+
+% ============================================================
+% SYMBOLES
+% ============================================================
+
+\usepackage{amssymb}
+\usepackage{pifont}
+
+% ============================================================
+% HYPERLIENS
+% ============================================================
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=magenta,
+    urlcolor=accentblue,
+    citecolor=darkblue,
+    pdfborder={0 0 0}
+}
+
+% ============================================================
+% EN-TETES ET PIEDS DE PAGE
+% ============================================================
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{darkgray}{\leftmark}}
+\fancyhead[R]{\textcolor{darkblue}{\thepage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{darkblue}\leaders\hrule height \headrulewidth\hfill}}
+
+% Style pour les pages de debut de chapitre
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\textcolor{darkblue}{\thepage}}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% ============================================================
+% BIBLIOGRAPHIE
+% ============================================================
+
+\usepackage{cite}
+
+% ============================================================
+% BOITES COLOREES POUR MISE EN VALEUR
+% ============================================================
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{infobox}{
+    colback=lightgray,
+    colframe=darkblue,
+    fonttitle=\bfseries,
+    title=Information,
+    arc=3mm,
+    boxrule=1pt
+}
+
+% ============================================================
+% DEBUT DU DOCUMENT
+% ============================================================
+
+\begin{document}
+
+% Page de garde
+\input{chapters/00_page_garde}
+
+% Pages preliminaires (numerotation romaine)
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\input{chapters/01_dedicace}
+\input{chapters/02_remerciements}
+\input{chapters/03_resume}
+
+% Table des matieres
+\tableofcontents
+
+% Liste des figures
+\listoffigures
+
+% Liste des tableaux
+\listoftables
+
+% Contenu principal (numerotation arabe)
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Introduction Generale
+\input{chapters/04_introduction}
+
+% Etat de l'Art
+\input{chapters/05_etat_art}
+
+% Methodologie
+\input{chapters/06_methodologie}
+
+% Sprint 1 - Fondation & Authentification
+\input{chapters/07_sprint1}
+
+% Sprint 2 - Gestion des Produits
+\input{chapters/08_sprint2}
+
+% Sprint 3 - Panier & Commandes
+\input{chapters/09_sprint3}
+
+% Sprint 4 - Paiement & Inventaire
+\input{chapters/10_sprint4}
+
+% Sprint 5 - Module IA
+\input{chapters/11_sprint5}
+
+% Sprint 6 - Chat, Livraison & Validation
+\input{chapters/12_sprint6}
+
+% Tests & Validation
+\input{chapters/13_tests}
+
+% Conclusion
+\input{chapters/14_conclusion}
+
+% Annexes
+\appendix
+\input{chapters/annexes}
+
+\end{document}

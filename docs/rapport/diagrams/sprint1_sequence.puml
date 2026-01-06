@@ -1,0 +1,69 @@
+@startuml Sprint1_Sequence
+' ============================================================
+' SPRINT 1 - SEQUENCE DIAGRAM: JWT Authentication Flow
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipant underline
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "AuthController" as AuthCtrl
+participant "AuthService" as AuthSvc
+participant "UserRepository" as UserRepo
+participant "JwtService" as JwtSvc
+participant "PasswordEncoder" as BCrypt
+database "PostgreSQL" as DB
+
+== Processus de Connexion ==
+
+User -> Frontend : Saisir email et mot de passe
+Frontend -> AuthCtrl : POST /api/auth/login\n{email, password}
+
+AuthCtrl -> AuthSvc : authenticate(email, password)
+AuthSvc -> UserRepo : findByEmail(email)
+UserRepo -> DB : SELECT * FROM users WHERE email = ?
+DB --> UserRepo : User entity
+UserRepo --> AuthSvc : Optional<User>
+
+alt Utilisateur trouve
+    AuthSvc -> BCrypt : matches(password, user.password)
+    BCrypt --> AuthSvc : true/false
+    
+    alt Mot de passe valide
+        AuthSvc -> JwtSvc : generateToken(user)
+        JwtSvc -> JwtSvc : Creer claims (sub, role, exp)
+        JwtSvc -> JwtSvc : Signer avec HS256
+        JwtSvc --> AuthSvc : JWT Token
+        
+        AuthSvc --> AuthCtrl : AuthResponse(token, user)
+        AuthCtrl --> Frontend : 200 OK\n{token, user, expiresIn}
+        Frontend -> Frontend : localStorage.setItem('token', token)
+        Frontend --> User : Redirection vers Dashboard
+    else Mot de passe invalide
+        AuthSvc --> AuthCtrl : throw BadCredentialsException
+        AuthCtrl --> Frontend : 401 Unauthorized
+        Frontend --> User : Afficher erreur
+    end
+else Utilisateur non trouve
+    AuthSvc --> AuthCtrl : throw UserNotFoundException
+    AuthCtrl --> Frontend : 404 Not Found
+    Frontend --> User : Afficher erreur
+end
+
+== Requete Authentifiee ==
+
+User -> Frontend : Acceder a une page protegee
+Frontend -> AuthCtrl : GET /api/users/profile\nAuthorization: Bearer <token>
+
+note over AuthCtrl : JwtAuthenticationFilter intercepte
+AuthCtrl -> JwtSvc : validateToken(token)
+JwtSvc -> JwtSvc : Verifier signature et expiration
+JwtSvc --> AuthCtrl : true
+
+AuthCtrl -> UserRepo : findByEmail(extractedEmail)
+UserRepo --> AuthCtrl : User
+AuthCtrl --> Frontend : 200 OK {user}
+Frontend --> User : Afficher profil
+
+@enduml

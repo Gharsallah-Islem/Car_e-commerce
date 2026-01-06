@@ -23,6 +23,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { NotificationService } from '../../../core/services/notification.service';
+import { ExportService } from '../../../core/services/export.service';
 import { InventoryService, Supplier, PurchaseOrder, StockMovement, ReorderSetting, InventoryStats } from '../../../core/services/inventory.service';
 
 // Using types from InventoryService
@@ -67,6 +68,9 @@ export class InventoryManagementComponent implements OnInit {
     // State
     loading = signal<boolean>(false);
     selectedTabIndex = signal<number>(0);
+
+    // Expose Math to template
+    Math = Math;
 
     // Live status
     lastUpdateTime: string = '';
@@ -189,7 +193,8 @@ export class InventoryManagementComponent implements OnInit {
         private fb: FormBuilder,
         private dialog: MatDialog,
         private notificationService: NotificationService,
-        private inventoryService: InventoryService
+        private inventoryService: InventoryService,
+        private exportService: ExportService
     ) {
         this.initForms();
     }
@@ -728,35 +733,14 @@ export class InventoryManagementComponent implements OnInit {
         }
     }
 
-    exportToCSV(type: string): void {
-        this.notificationService.info(`Export ${type} en cours...`);
-        let data: any[] = [];
-        let filename = `export-${type}-${new Date().toISOString().split('T')[0]}.csv`;
-
-        switch (type) {
-            case 'inventory':
-                // Export current inventory (products + stock)
-                // Need a service method for this, or use loaded data
-                break;
-            case 'movements':
-                data = this.stockMovements();
-                break;
-            case 'orders':
-                data = this.purchaseOrders();
-                break;
-        }
-
-        if (data.length > 0) {
-            const headers = Object.keys(data[0]).join(',');
-            const csvContent = data.map(row => Object.values(row).join(',')).join('\n');
-            const blob = new Blob([headers + '\n' + csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
-            this.notificationService.success('Export terminé');
+    // Export Methods
+    exportToCSV(type: 'inventory' | 'movements'): void {
+        if (type === 'inventory') {
+            this.exportService.exportInventory(this.productStock());
+            this.notificationService.success('Export inventaire téléchargé');
+        } else {
+            this.exportService.exportStockMovements(this.stockMovements());
+            this.notificationService.success('Export mouvements téléchargé');
         }
     }
 

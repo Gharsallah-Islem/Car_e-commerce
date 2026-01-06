@@ -3,109 +3,132 @@
   <mat-spinner diameter="60"></mat-spinner>
 </div>
 
-<!-- Header / Navbar -->
+<!-- Header / Navbar - Premium Design -->
 @if (showNavbar()) {
-<mat-toolbar color="primary" class="navbar">
-  <div class="navbar-container">
+<header class="navbar-premium" [class.scrolled]="isScrolled()">
+  <div class="navbar-inner">
     <!-- Logo -->
-    <div class="logo" routerLink="/">
-      <mat-icon>drive_eta</mat-icon>
-      <span>AutoParts Store</span>
-    </div>
-
-    <!-- Search Bar (Desktop) -->
-    <div class="search-bar desktop-only">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput placeholder="Rechercher des pièces auto..." [(ngModel)]="searchQuery"
-          (keyup.enter)="onSearch()">
-      </mat-form-field>
-      <button mat-raised-button color="accent" (click)="onSearch()">
-        Rechercher
-      </button>
-    </div>
+    <a class="logo" routerLink="/">
+      <div class="logo-icon">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+      <span class="logo-text">AutoParts</span>
+    </a>
 
     <!-- Navigation Links -->
-    <div class="nav-links">
-      <button mat-button routerLink="/">
-        <mat-icon>home</mat-icon>
-        Accueil
-      </button>
-      <button mat-button routerLink="/products">
-        <mat-icon>inventory_2</mat-icon>
-        Produits
-      </button>
-      <button mat-button routerLink="/ai-mechanic">
-        <mat-icon>psychology</mat-icon>
-        IA Mécanique
-      </button>
-      <button mat-button routerLink="/chat">
-        <mat-icon>chat</mat-icon>
+    <nav class="nav-center">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+        Home
+      </a>
+      <a routerLink="/products" routerLinkActive="active" class="nav-link">
+        Products
+      </a>
+      <a routerLink="/ai-mechanic" routerLinkActive="active" class="nav-link">
+        <mat-icon class="nav-icon-ai">auto_awesome</mat-icon>
+        AI Mechanic
+      </a>
+      <a routerLink="/chat" routerLinkActive="active" class="nav-link">
         Support
-      </button>
-    </div>
+      </a>
+    </nav>
 
-    <!-- User Actions -->
-    <div class="user-actions">
-      <button mat-icon-button routerLink="/cart">
-        <mat-icon [matBadge]="cartItemCount()" matBadgeColor="warn" [matBadgeHidden]="cartItemCount() === 0"
-          aria-hidden="false" aria-label="Shopping cart">
-          shopping_cart
-        </mat-icon>
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <!-- Search Button -->
+      <button class="action-btn search-trigger" (click)="toggleSearch()">
+        <mat-icon>search</mat-icon>
       </button>
 
+      <!-- Cart -->
+      <a routerLink="/cart" class="action-btn cart-btn">
+        <mat-icon>shopping_bag</mat-icon>
+        @if (cartItemCount() > 0) {
+        <span class="cart-badge">{{ cartItemCount() }}</span>
+        }
+      </a>
+
+      <!-- User Menu -->
       @if (isLoggedIn()) {
-      <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-        <mat-icon>account_circle</mat-icon>
-        <span class="desktop-only">{{ userName() }}</span>
-        <mat-icon>arrow_drop_down</mat-icon>
+      <button class="user-avatar" [matMenuTriggerFor]="userMenu">
+        @if (authService.currentUser()?.profilePicture) {
+        <img [src]="authService.currentUser()?.profilePicture" alt="Profile" class="avatar-image">
+        } @else {
+        <span class="avatar-letter">{{ userName().charAt(0).toUpperCase() }}</span>
+        }
       </button>
-      <mat-menu #userMenu="matMenu">
+      <mat-menu #userMenu="matMenu" class="premium-menu">
+        <div class="menu-header">
+          <span class="menu-user">{{ userName() }}</span>
+          <span class="menu-email">{{ authService.currentUser()?.email }}</span>
+        </div>
+        <mat-divider></mat-divider>
         <button mat-menu-item routerLink="/profile">
-          <mat-icon>person</mat-icon>
-          Mon profil
+          <mat-icon>person_outline</mat-icon>
+          <span>My Profile</span>
         </button>
         <button mat-menu-item routerLink="/orders">
           <mat-icon>receipt_long</mat-icon>
-          Mes commandes
+          <span>My Orders</span>
         </button>
         <button mat-menu-item routerLink="/chat">
-          <mat-icon>chat</mat-icon>
-          Support Chat
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <span>Support</span>
         </button>
         @if (authService.currentUser()?.role === 'ADMIN' || authService.currentUser()?.role === 'SUPER_ADMIN') {
         <mat-divider></mat-divider>
         <button mat-menu-item routerLink="/admin">
           <mat-icon>admin_panel_settings</mat-icon>
-          Administration
+          <span>Admin Panel</span>
         </button>
         }
         <mat-divider></mat-divider>
-        <button mat-menu-item (click)="onLogout()">
+        <button mat-menu-item (click)="onLogout()" class="logout-item">
           <mat-icon>logout</mat-icon>
-          Déconnexion
+          <span>Sign Out</span>
         </button>
       </mat-menu>
       } @else {
-      <button mat-button routerLink="/auth/login">
-        <mat-icon>login</mat-icon>
-        <span class="desktop-only">Connexion</span>
-      </button>
-      <button mat-raised-button color="accent" routerLink="/auth/register">
-        S'inscrire
-      </button>
+      <a routerLink="/auth/login" class="action-btn-text">Sign In</a>
+      <a routerLink="/auth/register" class="btn-primary">Get Started</a>
       }
     </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+      <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+    </button>
   </div>
 
-  <!-- Mobile Search Bar -->
-  <div class="search-bar mobile-only">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="Rechercher..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
-    </mat-form-field>
+  <!-- Search Overlay -->
+  @if (searchOpen()) {
+  <div class="search-overlay" (click)="toggleSearch()">
+    <div class="search-modal" (click)="$event.stopPropagation()">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" placeholder="Search for parts, brands, categories..." [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch(); toggleSearch()" autofocus>
+      <button class="search-close" (click)="toggleSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
-</mat-toolbar>
+  }
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen()) {
+  <div class="mobile-menu">
+    <a routerLink="/" class="mobile-link" (click)="toggleMobileMenu()">Home</a>
+    <a routerLink="/products" class="mobile-link" (click)="toggleMobileMenu()">Products</a>
+    <a routerLink="/ai-mechanic" class="mobile-link" (click)="toggleMobileMenu()">AI Mechanic</a>
+    <a routerLink="/chat" class="mobile-link" (click)="toggleMobileMenu()">Support</a>
+    @if (!isLoggedIn()) {
+    <div class="mobile-auth">
+      <a routerLink="/auth/login" class="mobile-link" (click)="toggleMobileMenu()">Sign In</a>
+      <a routerLink="/auth/register" class="mobile-btn-primary" (click)="toggleMobileMenu()">Get Started</a>
+    </div>
+    }
+  </div>
+  }
+</header>
 }
 
 <!-- Main Content -->

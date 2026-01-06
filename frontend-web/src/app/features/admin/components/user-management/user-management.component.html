@@ -1,97 +1,298 @@
-<mat-card>
-    <div class="card-header">
-        <h2>
-            <mat-icon>people</mat-icon>
-            Gestion des utilisateurs ({{ users().length }})
-        </h2>
-    </div>
+<!-- ========================================================== -->
+<!-- WORLD-CLASS USER MANAGEMENT - Premium Enterprise UI -->
+<!-- Cyan/Teal Theme for Users -->
+<!-- ========================================================== -->
 
-    <mat-divider></mat-divider>
+<div class="users-container">
 
-    <div class="table-container">
-        <table mat-table [dataSource]="users()" matSort (matSortChange)="handleSort($event)">
+    <!-- Premium Floating Header -->
+    <header class="users-header">
+        <div class="header-left">
+            <div class="page-title-section">
+                <div class="title-badge">
+                    <mat-icon>people</mat-icon>
+                </div>
+                <div class="title-content">
+                    <h1>Gestion des Utilisateurs</h1>
+                    <p class="breadcrumb">Admin / Utilisateurs / {{ users().length }} comptes</p>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-stats">
+                <div class="mini-stat">
+                    <span class="stat-value">{{ users().length }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="mini-stat success">
+                    <span class="stat-value">{{ getActiveCount() }}</span>
+                    <span class="stat-label">Actifs</span>
+                </div>
+                <div class="mini-stat warning">
+                    <span class="stat-value">{{ getAdminCount() }}</span>
+                    <span class="stat-label">Admins</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" matTooltip="Actualiser" (click)="loadUsers()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+            </div>
+        </div>
+    </header>
 
-            <!-- ID Column -->
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                <td mat-cell *matCellDef="let user">
-                    #{{ user.id }}
-                </td>
-            </ng-container>
+    <!-- Analytics Overview Section -->
+    <section class="analytics-grid">
+        <!-- Role Distribution Card -->
+        <div class="analytics-card role-card">
+            <div class="card-header">
+                <h3>Répartition par rôle</h3>
+                <div class="card-icon">
+                    <mat-icon>admin_panel_settings</mat-icon>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="role-bars">
+                    <div class="role-bar-item">
+                        <div class="bar-info">
+                            <span class="role-dot client"></span>
+                            <span>Clients</span>
+                            <span class="count">{{ getClientCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill client" [style.width.%]="getRolePercentage('CLIENT')"></div>
+                        </div>
+                    </div>
+                    <div class="role-bar-item">
+                        <div class="bar-info">
+                            <span class="role-dot admin"></span>
+                            <span>Admins</span>
+                            <span class="count">{{ getAdminCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill admin" [style.width.%]="getRolePercentage('ADMIN')"></div>
+                        </div>
+                    </div>
+                    <div class="role-bar-item">
+                        <div class="bar-info">
+                            <span class="role-dot super-admin"></span>
+                            <span>Super Admins</span>
+                            <span class="count">{{ getSuperAdminCount() }}</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill super-admin" [style.width.%]="getRolePercentage('SUPER_ADMIN')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
-                <td mat-cell *matCellDef="let user">
-                    <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-                </td>
-            </ng-container>
+        <!-- Status Overview Card -->
+        <div class="analytics-card status-overview-card">
+            <div class="card-header">
+                <h3>Statut des comptes</h3>
+            </div>
+            <div class="card-body">
+                <div class="status-stats">
+                    <div class="status-stat active">
+                        <div class="stat-circle">
+                            <mat-icon>check_circle</mat-icon>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value">{{ getActiveCount() }}</span>
+                            <span class="label">Comptes actifs</span>
+                        </div>
+                    </div>
+                    <div class="status-stat inactive">
+                        <div class="stat-circle">
+                            <mat-icon>block</mat-icon>
+                        </div>
+                        <div class="stat-info">
+                            <span class="value">{{ getInactiveCount() }}</span>
+                            <span class="label">Désactivés</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Email Column -->
-            <ng-container matColumnDef="email">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
-                <td mat-cell *matCellDef="let user">
-                    {{ user.email }}
-                </td>
-            </ng-container>
+        <!-- Provider Card -->
+        <div class="analytics-card provider-card">
+            <div class="card-header">
+                <h3>Méthodes de connexion</h3>
+            </div>
+            <div class="card-body">
+                <div class="provider-stats">
+                    <div class="provider-item">
+                        <div class="provider-icon local">
+                            <mat-icon>email</mat-icon>
+                        </div>
+                        <div class="provider-info">
+                            <span class="value">{{ getLocalCount() }}</span>
+                            <span class="label">Email/Mot de passe</span>
+                        </div>
+                    </div>
+                    <div class="provider-item">
+                        <div class="provider-icon google">
+                            <mat-icon>g_translate</mat-icon>
+                        </div>
+                        <div class="provider-info">
+                            <span class="value">{{ getGoogleCount() }}</span>
+                            <span class="label">Google OAuth</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Role Column -->
-            <ng-container matColumnDef="role">
-                <th mat-header-cell *matHeaderCellDef>Rôle</th>
-                <td mat-cell *matCellDef="let user">
-                    <mat-form-field class="role-select">
-                        <mat-select [value]="user.role" (selectionChange)="changeUserRole(user.id, $event.value)">
-                            <mat-option value="CLIENT">Client</mat-option>
-                            <mat-option value="ADMIN">Admin</mat-option>
-                            <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </td>
-            </ng-container>
-
-            <!-- Provider Column -->
-            <ng-container matColumnDef="provider">
-                <th mat-header-cell *matHeaderCellDef>Connexion</th>
-                <td mat-cell *matCellDef="let user">
-                    @if (user.provider === 'GOOGLE') {
-                    <mat-chip color="primary">
-                        <mat-icon>g_translate</mat-icon>
-                        Google
-                    </mat-chip>
-                    } @else {
-                    <mat-chip>
-                        <mat-icon>email</mat-icon>
-                        Local
-                    </mat-chip>
+        <!-- Recent Users Card -->
+        <div class="analytics-card recent-card">
+            <div class="card-header">
+                <h3>Utilisateurs récents</h3>
+            </div>
+            <div class="card-body">
+                <div class="recent-list">
+                    @for (user of users() | slice:0:3; track user.id) {
+                    <div class="recent-item">
+                        <div class="user-avatar">
+                            {{ getUserInitials(user) }}
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                            <span class="user-email">{{ user.email }}</span>
+                        </div>
+                        <span class="role-badge" [class]="user.role?.toLowerCase()">{{ getRoleLabel(user.role) }}</span>
+                    </div>
                     }
-                </td>
-            </ng-container>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Enabled Column -->
-            <ng-container matColumnDef="isActive">
-                <th mat-header-cell *matHeaderCellDef>Statut</th>
-                <td mat-cell *matCellDef="let user">
-                    <mat-slide-toggle [checked]="user.isActive" (change)="toggleUserStatus(user.id)" color="primary">
-                        {{ user.isActive ? 'Actif' : 'Désactivé' }}
-                    </mat-slide-toggle>
-                </td>
-            </ng-container>
+    <!-- Filter Bar -->
+    <section class="filter-bar">
+        <div class="filter-left">
+            <div class="search-box">
+                <mat-icon>search</mat-icon>
+                <input type="text" placeholder="Rechercher par nom, email..." (input)="onSearch($event)">
+            </div>
+        </div>
+        <div class="filter-right">
+            <div class="filter-group">
+                <label>Rôle</label>
+                <select [(ngModel)]="selectedRole" (change)="applyFilters()">
+                    <option value="all">Tous les rôles</option>
+                    <option value="CLIENT">Clients</option>
+                    <option value="ADMIN">Admins</option>
+                    <option value="SUPER_ADMIN">Super Admins</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Statut</label>
+                <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+                    <option value="all">Tous</option>
+                    <option value="active">Actifs</option>
+                    <option value="inactive">Désactivés</option>
+                </select>
+            </div>
+        </div>
+    </section>
 
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Actions</th>
-                <td mat-cell *matCellDef="let user">
-                    <button mat-icon-button color="primary" matTooltip="Voir le profil">
-                        <mat-icon>visibility</mat-icon>
-                    </button>
-                </td>
-            </ng-container>
+    <!-- Main Content Area -->
+    <section class="main-content">
+        @if (loading()) {
+        <div class="loading-state">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Chargement des utilisateurs...</p>
+        </div>
+        } @else {
+        <div class="data-table-container">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Connexion</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of filteredUsers(); track user.id) {
+                    <tr class="user-row">
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar" [class]="user.role?.toLowerCase()">
+                                    {{ getUserInitials(user) }}
+                                </div>
+                                <div class="user-details">
+                                    <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                                    <span class="user-id">#{{ user.id }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="email-text">{{ user.email }}</span>
+                        </td>
+                        <td>
+                            <div class="role-dropdown" [class]="user.role?.toLowerCase()">
+                                <select [value]="user.role"
+                                    (change)="changeUserRole(user.id, $any($event.target).value)">
+                                    <option value="CLIENT">Client</option>
+                                    <option value="ADMIN">Admin</option>
+                                    <option value="SUPER_ADMIN">Super Admin</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="provider-badge" [class]="user.provider?.toLowerCase()">
+                                <mat-icon>{{ user.provider === 'GOOGLE' ? 'g_translate' : 'email' }}</mat-icon>
+                                <span>{{ user.provider === 'GOOGLE' ? 'Google' : 'Local' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="status-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" [checked]="user.isActive"
+                                        (change)="toggleUserStatus(user.id)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="status-text" [class.active]="user.isActive">
+                                    {{ user.isActive ? 'Actif' : 'Désactivé' }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" matTooltip="Voir profil" (click)="viewUserProfile(user)">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
 
-            <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
-        </table>
+            @if (filteredUsers().length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>people</mat-icon>
+                </div>
+                <h3>Aucun utilisateur trouvé</h3>
+                <p>Modifiez vos filtres ou attendez de nouvelles inscriptions</p>
+            </div>
+            }
 
-        <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]" (page)="handlePageEvent($event)">
-        </mat-paginator>
-    </div>
-</mat-card>
+            <!-- Pagination -->
+            <div class="pagination-bar">
+                <span class="pagination-info">
+                    {{ filteredUsers().length }} utilisateur(s) trouvé(s)
+                </span>
+            </div>
+        </div>
+        }
+    </section>
+
+</div>

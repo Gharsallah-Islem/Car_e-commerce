@@ -1,0 +1,176 @@
+\babel@toc {french}{}\relax 
+\contentsline {chapter}{Dédicace}{i}{chapter*.1}%
+\contentsline {chapter}{Remerciements}{ii}{chapter*.2}%
+\contentsline {chapter}{Resume}{iii}{chapter*.3}%
+\contentsline {chapter}{\numberline {1}Introduction Générale}{2}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contexte du Projet}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problématique}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectifs du Projet}{3}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Objectifs Fonctionnels}{3}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Objectifs Techniques}{3}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Périmètre et Limites}{4}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Périmètre du Projet}{4}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Limites}{4}{subsection.1.4.2}%
+\contentsline {section}{\numberline {1.5}Organisation du Rapport}{4}{section.1.5}%
+\contentsline {chapter}{\numberline {2}État de l'Art}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Étude des Plateformes E-Commerce Existantes}{5}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Plateformes Internationales}{5}{subsection.2.2.1}%
+\contentsline {subsubsection}{Amazon Auto Parts}{5}{subsubsection*.7}%
+\contentsline {subsubsection}{RockAuto}{5}{subsubsection*.8}%
+\contentsline {subsubsection}{eBay Motors}{6}{subsubsection*.9}%
+\contentsline {subsection}{\numberline {2.2.2}Plateformes Régionales et Tunisiennes}{6}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Tableau Comparatif}{6}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Intelligence Artificielle dans l'E-Commerce}{6}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Reconnaissance d'Images}{6}{subsection.2.3.1}%
+\contentsline {subsubsection}{Réseaux de Neurones Convolutifs (CNN)}{7}{subsubsection*.10}%
+\contentsline {subsection}{\numberline {2.3.2}Systèmes de Recommandation}{7}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Technologies et Frameworks}{7}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Frontend : Angular}{7}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Mobile : Kotlin Android}{8}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Backend : Spring Boot}{8}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Base de Données : PostgreSQL}{8}{subsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.4.5}Module IA : FastAPI et TensorFlow}{9}{subsection.2.4.5}%
+\contentsline {subsection}{\numberline {2.4.6}Autres Technologies}{9}{subsection.2.4.6}%
+\contentsline {section}{\numberline {2.5}Conclusion}{9}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Méthodologie et Gestion de Projet}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{10}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Méthodologie Scrum}{10}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Présentation de Scrum}{10}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Rôles Scrum}{10}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Cérémonies Scrum}{10}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Artefacts Scrum}{11}{subsection.3.2.4}%
+\contentsline {section}{\numberline {3.3}Organisation des Sprints}{11}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Environnement de Développement}{11}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Outils de Développement}{11}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Configuration des Environnements}{11}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Architecture Globale du Système}{12}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Architecture en Couches}{12}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Diagramme de Déploiement}{12}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Stack Technologique Détaillée}{12}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Frontend}{12}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Backend}{13}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Module IA}{13}{subsection.3.6.3}%
+\contentsline {section}{\numberline {3.7}Gestion de la Qualité}{13}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Standards de Code}{13}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Revue de Code}{14}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}Tests}{14}{subsection.3.7.3}%
+\contentsline {section}{\numberline {3.8}Conclusion}{14}{section.3.8}%
+\contentsline {chapter}{\numberline {4}Sprint 1 : Fondation et Authentification}{15}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Presentation du Sprint}{15}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Objectifs}{15}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Objectifs Detailles}{15}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Sprint Backlog}{15}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Analyse et Conception}{15}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Diagramme de Cas d'Utilisation}{16}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Diagramme de Classes}{17}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Diagramme de Sequence}{19}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Realisation}{20}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Architecture d'Authentification}{20}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Gestion des Roles}{20}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Bilan du Sprint}{20}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Sprint 2 : Gestion des Produits et Catalogue}{21}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Presentation du Sprint}{21}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Objectifs}{21}{subsection.5.1.1}%
+\contentsline {section}{\numberline {5.2}Sprint Backlog}{21}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Analyse et Conception}{21}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Diagramme de Cas d'Utilisation}{21}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Diagramme de Classes}{23}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Diagramme de Sequence}{23}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Realisation}{24}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Architecture du Catalogue}{24}{subsection.5.4.1}%
+\contentsline {section}{\numberline {5.5}Bilan du Sprint}{24}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Sprint 3 : Panier et Gestion des Commandes}{25}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Presentation du Sprint}{25}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Objectifs}{25}{subsection.6.1.1}%
+\contentsline {section}{\numberline {6.2}Sprint Backlog}{25}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Analyse et Conception}{25}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Diagramme de Cas d'Utilisation}{25}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Diagramme de Classes}{27}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Diagramme de Sequence}{29}{subsection.6.3.3}%
+\contentsline {section}{\numberline {6.4}Realisation}{29}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Cycle de Vie des Commandes}{29}{subsection.6.4.1}%
+\contentsline {section}{\numberline {6.5}Bilan du Sprint}{30}{section.6.5}%
+\contentsline {chapter}{\numberline {7}Sprint 4 : Paiement Stripe et Gestion d'Inventaire}{31}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Presentation du Sprint}{31}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Objectifs}{31}{subsection.7.1.1}%
+\contentsline {section}{\numberline {7.2}Sprint Backlog}{31}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Analyse et Conception}{32}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Diagramme de Cas d'Utilisation}{32}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Diagramme de Classes}{33}{subsection.7.3.2}%
+\contentsline {subsection}{\numberline {7.3.3}Diagramme de Sequence}{34}{subsection.7.3.3}%
+\contentsline {section}{\numberline {7.4}Realisation}{35}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Integration Stripe}{35}{subsection.7.4.1}%
+\contentsline {section}{\numberline {7.5}Bilan du Sprint}{35}{section.7.5}%
+\contentsline {chapter}{\numberline {8}Sprint 5 : Module d'Intelligence Artificielle}{36}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Presentation du Sprint}{36}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Objectifs}{36}{subsection.8.1.1}%
+\contentsline {section}{\numberline {8.2}Sprint Backlog}{36}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Analyse et Conception}{37}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Diagramme de Cas d'Utilisation}{37}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Diagramme de Classes - Backend}{38}{subsection.8.3.2}%
+\contentsline {subsection}{\numberline {8.3.3}Diagramme de Classes - Module Python}{39}{subsection.8.3.3}%
+\contentsline {subsection}{\numberline {8.3.4}Diagramme de Sequence}{40}{subsection.8.3.4}%
+\contentsline {section}{\numberline {8.4}Realisation}{40}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}Modele de Classification}{40}{subsection.8.4.1}%
+\contentsline {section}{\numberline {8.5}Bilan du Sprint}{40}{section.8.5}%
+\contentsline {chapter}{\numberline {9}Sprint 6 : Chat Support, Livraison et Validation Finale}{42}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Presentation du Sprint}{42}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Objectifs}{42}{subsection.9.1.1}%
+\contentsline {section}{\numberline {9.2}Sprint Backlog}{42}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Analyse et Conception}{43}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}Diagramme de Cas d'Utilisation}{43}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}Diagramme de Classes}{44}{subsection.9.3.2}%
+\contentsline {subsection}{\numberline {9.3.3}Diagramme de Sequence}{46}{subsection.9.3.3}%
+\contentsline {section}{\numberline {9.4}Realisation}{46}{section.9.4}%
+\contentsline {subsection}{\numberline {9.4.1}Chat en Temps Reel}{46}{subsection.9.4.1}%
+\contentsline {subsection}{\numberline {9.4.2}Suivi de Livraison}{46}{subsection.9.4.2}%
+\contentsline {section}{\numberline {9.5}Validation Finale}{46}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Bilan du Sprint}{47}{section.9.6}%
+\contentsline {chapter}{\numberline {10}Tests et Validation}{48}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Introduction}{48}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Strategie de Tests}{48}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}Pyramide des Tests}{48}{subsection.10.2.1}%
+\contentsline {section}{\numberline {10.3}Tests Unitaires}{48}{section.10.3}%
+\contentsline {subsection}{\numberline {10.3.1}Backend - JUnit et Mockito}{48}{subsection.10.3.1}%
+\contentsline {subsection}{\numberline {10.3.2}Frontend - Jasmine et Karma}{49}{subsection.10.3.2}%
+\contentsline {subsection}{\numberline {10.3.3}Module IA - Pytest}{49}{subsection.10.3.3}%
+\contentsline {section}{\numberline {10.4}Tests d'Integration}{49}{section.10.4}%
+\contentsline {subsection}{\numberline {10.4.1}Tests API}{49}{subsection.10.4.1}%
+\contentsline {subsection}{\numberline {10.4.2}Tests avec Postman}{49}{subsection.10.4.2}%
+\contentsline {section}{\numberline {10.5}Tests d'Acceptation Utilisateur}{50}{section.10.5}%
+\contentsline {subsection}{\numberline {10.5.1}Scenarios de Test}{50}{subsection.10.5.1}%
+\contentsline {section}{\numberline {10.6}Couverture de Code}{50}{section.10.6}%
+\contentsline {section}{\numberline {10.7}Validation des Fonctionnalites}{50}{section.10.7}%
+\contentsline {section}{\numberline {10.8}Conclusion}{50}{section.10.8}%
+\contentsline {chapter}{\numberline {11}Conclusion et Perspectives}{52}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Synthèse des Réalisations}{52}{section.11.1}%
+\contentsline {subsection}{\numberline {11.1.1}Objectifs Atteints}{52}{subsection.11.1.1}%
+\contentsline {subsection}{\numberline {11.1.2}Métriques du Projet}{52}{subsection.11.1.2}%
+\contentsline {subsection}{\numberline {11.1.3}Fonctionnalités Clés Développées}{52}{subsection.11.1.3}%
+\contentsline {subsubsection}{Module d'Intelligence Artificielle}{52}{subsubsection*.11}%
+\contentsline {subsubsection}{Système de Livraison Intelligent}{53}{subsubsection*.12}%
+\contentsline {subsubsection}{Architecture Robuste}{53}{subsubsection*.13}%
+\contentsline {section}{\numberline {11.2}Défis Techniques Surmontés}{53}{section.11.2}%
+\contentsline {subsection}{\numberline {11.2.1}Défis Majeurs}{53}{subsection.11.2.1}%
+\contentsline {section}{\numberline {11.3}Limitations Actuelles}{53}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Perspectives d'Amélioration}{54}{section.11.4}%
+\contentsline {subsection}{\numberline {11.4.1}Court Terme (3-6 mois)}{54}{subsection.11.4.1}%
+\contentsline {subsection}{\numberline {11.4.2}Moyen Terme (6-12 mois)}{54}{subsection.11.4.2}%
+\contentsline {subsection}{\numberline {11.4.3}Long Terme (12+ mois)}{55}{subsection.11.4.3}%
+\contentsline {section}{\numberline {11.5}Compétences Acquises}{55}{section.11.5}%
+\contentsline {subsection}{\numberline {11.5.1}Compétences Techniques}{55}{subsection.11.5.1}%
+\contentsline {subsection}{\numberline {11.5.2}Compétences Méthodologiques}{56}{subsection.11.5.2}%
+\contentsline {subsection}{\numberline {11.5.3}Compétences Transversales}{56}{subsection.11.5.3}%
+\contentsline {section}{\numberline {11.6}Conclusion Générale}{56}{section.11.6}%
+\contentsline {chapter}{\numberline {A}Annexe A : Schema de Base de Donnees}{57}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Diagramme Entite-Relation}{57}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Description des Tables Principales}{57}{section.A.2}%
+\contentsline {subsection}{\numberline {A.2.1}Table Users}{57}{subsection.A.2.1}%
+\contentsline {subsection}{\numberline {A.2.2}Table Products}{57}{subsection.A.2.2}%
+\contentsline {subsection}{\numberline {A.2.3}Table Orders}{58}{subsection.A.2.3}%
+\contentsline {chapter}{\numberline {B}Annexe B : Guide d'Installation}{59}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Prerequis}{59}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Installation du Backend}{59}{section.B.2}%
+\contentsline {section}{\numberline {B.3}Installation du Frontend}{59}{section.B.3}%
+\contentsline {section}{\numberline {B.4}Installation du Module IA}{59}{section.B.4}%

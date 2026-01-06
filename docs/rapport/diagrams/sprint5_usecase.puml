@@ -1,0 +1,69 @@
+@startuml Sprint5_UseCase
+' ============================================================
+' SPRINT 5 - USE CASE DIAGRAM: AI Module (Image Recognition & Recommendations)
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Module IA\n(FastAPI)" as AIModule
+
+rectangle "Module Intelligence Artificielle" {
+    package "Reconnaissance d'Images" {
+        usecase "Uploader photo piece" as UC1
+        usecase "Preprocesser image" as UC2
+        usecase "Classifier avec CNN" as UC3
+        usecase "Retourner predictions" as UC4
+        usecase "Suggerer produits" as UC5
+    }
+    
+    package "Recommandations" {
+        usecase "Analyser historique" as UC10
+        usecase "Calculer similarite" as UC11
+        usecase "Generer recommandations" as UC12
+        usecase "Afficher suggestions" as UC13
+    }
+    
+    package "Analyse Symptomes" {
+        usecase "Decrire symptome" as UC20
+        usecase "Analyser mots-cles" as UC21
+        usecase "Mapper vers categories" as UC22
+        usecase "Suggerer pieces" as UC23
+    }
+    
+    package "Administration IA" {
+        usecase "Voir statistiques IA" as UC30
+        usecase "Consulter historique predictions" as UC31
+    }
+}
+
+User --> UC1
+User --> UC5
+User --> UC13
+User --> UC20
+User --> UC23
+
+Admin --> UC30
+Admin --> UC31
+
+UC1 ..> UC2 : <<include>>
+UC2 ..> UC3 : <<include>>
+UC3 ..> UC4 : <<include>>
+UC4 ..> UC5 : <<include>>
+
+UC10 ..> UC11 : <<include>>
+UC11 ..> UC12 : <<include>>
+UC12 ..> UC13 : <<include>>
+
+UC20 ..> UC21 : <<include>>
+UC21 ..> UC22 : <<include>>
+UC22 ..> UC23 : <<include>>
+
+UC3 --> AIModule : EfficientNetB0
+UC2 --> AIModule : Preprocessing
+UC21 --> AIModule : NLP Analysis
+
+@enduml

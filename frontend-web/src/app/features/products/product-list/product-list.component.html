@@ -1,258 +1,272 @@
-<!-- Page Header -->
-<div class="page-header">
-    <div class="container">
-        <h1>Catalogue de Produits</h1>
-        <p>Découvrez notre large gamme de pièces automobiles</p>
-    </div>
-</div>
+<!-- ================================= -->
+<!-- CATALOGUE PAGE - PREMIUM E-COMMERCE -->
+<!-- Inspired by Apple, Amazon, Best Buy -->
+<!-- ================================= -->
 
-<!-- Main Content -->
-<div class="container">
-    <div class="products-layout">
-        <!-- Filters Sidebar -->
+<div class="catalogue-page">
+    <!-- Immersive Hero Header -->
+    <section class="catalogue-hero">
+        <div class="hero-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+        </div>
+        <div class="hero-content container">
+            <div class="hero-text">
+                <span class="hero-eyebrow">
+                    <mat-icon>auto_awesome</mat-icon>
+                    Explore Our Collection
+                </span>
+                <h1 class="hero-title">Premium Auto Parts</h1>
+                <p class="hero-subtitle">Discover {{ totalElements() }} high-quality parts for your vehicle</p>
+            </div>
+            <div class="hero-search">
+                <div class="search-box">
+                    <mat-icon>search</mat-icon>
+                    <input type="text" placeholder="Search parts, brands, categories..." [ngModel]="searchQuery()"
+                        (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()">
+                    <button class="search-btn" (click)="onSearch()">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <div class="catalogue-body container">
+        <!-- Sidebar Filters -->
         <aside class="filters-sidebar">
-            <div class="filter-section">
-                <h3>
-                    <mat-icon>filter_list</mat-icon>
-                    Filtres
-                </h3>
+            <div class="filters-card">
+                <div class="filters-header">
+                    <h3><mat-icon>filter_list</mat-icon> Filters</h3>
+                    @if (hasFilters()) {
+                    <button class="clear-btn" (click)="clearFilters()">Clear All</button>
+                    }
+                </div>
 
-                <!-- Active Filters -->
+                <!-- Active Filter Tags -->
                 @if (hasFilters()) {
                 <div class="active-filters">
-                    <div class="filter-chips">
-                        @if (searchQuery()) {
-                        <mat-chip (removed)="removeFilter('search')">
-                            {{ searchQuery() }}
-                            <mat-icon matChipRemove>cancel</mat-icon>
-                        </mat-chip>
-                        }
-                        @if (selectedCategory()) {
-                        <mat-chip (removed)="removeFilter('category')">
-                            {{ getCategoryName(selectedCategory()) }}
-                            <mat-icon matChipRemove>cancel</mat-icon>
-                        </mat-chip>
-                        }
-                        @if (selectedBrand()) {
-                        <mat-chip (removed)="removeFilter('brand')">
-                            {{ getBrandName(selectedBrand()) }}
-                            <mat-icon matChipRemove>cancel</mat-icon>
-                        </mat-chip>
-                        }
-                        @if (inStockOnly()) {
-                        <mat-chip (removed)="removeFilter('inStock')">
-                            En stock uniquement
-                            <mat-icon matChipRemove>cancel</mat-icon>
-                        </mat-chip>
-                        }
-                    </div>
-                    <button mat-stroked-button color="warn" (click)="clearFilters()">
-                        <mat-icon>clear_all</mat-icon>
-                        Effacer tout
-                    </button>
+                    @if (searchQuery()) {
+                    <span class="filter-tag" (click)="removeFilter('search')">
+                        <mat-icon>search</mat-icon>
+                        "{{ searchQuery() }}"
+                        <mat-icon class="remove">close</mat-icon>
+                    </span>
+                    }
+                    @if (selectedCategory()) {
+                    <span class="filter-tag" (click)="removeFilter('category')">
+                        <mat-icon>category</mat-icon>
+                        {{ getCategoryName(selectedCategory()) }}
+                        <mat-icon class="remove">close</mat-icon>
+                    </span>
+                    }
+                    @if (selectedBrand()) {
+                    <span class="filter-tag" (click)="removeFilter('brand')">
+                        <mat-icon>verified</mat-icon>
+                        {{ getBrandName(selectedBrand()) }}
+                        <mat-icon class="remove">close</mat-icon>
+                    </span>
+                    }
                 </div>
                 }
-            </div>
 
-            <!-- Search -->
-            <div class="filter-section">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Rechercher</mat-label>
-                    <mat-icon matPrefix>search</mat-icon>
-                    <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
-                        (keyup.enter)="onSearch()" placeholder="Nom du produit...">
-                    @if (searchQuery()) {
-                    <button matSuffix mat-icon-button (click)="searchQuery.set(''); onSearch()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                    }
-                </mat-form-field>
-                <button mat-raised-button color="primary" (click)="onSearch()" class="full-width">
-                    Rechercher
-                </button>
-            </div>
-
-            <!-- Category Filter -->
-            <div class="filter-section">
-                <h4>Catégorie</h4>
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Sélectionner une catégorie</mat-label>
-                    <mat-select [value]="selectedCategory()" (valueChange)="onCategoryChange($event)">
-                        <mat-option [value]="null">Toutes les catégories</mat-option>
+                <!-- Filter Sections -->
+                <div class="filter-section">
+                    <h4>Category</h4>
+                    <div class="filter-options">
+                        <button class="option-btn" [class.active]="!selectedCategory()"
+                            (click)="onCategoryChange(null)">
+                            All Categories
+                        </button>
                         @for (category of categories(); track category.id) {
-                        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                        <button class="option-btn" [class.active]="selectedCategory() === category.id"
+                            (click)="onCategoryChange(category.id)">
+                            {{ category.name }}
+                        </button>
                         }
-                    </mat-select>
-                </mat-form-field>
-            </div>
-
-            <!-- Brand Filter -->
-            <div class="filter-section">
-                <h4>Marque</h4>
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Sélectionner une marque</mat-label>
-                    <mat-select [value]="selectedBrand()" (valueChange)="onBrandChange($event)">
-                        <mat-option [value]="null">Toutes les marques</mat-option>
-                        @for (brand of brands(); track brand.id) {
-                        <mat-option [value]="brand.id">{{ brand.name }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            </div>
-
-            <!-- Price Range -->
-            <div class="filter-section">
-                <h4>Prix</h4>
-                <div class="price-range">
-                    <div class="price-inputs">
-                        <mat-form-field appearance="outline" class="price-input">
-                            <mat-label>Min</mat-label>
-                            <input matInput type="number" [ngModel]="priceRange().min"
-                                (ngModelChange)="updatePriceRange('min', $event)">
-                            <span matSuffix>TND</span>
-                        </mat-form-field>
-                        <span class="separator">-</span>
-                        <mat-form-field appearance="outline" class="price-input">
-                            <mat-label>Max</mat-label>
-                            <input matInput type="number" [ngModel]="priceRange().max"
-                                (ngModelChange)="updatePriceRange('max', $event)">
-                            <span matSuffix>TND</span>
-                        </mat-form-field>
                     </div>
                 </div>
-            </div>
 
-            <!-- Stock Filter -->
-            <div class="filter-section">
-                <h4>Disponibilité</h4>
-                <div class="stock-filter">
-                    <mat-checkbox [checked]="inStockOnly()" (change)="onInStockChange()">
-                        En stock uniquement
-                    </mat-checkbox>
+                <div class="filter-section">
+                    <h4>Brand</h4>
+                    <div class="filter-options scrollable">
+                        <button class="option-btn" [class.active]="!selectedBrand()" (click)="onBrandChange(null)">
+                            All Brands
+                        </button>
+                        @for (brand of brands(); track brand.id) {
+                        <button class="option-btn" [class.active]="selectedBrand() === brand.id"
+                            (click)="onBrandChange(brand.id)">
+                            {{ brand.name }}
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4>Price Range</h4>
+                    <div class="price-range-inputs">
+                        <div class="price-input">
+                            <span class="currency">TND</span>
+                            <input type="number" placeholder="Min" [ngModel]="priceRange().min"
+                                (ngModelChange)="updatePriceRange('min', $event)">
+                        </div>
+                        <span class="separator">—</span>
+                        <div class="price-input">
+                            <span class="currency">TND</span>
+                            <input type="number" placeholder="Max" [ngModel]="priceRange().max"
+                                (ngModelChange)="updatePriceRange('max', $event)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section toggle-section">
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <mat-icon>inventory_2</mat-icon>
+                            <span>In Stock Only</span>
+                        </div>
+                        <mat-slide-toggle [checked]="inStockOnly()" (change)="onInStockChange()"
+                            color="primary"></mat-slide-toggle>
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <!-- Products Grid -->
-        <main class="products-main">
+        <!-- Products Section -->
+        <main class="products-section">
             <!-- Toolbar -->
             <div class="products-toolbar">
-                <div class="results-info">
-                    <span class="results-count">{{ totalElements() }} produits trouvés</span>
+                <div class="toolbar-left">
+                    <span class="results-count">
+                        <strong>{{ products().length }}</strong> products found
+                    </span>
                 </div>
-
-                <div class="toolbar-actions">
-                    <!-- Sort -->
-                    <mat-form-field appearance="outline" class="sort-select">
-                        <mat-label>Trier par</mat-label>
-                        <mat-select [value]="sortBy()" (valueChange)="onSortChange($event)">
-                            <mat-option value="newest">Plus récents</mat-option>
-                            <mat-option value="name">Nom (A-Z)</mat-option>
-                            <mat-option value="price_asc">Prix croissant</mat-option>
-                            <mat-option value="price_desc">Prix décroissant</mat-option>
+                <div class="toolbar-right">
+                    <div class="sort-control">
+                        <span class="sort-label">Sort by</span>
+                        <mat-select [value]="sortBy()" (valueChange)="onSortChange($event)" class="sort-select">
+                            <mat-option value="newest">Newest First</mat-option>
+                            <mat-option value="name">Name (A-Z)</mat-option>
+                            <mat-option value="price_asc">Price: Low → High</mat-option>
+                            <mat-option value="price_desc">Price: High → Low</mat-option>
                         </mat-select>
-                    </mat-form-field>
-
-                    <!-- View Toggle -->
-                    <mat-button-toggle-group [value]="viewMode()" (change)="toggleViewMode()">
-                        <mat-button-toggle value="grid">
+                    </div>
+                    <div class="view-toggle">
+                        <button [class.active]="viewMode() === 'grid'" (click)="viewMode.set('grid')"
+                            matTooltip="Grid View">
                             <mat-icon>grid_view</mat-icon>
-                        </mat-button-toggle>
-                        <mat-button-toggle value="list">
+                        </button>
+                        <button [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')"
+                            matTooltip="List View">
                             <mat-icon>view_list</mat-icon>
-                        </mat-button-toggle>
-                    </mat-button-toggle-group>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Loading Spinner -->
+            <!-- Loading State -->
             @if (loading()) {
-            <div class="loading-container">
-                <mat-spinner diameter="60"></mat-spinner>
-                <p>Chargement des produits...</p>
+            <div class="products-grid">
+                @for (i of [1,2,3,4,5,6,7,8]; track i) {
+                <div class="skeleton-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line brand"></div>
+                        <div class="skeleton-line title"></div>
+                        <div class="skeleton-line price"></div>
+                    </div>
+                </div>
+                }
             </div>
             } @else {
-            <!-- Products Grid/List -->
+            <!-- Products Grid -->
             @if (products().length > 0) {
-            <div class="products-container" [class.grid-view]="viewMode() === 'grid'"
-                [class.list-view]="viewMode() === 'list'">
+            <div class="products-grid" [class.list-view]="viewMode() === 'list'">
                 @for (product of products(); track product.id) {
-                <mat-card class="product-card">
-                    <div class="product-image" [routerLink]="['/products', product.id]">
-                        <img [src]="product.imageUrl || 'https://placehold.co/300x200/e0e0e0/757575?text=No+Image'"
-                            [alt]="product.name">
-                        @if (product.discount && product.discount > 0) {
-                        <div class="discount-badge">-{{ product.discount }}%</div>
-                        }
-                        @if (product.stock <= 0) { <div class="out-of-stock-overlay">
-                            <span>Rupture de stock</span>
+                <article class="product-card">
+                    <!-- Card Image -->
+                    <div class="card-image" [routerLink]="['/products', product.id]">
+                        <img [src]="product.imageUrl || 'assets/placeholder-part.png'" [alt]="product.name"
+                            loading="lazy">
+
+                        <!-- Badges -->
+                        <div class="badges">
+                            @if (product.discount) {
+                            <span class="badge sale">-{{ product.discount }}%</span>
+                            }
+                            @if (product.stock <= 0) { <span class="badge out">Out of Stock</span>
+                                }
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <button class="action-btn cart" (click)="$event.stopPropagation(); addToCart(product)"
+                                [disabled]="product.stock <= 0" matTooltip="Add to Cart">
+                                <mat-icon>shopping_cart</mat-icon>
+                            </button>
+                            <button class="action-btn view" [routerLink]="['/products', product.id]"
+                                matTooltip="Quick View">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                        </div>
                     </div>
-                    }
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-meta">
+                            <span class="brand">{{ product.brand?.name || 'Generic' }}</span>
+                            <span class="stock-indicator" [class.in-stock]="product.stock > 0">
+                                <span class="dot"></span>
+                                {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                            </span>
+                        </div>
+
+                        <h3 class="card-title" [routerLink]="['/products', product.id]">
+                            {{ product.name }}
+                        </h3>
+
+                        <div class="card-footer">
+                            <div class="price-block">
+                                @if (product.discount) {
+                                <span class="original-price">{{ product.price }} TND</span>
+                                <span class="sale-price">
+                                    {{ product.price * (1 - product.discount / 100) | number:'1.2-2' }} TND
+                                </span>
+                                } @else {
+                                <span class="current-price">{{ product.price }} TND</span>
+                                }
+                            </div>
+                            <button class="add-btn" (click)="addToCart(product)" [disabled]="product.stock <= 0">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                }
             </div>
 
-            <mat-card-content>
-                <div class="product-brand">{{ product.brand?.name || 'N/A' }}</div>
-                <h3 class="product-name" [routerLink]="['/products', product.id]">{{ product.name }}</h3>
-                <p class="product-description">{{ product.description }}</p>
-
-                <div class="product-meta">
-                    @if (product.rating && product.rating > 0) {
-                    <div class="rating">
-                        <mat-icon>star</mat-icon>
-                        <span>{{ product.rating }} ({{ product.reviewCount }})</span>
-                    </div>
-                    }
-                    <div class="stock-status" [class.in-stock]="product.stock > 0"
-                        [class.out-of-stock]="product.stock <= 0">
-                        <mat-icon>{{ product.stock > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
-                        <span>{{ product.stock > 0 ? 'En stock' : 'Rupture' }}</span>
-                    </div>
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <mat-paginator [length]="totalElements()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+                    [pageSizeOptions]="[12, 24, 48]" (page)="onPageChange($event)" showFirstLastButtons>
+                </mat-paginator>
+            </div>
+            } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <mat-icon>inventory_2</mat-icon>
                 </div>
-
-                <div class="product-footer">
-                    <div class="price-section">
-                        @if (product.discount && product.discount > 0) {
-                        <span class="original-price">{{ product.price }} TND</span>
-                        <span class="discounted-price">{{ product.price * (1 - product.discount / 100) | number:'1.2-2'
-                            }} TND</span>
-                        } @else {
-                        <span class="price">{{ product.price }} TND</span>
-                        }
-                    </div>
-
-                    <div class="product-actions">
-                        <button mat-icon-button [routerLink]="['/products', product.id]" matTooltip="Détails">
-                            <mat-icon>info</mat-icon>
-                        </button>
-                        <button mat-raised-button color="accent" (click)="addToCart(product)"
-                            [disabled]="product.stock <= 0">
-                            <mat-icon>add_shopping_cart</mat-icon>
-                            Ajouter
-                        </button>
-                    </div>
-                </div>
-            </mat-card-content>
-            </mat-card>
+                <h3>No Products Found</h3>
+                <p>We couldn't find any products matching your criteria. Try adjusting your filters.</p>
+                <button mat-flat-button color="primary" (click)="clearFilters()">
+                    <mat-icon>refresh</mat-icon>
+                    Reset Filters
+                </button>
+            </div>
             }
+            }
+        </main>
     </div>
-
-    <!-- Pagination -->
-    <mat-paginator [length]="totalElements()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
-        [pageSizeOptions]="[12, 24, 48, 96]" (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
-    } @else {
-    <!-- Empty State -->
-    <div class="empty-state">
-        <mat-icon>search_off</mat-icon>
-        <h2>Aucun produit trouvé</h2>
-        <p>Essayez de modifier vos filtres ou votre recherche</p>
-        @if (hasFilters()) {
-        <button mat-raised-button color="primary" (click)="clearFilters()">
-            Effacer les filtres
-        </button>
-        }
-    </div>
-    }
-    }
-    </main>
-</div>
 </div>

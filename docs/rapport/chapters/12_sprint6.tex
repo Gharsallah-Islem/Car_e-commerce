@@ -1,0 +1,182 @@
+% ============================================================
+% CHAPITRE 9 : SPRINT 6 - CHAT, LIVRAISON & VALIDATION
+% ============================================================
+
+\chapter{Sprint 6 : Chat Support, Livraison et Validation Finale}
+
+\section{Presentation du Sprint}
+
+\subsection{Objectifs}
+
+Le sixieme et dernier sprint couvre le developpement du systeme de chat en temps reel, du suivi de livraison avec cartographie, et la validation finale du projet.
+
+\begin{table}[htbp]
+\centering
+\caption{Fiche du Sprint 6}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Attribut} & \tableheader{Valeur} \\
+\hline
+Duree & 2 semaines \\
+\hline
+Theme & Chat, Livraison, Validation \\
+\hline
+Priorite & Haute \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Sprint Backlog}
+
+\begin{table}[htbp]
+\centering
+\caption{Sprint Backlog - Sprint 6}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|c|p{6.5cm}|c|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{ID} & \tableheader{User Story} & \tableheader{Priorite} & \tableheader{Points} \\
+\hline
+US-6.1 & En tant qu'utilisateur, je veux contacter le support par chat & Haute & 8 \\
+\hline
+US-6.2 & En tant qu'utilisateur, je veux suivre ma livraison sur une carte & Haute & 8 \\
+\hline
+US-6.3 & En tant qu'admin, je veux gerer les livraisons & Haute & 5 \\
+\hline
+US-6.4 & En tant que livreur, je veux mettre a jour le statut de livraison & Moyenne & 5 \\
+\hline
+US-6.5 & En tant qu'utilisateur, je veux soumettre une reclamation & Moyenne & 5 \\
+\hline
+US-6.6 & Tests d'integration et validation finale & Haute & 8 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Analyse et Conception}
+
+\subsection{Diagramme de Cas d'Utilisation}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{cas d'utlisation 6.png}
+\caption{Diagramme de cas d'utilisation - Chat et Livraison}
+\label{fig:sprint6_usecase}
+\end{figure}
+
+\textbf{Acteurs :}
+\begin{itemize}
+    \item \textbf{\textcolor{darkblue}{Utilisateur :}} Chat avec support, suivi livraison, reclamations
+    \item \textbf{\textcolor{darkblue}{Support :}} Repondre aux conversations, traiter reclamations
+    \item \textbf{\textcolor{darkblue}{Administrateur :}} Assigner livreurs, gerer livraisons
+    \item \textbf{\textcolor{darkblue}{Livreur :}} Mettre a jour statut, transmettre position
+\end{itemize}
+
+\subsection{Diagramme de Classes}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{classe 6.png}
+\caption{Diagramme de classes - Conversation, Message, Delivery, Driver et entites associees}
+\label{fig:sprint6_class}
+\end{figure}
+
+\textbf{Description des entites :}
+\begin{itemize}
+    \item \textbf{\textcolor{navyblue}{Conversation :}} Discussion entre un utilisateur et le support. Attributs : id, title, isActive, createdAt, updatedAt. Relations ManyToOne avec User, OneToMany avec Message.
+    \item \textbf{\textcolor{navyblue}{Message :}} Message dans une conversation. Attributs : id, content, senderType (USER, SUPPORT, SYSTEM), isRead, createdAt. Relation ManyToOne avec Conversation et User.
+    \item \textbf{\textcolor{navyblue}{User :}} Utilisateur initiant la conversation ou envoyant des messages.
+    \item \textbf{\textcolor{navyblue}{Delivery :}} Livraison associee a une commande. Attributs : id, trackingNumber, status, address, driverName, driverPhone, currentLatitude, currentLongitude, estimatedDelivery, pickedUpAt, deliveredAt. Relation OneToOne avec Order, ManyToOne avec Driver.
+    \item \textbf{\textcolor{navyblue}{Order :}} Commande pour laquelle la livraison est creee. Chaque commande expediee genere une livraison.
+    \item \textbf{\textcolor{navyblue}{Driver :}} Livreur assigne a la livraison. Attributs : id, name, phone, email, vehicleType, licensePlate, isAvailable, currentLatitude, currentLongitude.
+    \item \textbf{\textcolor{navyblue}{DriverLocation :}} Historique des positions du livreur. Attributs : id, latitude, longitude, timestamp, speed, heading. Relation ManyToOne avec Driver.
+    \item \textbf{\textcolor{navyblue}{Reclamation :}} Plainte soumise par un utilisateur. Attributs : id, subject, description, status, response, attachmentUrl, createdAt, resolvedAt. Relations ManyToOne avec User et Order.
+\end{itemize}
+
+\subsection{Diagramme de Sequence}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{séquence 6.png}
+\caption{Diagramme de sequence - Suivi de livraison en temps reel}
+\label{fig:sprint6_sequence}
+\end{figure}
+
+\section{Realisation}
+
+\subsection{Chat en Temps Reel}
+
+\begin{itemize}
+    \item \textbf{\textcolor{steelblue}{WebSocket avec STOMP :}} Communication bidirectionnelle
+    \item \textbf{\textcolor{steelblue}{SockJS :}} Fallback pour navigateurs incompatibles
+    \item Messages persistants avec historique
+\end{itemize}
+
+\subsection{Suivi de Livraison}
+
+\begin{table}[htbp]
+\centering
+\caption{Statuts de livraison}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|p{7cm}|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Statut} & \tableheader{Description} \\
+\hline
+PROCESSING & Livraison creee, en attente d'assignation \\
+\hline
+IN\_TRANSIT & Livreur en route vers la destination \\
+\hline
+OUT\_FOR\_DELIVERY & Livreur proche de l'adresse \\
+\hline
+DELIVERED & Colis livre avec succes \\
+\hline
+FAILED & Echec de livraison \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Validation Finale}
+
+\begin{table}[htbp]
+\centering
+\caption{Scenarios de validation}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|p{8cm}|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Scenario} & \tableheader{Resultat} \\
+\hline
+Parcours complet : inscription, achat, paiement, livraison & \checkmark \\
+\hline
+Chat temps reel entre utilisateur et support & \checkmark \\
+\hline
+Suivi de livraison avec mise a jour en temps reel & \checkmark \\
+\hline
+Identification IA et ajout au panier & \checkmark \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Bilan du Sprint}
+
+\begin{table}[htbp]
+\centering
+\caption{Bilan Sprint 6}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{darkblue}
+\tableheader{Metrique} & \tableheader{Valeur} \\
+\hline
+User Stories terminees & 6/6 \\
+\hline
+Points realises & 39 \\
+\hline
+Velocite & 100\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Ce dernier sprint a permis de completer toutes les fonctionnalites et de valider l'integration de l'ensemble des modules.

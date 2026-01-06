@@ -48,32 +48,58 @@
             </div>
         </div>
     </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" (click)="scrollToSection('categories')">
+        <div class="scroll-mouse">
+            <div class="scroll-wheel"></div>
+        </div>
+        <span class="scroll-text">Scroll</span>
+    </div>
 </section>
 
-<!-- Features Section -->
-<section class="features-section">
+<!-- Features Strip -->
+<section class="features-strip">
     <div class="container">
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
+        <div class="features-flex">
+            <div class="feature-item">
+                <div class="feature-icon-wrapper">
                     <mat-icon>local_shipping</mat-icon>
                 </div>
-                <h3>Express Delivery</h3>
-                <p>Get your parts delivered within 24-48 hours anywhere in Tunisia.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <mat-icon>workspace_premium</mat-icon>
+                <div class="feature-text">
+                    <strong>Fast Delivery</strong>
+                    <span>24-48h Nationwide</span>
                 </div>
-                <h3>Premium Quality</h3>
-                <p>100% authentic parts from top manufacturers with warranty.</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <mat-icon>support_agent</mat-icon>
+            <div class="feature-divider"></div>
+            <div class="feature-item">
+                <div class="feature-icon-wrapper">
+                    <mat-icon>verified</mat-icon>
                 </div>
-                <h3>Expert Support</h3>
-                <p>Our team of mechanics is available 24/7 to assist you.</p>
+                <div class="feature-text">
+                    <strong>100% Authentic</strong>
+                    <span>Original Parts Only</span>
+                </div>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item">
+                <div class="feature-icon-wrapper">
+                    <mat-icon>autorenew</mat-icon>
+                </div>
+                <div class="feature-text">
+                    <strong>Easy Returns</strong>
+                    <span>30-Day Guarantee</span>
+                </div>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item">
+                <div class="feature-icon-wrapper">
+                    <mat-icon>headset_mic</mat-icon>
+                </div>
+                <div class="feature-text">
+                    <strong>24/7 Support</strong>
+                    <span>Expert Mechanics</span>
+                </div>
             </div>
         </div>
     </div>
@@ -138,38 +164,71 @@
 </section>
 }
 
-<!-- Categories Section -->
+<!-- Categories Section - Icon Based -->
 <section id="categories" class="categories-section">
     <div class="container">
-        <div class="section-header">
-            <span class="section-badge">Categories</span>
-            <h2 class="section-title">Find Your Part.</h2>
-            <p class="section-subtitle">Browse our extensive catalog by category.</p>
+        <div class="section-header compact">
+            <div class="header-left">
+                <span class="section-badge">Browse</span>
+                <h2 class="section-title">Shop by Category</h2>
+            </div>
+            <a routerLink="/products" class="view-all-link">
+                View All <mat-icon>arrow_forward</mat-icon>
+            </a>
         </div>
 
         @if (isLoadingCategories()) {
         <div class="loading-state">
-            <mat-spinner diameter="40"></mat-spinner>
+            <mat-spinner diameter="32"></mat-spinner>
         </div>
         } @else {
-        <div class="categories-grid">
+        <div class="categories-grid-compact">
             @for (category of categories(); track category.id) {
-            <div class="category-card" matRipple [routerLink]="['/products']" [queryParams]="{categoryId: category.id}">
-                <div class="category-bg" [style.backgroundImage]="'url(' + category.imageUrl + ')'"></div>
-                <div class="category-overlay"></div>
-                <div class="category-content">
-                    <div class="category-info">
-                        <h3>{{ category.name }}</h3>
-                        <p>{{ category.description }}</p>
-                    </div>
-                    <div class="category-arrow">
-                        <mat-icon>arrow_forward</mat-icon>
-                    </div>
+            <a class="category-chip" [routerLink]="['/products']" [queryParams]="{category: category.id}">
+                <div class="chip-icon" [ngClass]="getCategoryIconClass(category.name)">
+                    <mat-icon>{{ getCategoryIcon(category.name) }}</mat-icon>
                 </div>
-            </div>
+                <div class="chip-content">
+                    <span class="chip-name">{{ category.name }}</span>
+                    <span class="chip-count">Browse →</span>
+                </div>
+            </a>
             }
         </div>
         }
+    </div>
+</section>
+
+<!-- Promotional Banner Section -->
+<section class="promo-banner-section">
+    <div class="container">
+        <div class="promo-banner">
+            <div class="promo-glow"></div>
+            <div class="promo-content">
+                <div class="promo-badge">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>Limited Time Offer</span>
+                </div>
+                <h3>Free Delivery on Orders Over 150 TND</h3>
+                <p>Shop now and save on shipping costs. Express delivery available nationwide.</p>
+            </div>
+            <div class="promo-actions">
+                <button class="promo-cta" routerLink="/products">
+                    <span>Shop Now</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+                <div class="promo-features">
+                    <div class="feature">
+                        <mat-icon>schedule</mat-icon>
+                        <span>24-48h Delivery</span>
+                    </div>
+                    <div class="feature">
+                        <mat-icon>verified</mat-icon>
+                        <span>Authentic Parts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -189,8 +248,9 @@
         } @else {
         <div class="products-grid">
             @for (product of featuredProducts(); track product.id) {
-            <div class="product-card" [routerLink]="['/products', product.id]">
+            <article class="product-card">
                 <div class="product-image-wrapper">
+                    <!-- Stock Badge -->
                     @if (product.stock < 5 && product.stock> 0) {
                         <div class="badge low-stock">Low Stock</div>
                         } @else if (product.stock === 0) {
@@ -198,17 +258,40 @@
                         } @else {
                         <div class="badge new">New</div>
                         }
+
+                        <!-- Product Image -->
                         <img [src]="product.imageUrl || 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop'"
-                            [alt]="product.name">
+                            [alt]="product.name" loading="lazy">
+
+                        <!-- Quick Actions Overlay -->
+                        <div class="quick-actions">
+                            <button class="action-btn wishlist" matTooltip="Add to Wishlist"
+                                (click)="$event.stopPropagation()">
+                                <mat-icon>favorite_border</mat-icon>
+                            </button>
+                            <button class="action-btn view" matTooltip="Quick View"
+                                [routerLink]="['/products', product.id]">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                            <button class="action-btn cart" matTooltip="Add to Cart"
+                                (click)="$event.stopPropagation(); addToCart(product)" [disabled]="product.stock === 0">
+                                <mat-icon>add_shopping_cart</mat-icon>
+                            </button>
+                        </div>
                 </div>
-                <mat-card-content>
-                    <div class="product-category">{{ product.category || 'Auto Parts' }}</div>
+
+                <div class="product-content" [routerLink]="['/products', product.id]">
+                    <span class="product-category">{{ product.category || 'Auto Parts' }}</span>
                     <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-price">
-                        {{ product.price | number:'1.2-2' }} TND
+                    <div class="product-footer">
+                        <span class="product-price">{{ product.price | number:'1.2-2' }} <small>TND</small></span>
+                        <div class="product-rating">
+                            <mat-icon>star</mat-icon>
+                            <span>4.8</span>
+                        </div>
                     </div>
-                </mat-card-content>
-            </div>
+                </div>
+            </article>
             }
         </div>
         }
@@ -288,6 +371,72 @@
                     <span>Try AI Mechanic</span>
                     <mat-icon>arrow_forward</mat-icon>
                 </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer Preview Section -->
+<section class="footer-preview-section">
+    <div class="container">
+        <!-- Newsletter Signup -->
+        <div class="newsletter-block">
+            <div class="newsletter-content">
+                <mat-icon>mail_outline</mat-icon>
+                <div class="newsletter-text">
+                    <h4>Stay Updated</h4>
+                    <p>Get exclusive offers and updates on new products</p>
+                </div>
+            </div>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Enter your email" class="newsletter-input">
+                <button class="newsletter-btn">
+                    <span>Subscribe</span>
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Trust Row -->
+        <div class="trust-row">
+            <div class="trust-item">
+                <mat-icon>verified_user</mat-icon>
+                <div class="trust-text">
+                    <span class="trust-title">Secure Payment</span>
+                    <span class="trust-desc">256-bit SSL encryption</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <mat-icon>autorenew</mat-icon>
+                <div class="trust-text">
+                    <span class="trust-title">Easy Returns</span>
+                    <span class="trust-desc">30-day return policy</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <mat-icon>headset_mic</mat-icon>
+                <div class="trust-text">
+                    <span class="trust-title">24/7 Support</span>
+                    <span class="trust-desc">Expert assistance</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <mat-icon>local_shipping</mat-icon>
+                <div class="trust-text">
+                    <span class="trust-title">Fast Delivery</span>
+                    <span class="trust-desc">Nationwide shipping</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <span class="payment-label">Secure Payment Methods:</span>
+            <div class="payment-icons">
+                <div class="payment-icon visa">VISA</div>
+                <div class="payment-icon mastercard">MC</div>
+                <div class="payment-icon amex">AMEX</div>
+                <div class="payment-icon paypal">PayPal</div>
             </div>
         </div>
     </div>

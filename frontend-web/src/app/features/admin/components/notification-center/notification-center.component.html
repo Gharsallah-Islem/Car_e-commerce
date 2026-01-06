@@ -1,0 +1,69 @@
+<!-- Notification Bell with Badge -->
+<div class="notification-wrapper">
+    <button class="notification-bell" (click)="toggleDropdown()"
+        [class.has-unread]="notificationService.unreadCount() > 0">
+        <mat-icon>notifications</mat-icon>
+        @if (notificationService.unreadCount() > 0) {
+        <span class="unread-badge">
+            {{ notificationService.unreadCount() > 99 ? '99+' : notificationService.unreadCount() }}
+        </span>
+        }
+    </button>
+
+    <!-- Dropdown Panel -->
+    @if (isOpen()) {
+    <div class="notification-dropdown">
+        <div class="dropdown-header">
+            <h3>Notifications</h3>
+            @if (notificationService.unreadCount() > 0) {
+            <button class="mark-all-btn" (click)="markAllAsRead()">
+                Tout marquer comme lu
+            </button>
+            }
+        </div>
+
+        <div class="notification-list">
+            @if (notificationService.loading()) {
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <span>Chargement...</span>
+            </div>
+            } @else if (notificationService.notifications().length === 0) {
+            <div class="empty-state">
+                <mat-icon>notifications_none</mat-icon>
+                <p>Aucune notification</p>
+            </div>
+            } @else {
+            @for (notification of notificationService.recentNotifications(); track notification.id) {
+            <a class="notification-item" [class.unread]="!notification.isRead"
+                [routerLink]="notification.actionUrl || null" (click)="handleNotificationClick(notification)">
+                <div class="notification-icon"
+                    [style.background-color]="notificationService.getNotificationColor(notification.type)">
+                    <mat-icon>{{ notification.icon || notificationService.getNotificationIcon(notification.type)
+                        }}</mat-icon>
+                </div>
+                <div class="notification-content">
+                    <h4>{{ notification.title }}</h4>
+                    <p>{{ notification.message }}</p>
+                    <span class="notification-time">{{ getTimeAgo(notification.createdAt) }}</span>
+                </div>
+                @if (!notification.isRead) {
+                <button class="mark-read-btn" (click)="markAsRead(notification, $event)" matTooltip="Marquer comme lu">
+                    <mat-icon>check</mat-icon>
+                </button>
+                }
+            </a>
+            }
+            }
+        </div>
+
+        @if (notificationService.notifications().length > 10) {
+        <div class="dropdown-footer">
+            <a routerLink="/admin/notifications" (click)="closeDropdown()">
+                Voir toutes les notifications
+            </a>
+        </div>
+        }
+    </div>
+    }
+</div>

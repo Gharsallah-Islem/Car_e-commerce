@@ -1,0 +1,132 @@
+% ============================================================
+% ANNEXES
+% ============================================================
+
+\chapter{Annexe A : Schema de Base de Donnees}
+
+\section{Diagramme Entite-Relation}
+
+\diagrammePlaceholder{erd_complete}{Diagramme entite-relation complet de la base de donnees}
+
+\section{Description des Tables Principales}
+
+\subsection{Table Users}
+
+\begin{table}[htbp]
+\centering
+\caption{Structure de la table users}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+id & UUID & Identifiant unique \\
+\hline
+email & VARCHAR(255) & Adresse email (unique) \\
+\hline
+password & VARCHAR(255) & Mot de passe hashe \\
+\hline
+full\_name & VARCHAR(255) & Nom complet \\
+\hline
+phone & VARCHAR(20) & Numero de telephone \\
+\hline
+role\_id & UUID & Reference vers le role \\
+\hline
+is\_active & BOOLEAN & Compte actif \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Table Products}
+
+\begin{table}[htbp]
+\centering
+\caption{Structure de la table products}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+id & UUID & Identifiant unique \\
+\hline
+name & VARCHAR(255) & Nom du produit \\
+\hline
+description & TEXT & Description detaillee \\
+\hline
+price & DECIMAL(10,2) & Prix unitaire \\
+\hline
+stock & INTEGER & Quantite en stock \\
+\hline
+category\_id & UUID & Reference vers la categorie \\
+\hline
+brand\_id & UUID & Reference vers la marque \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Table Orders}
+
+\begin{table}[htbp]
+\centering
+\caption{Structure de la table orders}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+id & UUID & Identifiant unique \\
+\hline
+user\_id & UUID & Reference vers l'utilisateur \\
+\hline
+total\_price & DECIMAL(10,2) & Prix total de la commande \\
+\hline
+status & VARCHAR(50) & Statut de la commande \\
+\hline
+delivery\_address & TEXT & Adresse de livraison \\
+\hline
+tracking\_number & VARCHAR(50) & Numero de suivi \\
+\hline
+\end{tabular}
+\end{table}
+
+% ============================================================
+
+\chapter{Annexe B : Guide d'Installation}
+
+\section{Prerequis}
+
+Pour installer et executer le projet, les outils suivants sont necessaires :
+
+\begin{itemize}
+    \item Java 17 ou superieur
+    \item Node.js 18 ou superieur
+    \item Python 3.10 ou superieur
+    \item PostgreSQL 15 ou superieur
+    \item Maven 3.8 ou superieur
+    \item Git
+\end{itemize}
+
+\section{Installation du Backend}
+
+\begin{enumerate}
+    \item Cloner le repository du projet
+    \item Configurer les variables d'environnement dans application.properties
+    \item Creer la base de donnees PostgreSQL
+    \item Executer mvn clean install pour compiler
+    \item Lancer avec mvn spring-boot:run
+\end{enumerate}
+
+\section{Installation du Frontend}
+
+\begin{enumerate}
+    \item Naviguer vers le dossier frontend-web
+    \item Executer npm install pour installer les dependances
+    \item Lancer avec ng serve pour le developpement
+    \item Compiler avec ng build --configuration production pour la production
+\end{enumerate}
+
+\section{Installation du Module IA}
+
+\begin{enumerate}
+    \item Naviguer vers le dossier ai-module
+    \item Creer un environnement virtuel Python
+    \item Installer les dependances avec pip install -r requirements.txt
+    \item Lancer avec uvicorn src.api.main:app --port 5000
+\end{enumerate}

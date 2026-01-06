@@ -1,582 +1,640 @@
-<!-- Delivery Management Header -->
-<div class="delivery-header">
-    <div class="header-content">
-        <div class="title-section">
-            <mat-icon class="header-icon">local_shipping</mat-icon>
-            <div>
-                <h1>Gestion des Livraisons</h1>
-                <p class="subtitle">Suivez et gérez toutes vos livraisons en temps réel</p>
+<!-- ========================================================== -->
+<!-- WORLD-CLASS DELIVERY MANAGEMENT - Premium Enterprise UI -->
+<!-- Inspired by Shopify, Square, and Linear -->
+<!-- ========================================================== -->
+
+<div class="delivery-container">
+
+    <!-- Premium Floating Header -->
+    <header class="delivery-header">
+        <div class="header-left">
+            <div class="page-title-section">
+                <div class="title-badge">
+                    <mat-icon>local_shipping</mat-icon>
+                </div>
+                <div class="title-content">
+                    <h1>Gestion des Livraisons</h1>
+                    <p class="breadcrumb">Admin / Livraisons / Vue d'ensemble</p>
+                </div>
             </div>
         </div>
-        <div class="header-actions">
-            <button mat-raised-button color="primary" (click)="exportToCSV()">
-                <mat-icon>download</mat-icon>
-                Exporter
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Stats Cards -->
-<div class="stats-grid">
-    <mat-card class="stat-card stat-primary">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>local_shipping</mat-icon>
+        <div class="header-right">
+            <div class="header-stats">
+                <div class="mini-stat">
+                    <span class="stat-value">{{ stats().totalDeliveries || 0 }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="mini-stat warning">
+                    <span class="stat-value">{{ pendingDeliveries.length }}</span>
+                    <span class="stat-label">En attente</span>
+                </div>
+                <div class="mini-stat info">
+                    <span class="stat-value">{{ activeDeliveries.length }}</span>
+                    <span class="stat-label">En cours</span>
+                </div>
+                @if (stats().failed > 0) {
+                <div class="mini-stat danger pulse">
+                    <span class="stat-value">{{ stats().failed }}</span>
+                    <span class="stat-label">Échecs</span>
+                </div>
+                }
             </div>
-            <div class="stat-details">
-                <h3>{{ stats().totalDeliveries || 0 }}</h3>
-                <p>Total Livraisons</p>
-            </div>
-        </div>
-    </mat-card>
-
-    <mat-card class="stat-card stat-warning">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>inventory</mat-icon>
-            </div>
-            <div class="stat-details">
-                <h3>{{ stats().processing || 0 }}</h3>
-                <p>En Préparation</p>
-            </div>
-        </div>
-    </mat-card>
-
-    <mat-card class="stat-card stat-info">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>delivery_dining</mat-icon>
-            </div>
-            <div class="stat-details">
-                <h3>{{ (stats().inTransit || 0) + (stats().outForDelivery || 0) }}</h3>
-                <p>En Cours</p>
+            <div class="header-actions">
+                <button class="btn-icon" matTooltip="Actualiser" (click)="loadDeliveries(); loadDeliveryStats()">
+                    <mat-icon>sync</mat-icon>
+                </button>
+                <button class="btn-secondary" (click)="exportToCSV()">
+                    <mat-icon>download</mat-icon>
+                    <span>Exporter</span>
+                </button>
+                <button class="btn-primary" (click)="syncConfirmedOrders()">
+                    <mat-icon>sync_alt</mat-icon>
+                    <span>Sync Commandes</span>
+                </button>
             </div>
         </div>
-    </mat-card>
+    </header>
 
-    <mat-card class="stat-card stat-success">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>check_circle</mat-icon>
+    <!-- Analytics Overview Section -->
+    <section class="analytics-grid">
+        <!-- Delivery Performance -->
+        <div class="analytics-card delivery-performance">
+            <div class="card-header">
+                <h3>Performance Livraisons</h3>
+                <div class="trend-badge positive">
+                    <mat-icon>trending_up</mat-icon>
+                    <span>{{ (stats().onTimeRate || 0) | number:'1.0-0' }}%</span>
+                </div>
             </div>
-            <div class="stat-details">
-                <h3>{{ stats().delivered || 0 }}</h3>
-                <p>Livrées</p>
+            <div class="card-body">
+                <div class="performance-chart">
+                    <div class="donut-chart">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle success" [attr.stroke-dasharray]="getDeliverySuccessRate() + ', 100'"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="chart-center">
+                            <span class="percentage">{{ getDeliverySuccessRate() | number:'1.0-0' }}%</span>
+                            <span class="label">Succès</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="performance-legend">
+                    <div class="legend-item success">
+                        <span class="dot"></span>
+                        <span class="name">Livrées</span>
+                        <span class="value">{{ stats().delivered || 0 }}</span>
+                    </div>
+                    <div class="legend-item warning">
+                        <span class="dot"></span>
+                        <span class="name">En cours</span>
+                        <span class="value">{{ (stats().inTransit || 0) + (stats().outForDelivery || 0) }}</span>
+                    </div>
+                    <div class="legend-item danger">
+                        <span class="dot"></span>
+                        <span class="name">Échecs</span>
+                        <span class="value">{{ stats().failed || 0 }}</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </mat-card>
 
-    <mat-card class="stat-card stat-danger">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>error</mat-icon>
+        <!-- Status Overview -->
+        <div class="analytics-card status-overview">
+            <div class="card-header">
+                <h3>Répartition par Statut</h3>
             </div>
-            <div class="stat-details">
-                <h3>{{ stats().failed || 0 }}</h3>
-                <p>Échecs</p>
+            <div class="card-body">
+                <div class="status-bars">
+                    <div class="status-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot preparing"></span>
+                            <span>En préparation</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar preparing" [style.width.%]="getStatusPercentage('processing')"></div>
+                        </div>
+                        <span class="bar-value">{{ stats().processing || 0 }}</span>
+                    </div>
+                    <div class="status-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot transit"></span>
+                            <span>En transit</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar transit" [style.width.%]="getStatusPercentage('transit')"></div>
+                        </div>
+                        <span class="bar-value">{{ (stats().inTransit || 0) + (stats().outForDelivery || 0) }}</span>
+                    </div>
+                    <div class="status-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot delivered"></span>
+                            <span>Livrées</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar delivered" [style.width.%]="getStatusPercentage('delivered')"></div>
+                        </div>
+                        <span class="bar-value">{{ stats().delivered || 0 }}</span>
+                    </div>
+                    <div class="status-bar-item">
+                        <div class="bar-label">
+                            <span class="status-dot failed"></span>
+                            <span>Échecs</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar failed" [style.width.%]="getStatusPercentage('failed')"></div>
+                        </div>
+                        <span class="bar-value">{{ stats().failed || 0 }}</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </mat-card>
 
-    <mat-card class="stat-card stat-purple">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>schedule</mat-icon>
+        <!-- Quick Tracking -->
+        <div class="analytics-card quick-tracking">
+            <div class="card-header">
+                <h3>
+                    <mat-icon>qr_code_scanner</mat-icon>
+                    Suivi Rapide
+                </h3>
             </div>
-            <div class="stat-details">
-                <h3>{{ (stats().averageDeliveryTime || 0) | number:'1.0-0' }} jours</h3>
-                <p>Temps Moyen</p>
+            <div class="card-body">
+                <form [formGroup]="trackingForm" class="tracking-form" (ngSubmit)="trackDelivery()">
+                    <div class="tracking-input-wrapper">
+                        <mat-icon>search</mat-icon>
+                        <input type="text" formControlName="trackingNumber" placeholder="Entrez un numéro de suivi...">
+                    </div>
+                    <button type="submit" class="btn-primary" [disabled]="trackingForm.invalid">
+                        <mat-icon>search</mat-icon>
+                        Rechercher
+                    </button>
+                </form>
+                <div class="tracking-hint">
+                    <mat-icon>info</mat-icon>
+                    <span>Ex: TRK1731234567ABC</span>
+                </div>
             </div>
         </div>
-    </mat-card>
 
-    <mat-card class="stat-card stat-teal">
-        <div class="stat-content">
-            <div class="stat-icon">
-                <mat-icon>trending_up</mat-icon>
+        <!-- Metrics Panel -->
+        <div class="analytics-card metrics-panel">
+            <div class="card-header">
+                <h3>Métriques Clés</h3>
             </div>
-            <div class="stat-details">
-                <h3>{{ (stats().onTimeRate || 0) | number:'1.0-0' }}%</h3>
-                <p>Taux à Temps</p>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-icon purple">
+                            <mat-icon>schedule</mat-icon>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-value">{{ (stats().averageDeliveryTime || 0) | number:'1.0-0' }}</span>
+                            <span class="metric-label">Jours moyens</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon green">
+                            <mat-icon>trending_up</mat-icon>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-value">{{ (stats().onTimeRate || 0) | number:'1.0-0' }}%</span>
+                            <span class="metric-label">À temps</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon blue">
+                            <mat-icon>people</mat-icon>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-value">{{ couriers.length }}</span>
+                            <span class="metric-label">Livreurs</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon orange">
+                            <mat-icon>pending_actions</mat-icon>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-value">{{ pendingDeliveries.length }}</span>
+                            <span class="metric-label">À assigner</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </mat-card>
-</div>
+    </section>
 
-<!-- Tracking Search -->
-<mat-card class="tracking-card">
-    <div class="card-header">
-        <h2>
-            <mat-icon>search</mat-icon>
-            Suivre une livraison
-        </h2>
-    </div>
-    <mat-divider></mat-divider>
+    <!-- Main Content Area -->
+    <section class="main-content">
+        <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)"
+            class="premium-tabs">
 
-    <form [formGroup]="trackingForm" class="tracking-form">
-        <mat-form-field class="tracking-input">
-            <mat-label>Numéro de suivi</mat-label>
-            <input matInput formControlName="trackingNumber" placeholder="Ex: TRK1731234567ABC" />
-            <mat-icon matPrefix>qr_code_scanner</mat-icon>
-        </mat-form-field>
-        <button mat-raised-button color="primary" (click)="trackDelivery()" [disabled]="trackingForm.invalid">
-            <mat-icon>search</mat-icon>
-            Rechercher
-        </button>
-    </form>
-</mat-card>
-
-<!-- Tabs -->
-<mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="selectedTabIndex.set($event)"
-    class="delivery-tabs">
-
-    <!-- Tab 1: En Attente (PROCESSING - waiting for driver assignment) -->
-    <mat-tab>
-        <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">hourglass_empty</mat-icon>
-            En Attente ({{ pendingDeliveries.length }})
-        </ng-template>
-        <div class="tab-content">
-            <mat-card>
-                <div class="card-header">
-                    <h2>
+            <!-- Tab 1: En Attente -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <div class="tab-label">
                         <mat-icon>hourglass_empty</mat-icon>
-                        Livraisons en attente d'assignation ({{ pendingDeliveries.length }})
-                    </h2>
-                </div>
-                <mat-divider></mat-divider>
+                        <span>En Attente</span>
+                        @if (pendingDeliveries.length > 0) {
+                        <span class="tab-badge warning">{{ pendingDeliveries.length }}</span>
+                        }
+                    </div>
+                </ng-template>
 
-                <div class="table-container">
-                    <table mat-table [dataSource]="pendingDeliveries" matSort>
-                        <ng-container matColumnDef="trackingNumber">
-                            <th mat-header-cell *matHeaderCellDef>Numéro de Suivi</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="tracking-cell">
-                                    <mat-icon class="tracking-icon">qr_code</mat-icon>
-                                    <strong>{{ delivery.trackingNumber }}</strong>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="order">
-                            <th mat-header-cell *matHeaderCellDef>Commande</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                {{ delivery.orderNumber }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="customer">
-                            <th mat-header-cell *matHeaderCellDef>Client</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="customer-info">
-                                    <strong>{{ delivery.customerName }}</strong>
-                                    <span class="phone">{{ delivery.customerPhone }}</span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="address">
-                            <th mat-header-cell *matHeaderCellDef>Adresse</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="address-cell">
-                                    <mat-icon>location_on</mat-icon>
-                                    {{ delivery.address }}
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef>Statut</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="status-cell">
-                                    <mat-chip [color]="getStatusColor(delivery.status)">
-                                        <mat-icon>{{ getStatusIcon(delivery.status) }}</mat-icon>
-                                        {{ getStatusLabel(delivery.status) }}
-                                    </mat-chip>
-                                    <mat-progress-bar mode="determinate" [value]="getDeliveryProgress(delivery.status)"
-                                        [color]="getStatusColor(delivery.status)">
-                                    </mat-progress-bar>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="courier">
-                            <th mat-header-cell *matHeaderCellDef>Livreur</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <mat-form-field class="courier-select">
-                                    <mat-select [value]="delivery.courierName"
-                                        (selectionChange)="assignCourier(delivery.id, $event.value)">
-                                        @for (courier of couriers; track courier) {
-                                        <mat-option [value]="courier">{{ courier }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="estimated">
-                            <th mat-header-cell *matHeaderCellDef>Livraison Prévue</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                {{ delivery.estimatedDelivery | date:'dd/MM/yyyy' }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef>Actions</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <button mat-icon-button [matMenuTriggerFor]="actionMenu">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #actionMenu="matMenu">
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'IN_TRANSIT')">
-                                        <mat-icon>local_shipping</mat-icon>
-                                        Marquer en transit
-                                    </button>
-                                    <button mat-menu-item
-                                        (click)="updateDeliveryStatus(delivery.id, 'OUT_FOR_DELIVERY')">
-                                        <mat-icon>delivery_dining</mat-icon>
-                                        En cours de livraison
-                                    </button>
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'DELIVERED')">
-                                        <mat-icon>check_circle</mat-icon>
-                                        Marquer comme livrée
-                                    </button>
-                                    <mat-divider></mat-divider>
-                                    <button mat-menu-item (click)="printDeliveryLabel(delivery.id)">
-                                        <mat-icon>print</mat-icon>
-                                        Imprimer l'étiquette
-                                    </button>
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'FAILED')">
-                                        <mat-icon>error</mat-icon>
-                                        Marquer comme échec
-                                    </button>
-                                </mat-menu>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="deliveryColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: deliveryColumns;"></tr>
-                    </table>
-
-                    <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
-                        (page)="handlePageEvent($event)">
-                    </mat-paginator>
-                </div>
-            </mat-card>
-        </div>
-    </mat-tab>
-
-    <!-- Tab 2: En Cours (IN_TRANSIT - actively being delivered) -->
-    <mat-tab>
-        <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">local_shipping</mat-icon>
-            En Cours ({{ activeDeliveries.length }})
-        </ng-template>
-        <div class="tab-content">
-            <mat-card>
-                <div class="card-header">
-                    <h2>
-                        <mat-icon>local_shipping</mat-icon>
-                        Livraisons en cours de livraison ({{ activeDeliveries.length }})
-                    </h2>
-                </div>
-                <mat-divider></mat-divider>
-
-                <div class="table-container">
-                    <table mat-table [dataSource]="activeDeliveries" matSort>
-                        <ng-container matColumnDef="trackingNumber">
-                            <th mat-header-cell *matHeaderCellDef>Numéro de Suivi</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="tracking-cell">
-                                    <mat-icon class="tracking-icon">qr_code</mat-icon>
-                                    <strong>{{ delivery.trackingNumber }}</strong>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="order">
-                            <th mat-header-cell *matHeaderCellDef>Commande</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                {{ delivery.orderNumber }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="customer">
-                            <th mat-header-cell *matHeaderCellDef>Client</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="customer-info">
-                                    <strong>{{ delivery.customerName }}</strong>
-                                    <span class="phone">{{ delivery.customerPhone }}</span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="address">
-                            <th mat-header-cell *matHeaderCellDef>Adresse</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="address-cell">
-                                    <mat-icon>location_on</mat-icon>
-                                    {{ delivery.address }}
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef>Statut</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <mat-chip [color]="getStatusColor(delivery.status)">
-                                    <mat-icon>{{ getStatusIcon(delivery.status) }}</mat-icon>
-                                    {{ getStatusLabel(delivery.status) }}
-                                </mat-chip>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="courier">
-                            <th mat-header-cell *matHeaderCellDef>Livreur</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                {{ delivery.courierName }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="estimated">
-                            <th mat-header-cell *matHeaderCellDef>Date</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                @if (delivery.actualDelivery) {
-                                <div class="date-cell">
-                                    <strong>{{ delivery.actualDelivery | date:'dd/MM/yyyy' }}</strong>
-                                    <span class="label">Livrée</span>
-                                </div>
-                                } @else {
-                                <div class="date-cell">
-                                    {{ delivery.estimatedDelivery | date:'dd/MM/yyyy' }}
-                                    <span class="label">Prévue</span>
-                                </div>
+                <div class="tab-panel">
+                    @if (pendingDeliveries.length === 0) {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <mat-icon>hourglass_empty</mat-icon>
+                        </div>
+                        <h3>Aucune livraison en attente</h3>
+                        <p>Les nouvelles commandes confirmées apparaîtront ici</p>
+                    </div>
+                    } @else {
+                    <div class="data-table-container">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Suivi</th>
+                                    <th>Commande</th>
+                                    <th>Client</th>
+                                    <th>Adresse</th>
+                                    <th>Livreur</th>
+                                    <th>Date prévue</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (delivery of pendingDeliveries; track delivery.id) {
+                                <tr>
+                                    <td>
+                                        <div class="tracking-cell">
+                                            <div class="tracking-badge waiting">
+                                                <mat-icon>qr_code</mat-icon>
+                                            </div>
+                                            <code class="tracking-code">{{ delivery.trackingNumber }}</code>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="order-id">{{ delivery.order?.id ? (delivery.order.id | slice:0:8) +
+                                            '...' : '-' }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="customer-cell">
+                                            <span class="customer-name">{{ delivery.order?.user?.fullName ||
+                                                delivery.recipientName || '-' }}</span>
+                                            <span class="customer-phone">{{ delivery.order?.user?.phone ||
+                                                delivery.recipientPhone || '' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="address-cell">
+                                            <mat-icon>location_on</mat-icon>
+                                            <span>{{ delivery.address }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select class="courier-select" [value]="delivery.driverName || ''"
+                                            (change)="assignCourier(delivery.id, $any($event.target).value)">
+                                            <option value="" disabled>Assigner un livreur</option>
+                                            @for (courier of couriers; track courier) {
+                                            <option [value]="courier">{{ courier }}</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <span class="date-text">{{ delivery.estimatedDelivery | date:'dd/MM/yyyy'
+                                            }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="action-btn" matTooltip="Marquer en transit"
+                                                (click)="updateDeliveryStatus(delivery.id, 'IN_TRANSIT')">
+                                                <mat-icon>local_shipping</mat-icon>
+                                            </button>
+                                            <button class="action-btn" [matMenuTriggerFor]="pendingMenu"
+                                                matTooltip="Plus d'actions">
+                                                <mat-icon>more_vert</mat-icon>
+                                            </button>
+                                            <mat-menu #pendingMenu="matMenu" class="premium-menu">
+                                                <button mat-menu-item
+                                                    (click)="updateDeliveryStatus(delivery.id, 'OUT_FOR_DELIVERY')">
+                                                    <mat-icon>delivery_dining</mat-icon>
+                                                    <span>En cours de livraison</span>
+                                                </button>
+                                                <button mat-menu-item
+                                                    (click)="updateDeliveryStatus(delivery.id, 'DELIVERED')">
+                                                    <mat-icon>check_circle</mat-icon>
+                                                    <span>Marquer livrée</span>
+                                                </button>
+                                                <mat-divider></mat-divider>
+                                                <button mat-menu-item (click)="printDeliveryLabel(delivery.id)">
+                                                    <mat-icon>print</mat-icon>
+                                                    <span>Imprimer étiquette</span>
+                                                </button>
+                                                <button mat-menu-item class="danger"
+                                                    (click)="updateDeliveryStatus(delivery.id, 'FAILED')">
+                                                    <mat-icon>error</mat-icon>
+                                                    <span>Marquer échec</span>
+                                                </button>
+                                            </mat-menu>
+                                        </div>
+                                    </td>
+                                </tr>
                                 }
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef>Actions</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <button mat-icon-button matTooltip="Voir les détails"
-                                    (click)="viewDeliveryDetails(delivery)">
-                                    <mat-icon>visibility</mat-icon>
-                                </button>
-                                <button mat-icon-button matTooltip="Suivre sur carte" (click)="trackOnMap(delivery)">
-                                    <mat-icon>map</mat-icon>
-                                </button>
-                                <button mat-icon-button [matMenuTriggerFor]="statusMenu" matTooltip="Changer statut">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #statusMenu="matMenu">
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'PROCESSING')">
-                                        <mat-icon>hourglass_empty</mat-icon>
-                                        En préparation
-                                    </button>
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'IN_TRANSIT')">
-                                        <mat-icon>local_shipping</mat-icon>
-                                        Marquer en transit
-                                    </button>
-                                    <button mat-menu-item
-                                        (click)="updateDeliveryStatus(delivery.id, 'OUT_FOR_DELIVERY')">
-                                        <mat-icon>delivery_dining</mat-icon>
-                                        En cours de livraison
-                                    </button>
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'DELIVERED')">
-                                        <mat-icon>check_circle</mat-icon>
-                                        Marquer comme livrée
-                                    </button>
-                                    <mat-divider></mat-divider>
-                                    <button mat-menu-item (click)="updateDeliveryStatus(delivery.id, 'FAILED')">
-                                        <mat-icon>error</mat-icon>
-                                        Marquer comme échec
-                                    </button>
-                                </mat-menu>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="deliveryColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: deliveryColumns;"></tr>
-                    </table>
-
-                    <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
-                        (page)="handlePageEvent($event)">
-                    </mat-paginator>
+                            </tbody>
+                        </table>
+                    </div>
+                    }
                 </div>
-            </mat-card>
-        </div>
-    </mat-tab>
+            </mat-tab>
 
-    <!-- Tab 3: Historique (DELIVERED - completed) -->
-    <mat-tab>
-        <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">check_circle</mat-icon>
-            Historique ({{ completedDeliveries.length }})
-        </ng-template>
-        <div class="tab-content">
-            <mat-card>
-                <div class="card-header">
-                    <h2>
+            <!-- Tab 2: En Cours -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <div class="tab-label">
+                        <mat-icon>local_shipping</mat-icon>
+                        <span>En Cours</span>
+                        @if (activeDeliveries.length > 0) {
+                        <span class="tab-badge">{{ activeDeliveries.length }}</span>
+                        }
+                    </div>
+                </ng-template>
+
+                <div class="tab-panel">
+                    @if (activeDeliveries.length === 0) {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <mat-icon>local_shipping</mat-icon>
+                        </div>
+                        <h3>Aucune livraison en cours</h3>
+                        <p>Les livraisons actives apparaîtront ici</p>
+                    </div>
+                    } @else {
+                    <div class="data-table-container">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Suivi</th>
+                                    <th>Commande</th>
+                                    <th>Client</th>
+                                    <th>Adresse</th>
+                                    <th>Statut</th>
+                                    <th>Livreur</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (delivery of activeDeliveries; track delivery.id) {
+                                <tr>
+                                    <td>
+                                        <div class="tracking-cell">
+                                            <div class="tracking-badge active">
+                                                <mat-icon>qr_code</mat-icon>
+                                            </div>
+                                            <code class="tracking-code">{{ delivery.trackingNumber }}</code>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="order-id">{{ delivery.order?.id ? (delivery.order.id | slice:0:8) +
+                                            '...' : '-' }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="customer-cell">
+                                            <span class="customer-name">{{ delivery.recipientName ||
+                                                delivery.order?.user?.fullName || '-' }}</span>
+                                            <span class="customer-phone">{{ delivery.recipientPhone ||
+                                                delivery.order?.user?.phone || '' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="address-cell">
+                                            <mat-icon>location_on</mat-icon>
+                                            <span>{{ delivery.address }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill"
+                                            [ngClass]="'status-' + delivery.status.toLowerCase().replace('_', '-')">
+                                            <mat-icon>{{ getStatusIcon(delivery.status) }}</mat-icon>
+                                            {{ getStatusLabel(delivery.status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="courier-cell">
+                                            <div class="courier-avatar">{{ delivery.driverName?.charAt(0) || '?' }}
+                                            </div>
+                                            <span>{{ delivery.driverName || 'Non assigné' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-cell">
+                                            @if (delivery.actualDelivery) {
+                                            <span class="date-text success">{{ delivery.actualDelivery | date:'dd/MM'
+                                                }}</span>
+                                            <span class="date-label">Livrée</span>
+                                            } @else {
+                                            <span class="date-text">{{ delivery.estimatedDelivery | date:'dd/MM'
+                                                }}</span>
+                                            <span class="date-label">Prévue</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="action-btn" matTooltip="Détails"
+                                                (click)="viewDeliveryDetails(delivery)">
+                                                <mat-icon>visibility</mat-icon>
+                                            </button>
+                                            <button class="action-btn" matTooltip="Carte"
+                                                (click)="trackOnMap(delivery)">
+                                                <mat-icon>map</mat-icon>
+                                            </button>
+                                            <button class="action-btn success" matTooltip="Marquer livrée"
+                                                (click)="updateDeliveryStatus(delivery.id, 'DELIVERED')">
+                                                <mat-icon>check_circle</mat-icon>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    }
+                </div>
+            </mat-tab>
+
+            <!-- Tab 3: Historique -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <div class="tab-label">
                         <mat-icon>check_circle</mat-icon>
-                        Livraisons terminées ({{ completedDeliveries.length }})
-                    </h2>
+                        <span>Historique</span>
+                        <span class="tab-badge success">{{ completedDeliveries.length }}</span>
+                    </div>
+                </ng-template>
+
+                <div class="tab-panel">
+                    @if (completedDeliveries.length === 0) {
+                    <div class="empty-state">
+                        <div class="empty-icon success">
+                            <mat-icon>check_circle</mat-icon>
+                        </div>
+                        <h3>Aucune livraison terminée</h3>
+                        <p>Les livraisons complétées apparaîtront ici</p>
+                    </div>
+                    } @else {
+                    <div class="data-table-container">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Suivi</th>
+                                    <th>Commande</th>
+                                    <th>Client</th>
+                                    <th>Adresse</th>
+                                    <th>Livreur</th>
+                                    <th>Date Livraison</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (delivery of completedDeliveries; track delivery.id) {
+                                <tr class="completed">
+                                    <td>
+                                        <div class="tracking-cell">
+                                            <div class="tracking-badge success">
+                                                <mat-icon>check</mat-icon>
+                                            </div>
+                                            <code class="tracking-code">{{ delivery.trackingNumber }}</code>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="order-id">{{ delivery.order?.id ? (delivery.order.id | slice:0:8) +
+                                            '...' : '-' }}</span>
+                                    </td>
+                                    <td>{{ delivery.deliveryNotes || '-' }}</td>
+                                    <td>
+                                        <div class="address-cell">
+                                            <mat-icon>location_on</mat-icon>
+                                            <span>{{ delivery.address }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="courier-cell">
+                                            <div class="courier-avatar success">{{ delivery.driverName?.charAt(0) || '?'
+                                                }}</div>
+                                            <span>{{ delivery.driverName || '-' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="date-text success">{{ delivery.actualDelivery | date:'dd/MM/yyyy'
+                                            }}</span>
+                                    </td>
+                                    <td>
+                                        <button class="action-btn" matTooltip="Voir détails"
+                                            (click)="viewDeliveryDetails(delivery)">
+                                            <mat-icon>visibility</mat-icon>
+                                        </button>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    }
                 </div>
-                <mat-divider></mat-divider>
+            </mat-tab>
 
-                <div class="table-container" *ngIf="completedDeliveries.length > 0">
-                    <table mat-table [dataSource]="completedDeliveries" matSort>
-                        <ng-container matColumnDef="trackingNumber">
-                            <th mat-header-cell *matHeaderCellDef>Numéro de Suivi</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="tracking-cell">
-                                    <mat-icon class="tracking-icon success">qr_code</mat-icon>
-                                    <strong>{{ delivery.trackingNumber }}</strong>
-                                </div>
-                            </td>
-                        </ng-container>
+            <!-- Tab 4: Échecs -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <div class="tab-label">
+                        <mat-icon>error</mat-icon>
+                        <span>Échecs</span>
+                        @if (failedDeliveries.length > 0) {
+                        <span class="tab-badge danger">{{ failedDeliveries.length }}</span>
+                        }
+                    </div>
+                </ng-template>
 
-                        <ng-container matColumnDef="order">
-                            <th mat-header-cell *matHeaderCellDef>Commande</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.orderNumber || delivery.order?.id }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="customer">
-                            <th mat-header-cell *matHeaderCellDef>Client</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.deliveryNotes || '-' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="address">
-                            <th mat-header-cell *matHeaderCellDef>Adresse</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.address }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef>Statut</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <mat-chip color="primary">
-                                    <mat-icon>check_circle</mat-icon>
-                                    Livré
-                                </mat-chip>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="courier">
-                            <th mat-header-cell *matHeaderCellDef>Livreur</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.driverName || '-' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="estimated">
-                            <th mat-header-cell *matHeaderCellDef>Date Livraison</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.actualDelivery | date:'short' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <button mat-icon-button (click)="viewDeliveryDetails(delivery)">
-                                    <mat-icon>visibility</mat-icon>
-                                </button>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="deliveryColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: deliveryColumns;"></tr>
-                    </table>
+                <div class="tab-panel">
+                    @if (failedDeliveries.length === 0) {
+                    <div class="empty-state success-state">
+                        <div class="empty-icon">
+                            <mat-icon>sentiment_satisfied</mat-icon>
+                        </div>
+                        <h3>Aucune livraison échouée</h3>
+                        <p>Excellent ! Toutes vos livraisons se passent bien</p>
+                    </div>
+                    } @else {
+                    <div class="data-table-container">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Suivi</th>
+                                    <th>Commande</th>
+                                    <th>Adresse</th>
+                                    <th>Statut</th>
+                                    <th>Livreur</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (delivery of failedDeliveries; track delivery.id) {
+                                <tr class="failed">
+                                    <td>
+                                        <div class="tracking-cell">
+                                            <div class="tracking-badge danger">
+                                                <mat-icon>error</mat-icon>
+                                            </div>
+                                            <code class="tracking-code">{{ delivery.trackingNumber }}</code>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="order-id">{{ delivery.order?.id ? (delivery.order.id | slice:0:8) +
+                                            '...' : '-' }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="address-cell">
+                                            <mat-icon>location_on</mat-icon>
+                                            <span>{{ delivery.address }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill status-failed">
+                                            <mat-icon>error</mat-icon>
+                                            {{ getStatusLabel(delivery.status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ delivery.driverName || '-' }}</td>
+                                    <td>{{ delivery.notes || '-' }}</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="action-btn" matTooltip="Détails"
+                                                (click)="viewDeliveryDetails(delivery)">
+                                                <mat-icon>visibility</mat-icon>
+                                            </button>
+                                            <button class="action-btn" matTooltip="Réessayer"
+                                                (click)="updateDeliveryStatus(delivery.id, 'PROCESSING')">
+                                                <mat-icon>refresh</mat-icon>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    }
                 </div>
+            </mat-tab>
 
-                <div *ngIf="completedDeliveries.length === 0" class="empty-state">
-                    <mat-icon>check_circle_outline</mat-icon>
-                    <p>Aucune livraison terminée</p>
-                </div>
-            </mat-card>
-        </div>
-    </mat-tab>
+        </mat-tab-group>
+    </section>
 
-    <!-- Tab 4: Échecs (FAILED, CANCELLED) -->
-    <mat-tab>
-        <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">error</mat-icon>
-            Échecs ({{ failedDeliveries.length }})
-        </ng-template>
-        <div class="tab-content">
-            <mat-card>
-                <div class="card-header">
-                    <h2>
-                        <mat-icon color="warn">error</mat-icon>
-                        Livraisons échouées ({{ failedDeliveries.length }})
-                    </h2>
-                </div>
-                <mat-divider></mat-divider>
-
-                <div class="table-container" *ngIf="failedDeliveries.length > 0">
-                    <table mat-table [dataSource]="failedDeliveries" matSort>
-                        <ng-container matColumnDef="trackingNumber">
-                            <th mat-header-cell *matHeaderCellDef>Numéro de Suivi</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <div class="tracking-cell">
-                                    <mat-icon class="tracking-icon error">qr_code</mat-icon>
-                                    <strong>{{ delivery.trackingNumber }}</strong>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="order">
-                            <th mat-header-cell *matHeaderCellDef>Commande</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.orderNumber || delivery.order?.id }}
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="customer">
-                            <th mat-header-cell *matHeaderCellDef>Client</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.deliveryNotes || '-' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="address">
-                            <th mat-header-cell *matHeaderCellDef>Adresse</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.address }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="status">
-                            <th mat-header-cell *matHeaderCellDef>Statut</th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <mat-chip color="warn">
-                                    <mat-icon>error</mat-icon>
-                                    {{ getStatusLabel(delivery.status) }}
-                                </mat-chip>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="courier">
-                            <th mat-header-cell *matHeaderCellDef>Livreur</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.driverName || '-' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="estimated">
-                            <th mat-header-cell *matHeaderCellDef>Notes</th>
-                            <td mat-cell *matCellDef="let delivery">{{ delivery.notes || '-' }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let delivery">
-                                <button mat-icon-button (click)="viewDeliveryDetails(delivery)" matTooltip="Détails">
-                                    <mat-icon>visibility</mat-icon>
-                                </button>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="deliveryColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: deliveryColumns;"></tr>
-                    </table>
-                </div>
-
-                <div *ngIf="failedDeliveries.length === 0" class="empty-state">
-                    <mat-icon>sentiment_satisfied</mat-icon>
-                    <p>Aucune livraison échouée</p>
-                </div>
-            </mat-card>
-        </div>
-    </mat-tab>
-</mat-tab-group>
+</div>

@@ -1,0 +1,71 @@
+@startuml Sprint5_Sequence
+' ============================================================
+' SPRINT 5 - SEQUENCE DIAGRAM: AI Part Recognition Flow
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "IAController\n(Spring Boot)" as IACtrl
+participant "AIService" as AISvc
+participant "FastAPI\n(Python)" as FastAPI
+participant "EfficientNetB0\nModel" as Model
+participant "ProductService" as ProdSvc
+database "PostgreSQL" as DB
+
+== Identification de Piece par Image ==
+
+User -> Frontend : Prendre/uploader photo
+Frontend -> Frontend : Afficher preview image
+User -> Frontend : Cliquer "Identifier"
+
+Frontend -> IACtrl : POST /api/ai/identify\nContent-Type: multipart/form-data\n{image: file}
+
+IACtrl -> AISvc : identifyPart(image)
+AISvc -> AISvc : Convertir en byte[]
+
+AISvc -> FastAPI : POST http://localhost:5000/predict\n{file: image_bytes}
+
+FastAPI -> FastAPI : Recevoir image
+FastAPI -> FastAPI : Decode image (PIL)
+FastAPI -> FastAPI : Resize 224x224
+FastAPI -> FastAPI : Normalize pixels [0,1]
+FastAPI -> FastAPI : Expand dims pour batch
+
+FastAPI -> Model : model.predict(preprocessed_image)
+Model -> Model : Forward pass CNN
+Model -> Model : Softmax sur 50 classes
+Model --> FastAPI : predictions[50]
+
+FastAPI -> FastAPI : Trier par score
+FastAPI -> FastAPI : Top 5 predictions
+FastAPI --> AISvc : PredictionResponse\n{class_name, confidence, top_predictions}
+
+note right of AISvc
+  {
+    "class_name": "Plaquettes de frein",
+    "confidence": 0.94,
+    "top_predictions": [
+      {"class": "Plaquettes", "score": 0.94},
+      {"class": "Disques", "score": 0.03}
+    ]
+  }
+end note
+
+AISvc -> ProdSvc : findByCategory(predictedCategory)
+ProdSvc -> DB : SELECT products WHERE category LIKE ?
+DB --> ProdSvc : List<Product>
+ProdSvc --> AISvc : List<Product>
+
+AISvc -> AISvc : Creer Recommendation entity
+AISvc -> DB : INSERT recommendation
+
+AISvc --> IACtrl : AIIdentificationResult\n{prediction, suggestedProducts}
+
+IACtrl --> Frontend : 200 OK\n{class, confidence, products}
+
+Frontend -> Frontend : Afficher resultat
+Frontend --> User : "Piece identifiee: Plaquettes de frein (94%)\nProduits suggeres: [...]"
+
+@enduml

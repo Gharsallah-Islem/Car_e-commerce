@@ -1,189 +1,277 @@
-<div class="register-container">
-    <!-- Animated Background -->
-    <div class="background-animation">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-orb orb-3"></div>
+<div class="signup-page">
+    <!-- Premium Animated Background -->
+    <div class="premium-bg">
+        <div class="mesh-gradient"></div>
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="particles">
+            <span *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]" class="particle"></span>
+        </div>
+        <div class="noise-overlay"></div>
     </div>
 
-    <!-- Floating Shapes -->
-    <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-    </div>
+    <!-- Glass Container -->
+    <div class="glass-container">
+        <!-- Left Panel - Brand Experience -->
+        <div class="brand-experience">
+            <div class="brand-inner">
+                <!-- Floating Badge -->
+                <div class="floating-badge">
+                    <mat-icon>rocket_launch</mat-icon>
+                    <span>Join 10,000+ car enthusiasts</span>
+                </div>
 
-    <!-- Left Panel - Branding -->
-    <div class="brand-panel fade-in">
-        <div class="brand-content">
-            <div class="brand-icon-wrapper">
-                <mat-icon class="brand-icon">group_add</mat-icon>
-                <div class="icon-glow"></div>
-            </div>
-            <h1 class="brand-title">Join Our Community</h1>
-            <p class="brand-subtitle">Start Your Journey with Premium Auto Parts</p>
+                <!-- Brand Identity -->
+                <div class="brand-identity">
+                    <div class="logo-mark">
+                        <div class="logo-icon-container">
+                            <mat-icon>directions_car</mat-icon>
+                            <div class="logo-glow"></div>
+                            <div class="logo-ring ring-1"></div>
+                            <div class="logo-ring ring-2"></div>
+                        </div>
+                    </div>
+                    <h1 class="brand-name">
+                        Car Parts<span class="accent">Hub</span>
+                    </h1>
+                </div>
 
-            <div class="benefits-list">
-                <div class="benefit-item" *ngFor="let benefit of benefits">
-                    <div class="benefit-number">{{ benefit.number }}</div>
-                    <div class="benefit-content">
-                        <h3>{{ benefit.title }}</h3>
-                        <p>{{ benefit.description }}</p>
+                <!-- Value Proposition -->
+                <div class="value-prop">
+                    <h2 class="headline">
+                        Start Your<br>
+                        <span class="gradient-text">Journey Today</span>
+                    </h2>
+                    <p class="subheadline">
+                        Create your account and unlock access to premium auto parts,
+                        AI-powered identification, and exclusive member offers.
+                    </p>
+                </div>
+
+                <!-- Benefits Steps -->
+                <div class="benefits-steps">
+                    <div class="step" *ngFor="let benefit of benefits; let i = index">
+                        <div class="step-number">{{ i + 1 }}</div>
+                        <div class="step-content">
+                            <strong>{{ benefit.title }}</strong>
+                            <span>{{ benefit.description }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Proof -->
+                <div class="social-proof">
+                    <div class="avatars">
+                        <div class="avatar" style="--i: 1">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="avatar" style="--i: 2">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="avatar" style="--i: 3">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <span class="avatar-count">+10K</span>
+                    </div>
+                    <div class="proof-text">
+                        <div class="stars">
+                            <mat-icon *ngFor="let s of [1,2,3,4,5]">star</mat-icon>
+                        </div>
+                        <span>Trusted by thousands of customers</span>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-item" *ngFor="let stat of stats">
-                    <div class="stat-icon">
-                        <mat-icon>{{ stat.icon }}</mat-icon>
-                    </div>
-                    <div class="stat-value">{{ stat.value }}</div>
-                    <div class="stat-label">{{ stat.label }}</div>
-                </div>
+            <!-- Decorative Elements -->
+            <div class="deco-circles">
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+                <div class="circle circle-3"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Right Panel - Registration Form -->
-    <div class="form-panel slide-in">
-        <mat-card class="register-card">
-            <div class="card-header">
-                <h2 class="welcome-title">Create Account</h2>
-                <p class="welcome-subtitle">Fill in your details to get started</p>
-            </div>
+        <!-- Right Panel - Registration Form -->
+        <div class="form-experience">
+            <div class="form-inner">
+                <!-- Form Header -->
+                <div class="form-header">
+                    <span class="welcome-badge">🚀 Get started for free</span>
+                    <h2 class="form-title">Create your account</h2>
+                    <p class="form-subtitle">Fill in your details to join our community</p>
+                </div>
 
-            <mat-card-content>
                 <!-- Registration Form -->
-                <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="premium-form">
+                    <!-- Name Row -->
                     <div class="name-row">
-                        <div class="input-group half-width">
-                            <mat-form-field appearance="outline" class="modern-input">
-                                <mat-label>First Name</mat-label>
-                                <input matInput type="text" formControlName="firstName" placeholder="John"
+                        <div class="form-field" [class.focused]="firstNameFocused"
+                            [class.has-value]="registerForm.get('firstName')?.value">
+                            <label class="field-label">First Name</label>
+                            <div class="field-input-wrapper">
+                                <input type="text" formControlName="firstName" placeholder="John"
+                                    (focus)="firstNameFocused = true" (blur)="firstNameFocused = false"
                                     autocomplete="given-name">
-                                <mat-icon matPrefix class="input-icon">person</mat-icon>
-                                <mat-error *ngIf="firstNameControl?.invalid">
-                                    {{ getFirstNameError() }}
-                                </mat-error>
-                            </mat-form-field>
+                            </div>
+                            <span class="field-error" *ngIf="firstNameControl?.invalid && firstNameControl?.touched">
+                                {{ getFirstNameError() }}
+                            </span>
                         </div>
 
-                        <div class="input-group half-width">
-                            <mat-form-field appearance="outline" class="modern-input">
-                                <mat-label>Last Name</mat-label>
-                                <input matInput type="text" formControlName="lastName" placeholder="Doe"
+                        <div class="form-field" [class.focused]="lastNameFocused"
+                            [class.has-value]="registerForm.get('lastName')?.value">
+                            <label class="field-label">Last Name</label>
+                            <div class="field-input-wrapper">
+                                <input type="text" formControlName="lastName" placeholder="Doe"
+                                    (focus)="lastNameFocused = true" (blur)="lastNameFocused = false"
                                     autocomplete="family-name">
-                                <mat-icon matPrefix class="input-icon">person_outline</mat-icon>
-                                <mat-error *ngIf="lastNameControl?.invalid">
-                                    {{ getLastNameError() }}
-                                </mat-error>
-                            </mat-form-field>
+                            </div>
+                            <span class="field-error" *ngIf="lastNameControl?.invalid && lastNameControl?.touched">
+                                {{ getLastNameError() }}
+                            </span>
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Email Address</mat-label>
-                            <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
-                                autocomplete="email">
-                            <mat-icon matPrefix class="input-icon">email</mat-icon>
-                            <mat-error *ngIf="emailControl?.invalid">
-                                {{ getEmailError() }}
-                            </mat-error>
-                        </mat-form-field>
+                    <!-- Email Field -->
+                    <div class="form-field" [class.focused]="emailFocused"
+                        [class.has-value]="registerForm.get('email')?.value">
+                        <label class="field-label">
+                            <mat-icon>mail_outline</mat-icon>
+                            <span>Email Address</span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input type="email" formControlName="email" placeholder="name@company.com"
+                                (focus)="emailFocused = true" (blur)="emailFocused = false" autocomplete="email">
+                        </div>
+                        <span class="field-error" *ngIf="emailControl?.invalid && emailControl?.touched">
+                            {{ getEmailError() }}
+                        </span>
                     </div>
 
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Phone Number (Optional)</mat-label>
-                            <input matInput type="tel" formControlName="phoneNumber" placeholder="12345678"
-                                autocomplete="tel">
-                            <mat-icon matPrefix class="input-icon">phone</mat-icon>
-                            <mat-error *ngIf="phoneControl?.invalid">
-                                {{ getPhoneError() }}
-                            </mat-error>
-                        </mat-form-field>
+                    <!-- Phone Field -->
+                    <div class="form-field" [class.focused]="phoneFocused"
+                        [class.has-value]="registerForm.get('phoneNumber')?.value">
+                        <label class="field-label">
+                            <mat-icon>phone_outline</mat-icon>
+                            <span>Phone Number <em>(Optional)</em></span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input type="tel" formControlName="phoneNumber" placeholder="12345678"
+                                (focus)="phoneFocused = true" (blur)="phoneFocused = false" autocomplete="tel">
+                        </div>
+                        <span class="field-error" *ngIf="phoneControl?.invalid && phoneControl?.touched">
+                            {{ getPhoneError() }}
+                        </span>
                     </div>
 
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Password</mat-label>
-                            <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-                                placeholder="At least 6 characters" autocomplete="new-password">
-                            <mat-icon matPrefix class="input-icon">lock</mat-icon>
-                            <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
-                                class="toggle-password">
+                    <!-- Password Field -->
+                    <div class="form-field" [class.focused]="passwordFocused"
+                        [class.has-value]="registerForm.get('password')?.value">
+                        <label class="field-label">
+                            <mat-icon>lock_outline</mat-icon>
+                            <span>Password</span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                                placeholder="At least 6 characters" (focus)="passwordFocused = true"
+                                (blur)="passwordFocused = false" autocomplete="new-password">
+                            <button type="button" class="visibility-toggle" (click)="togglePasswordVisibility()">
                                 <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
                             </button>
-                            <mat-error *ngIf="passwordControl?.invalid">
-                                {{ getPasswordError() }}
-                            </mat-error>
-                        </mat-form-field>
+                        </div>
+                        <span class="field-error" *ngIf="passwordControl?.invalid && passwordControl?.touched">
+                            {{ getPasswordError() }}
+                        </span>
                     </div>
 
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Confirm Password</mat-label>
-                            <input matInput [type]="hideConfirmPassword() ? 'password' : 'text'"
+                    <!-- Confirm Password Field -->
+                    <div class="form-field" [class.focused]="confirmPasswordFocused"
+                        [class.has-value]="registerForm.get('confirmPassword')?.value">
+                        <label class="field-label">
+                            <mat-icon>lock_outline</mat-icon>
+                            <span>Confirm Password</span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input [type]="hideConfirmPassword() ? 'password' : 'text'"
                                 formControlName="confirmPassword" placeholder="Re-enter your password"
+                                (focus)="confirmPasswordFocused = true" (blur)="confirmPasswordFocused = false"
                                 autocomplete="new-password">
-                            <mat-icon matPrefix class="input-icon">lock_outline</mat-icon>
-                            <button mat-icon-button matSuffix type="button" (click)="toggleConfirmPasswordVisibility()"
-                                class="toggle-password">
+                            <button type="button" class="visibility-toggle" (click)="toggleConfirmPasswordVisibility()">
                                 <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
                             </button>
-                            <mat-error
-                                *ngIf="confirmPasswordControl?.invalid || registerForm.hasError('passwordMismatch')">
-                                {{ getConfirmPasswordError() }}
-                            </mat-error>
-                        </mat-form-field>
+                        </div>
+                        <span class="field-error"
+                            *ngIf="confirmPasswordControl?.invalid || registerForm.hasError('passwordMismatch')">
+                            {{ getConfirmPasswordError() }}
+                        </span>
                     </div>
 
-                    <div class="terms-checkbox">
-                        <mat-checkbox formControlName="termsAccepted" color="primary">
-                            I agree to the
-                            <a href="/terms" target="_blank" class="terms-link">Terms & Conditions</a>
-                            and
-                            <a href="/privacy" target="_blank" class="terms-link">Privacy Policy</a>
-                        </mat-checkbox>
-                        <mat-error *ngIf="termsControl?.invalid && termsControl?.touched" class="terms-error">
+                    <!-- Terms Checkbox -->
+                    <div class="terms-section">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" formControlName="termsAccepted">
+                            <span class="checkbox-box">
+                                <mat-icon>check</mat-icon>
+                            </span>
+                            <span class="checkbox-text">
+                                I agree to the
+                                <a href="/terms" target="_blank">Terms</a> and
+                                <a href="/privacy" target="_blank">Privacy Policy</a>
+                            </span>
+                        </label>
+                        <span class="field-error" *ngIf="termsControl?.invalid && termsControl?.touched">
                             You must accept the terms and conditions
-                        </mat-error>
+                        </span>
                     </div>
 
-                    <button mat-raised-button type="submit" class="full-width submit-btn gradient-btn"
-                        [disabled]="isLoading()">
-                        <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
-                        <span *ngIf="!isLoading()">
-                            <mat-icon class="btn-icon">person_add</mat-icon>
-                            Create Account
+                    <!-- Submit Button -->
+                    <button type="submit" class="premium-submit" [disabled]="isLoading()" [class.loading]="isLoading()">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <ng-container *ngIf="!isLoading()">
+                                <span class="btn-text">Create Account</span>
+                                <mat-icon class="btn-arrow">east</mat-icon>
+                            </ng-container>
+                            <mat-spinner *ngIf="isLoading()" diameter="22"></mat-spinner>
                         </span>
                     </button>
                 </form>
 
                 <!-- Divider -->
-                <div class="divider-container">
+                <div class="elegant-divider">
                     <div class="divider-line"></div>
-                    <span class="divider-text">OR SIGN UP WITH</span>
+                    <span class="divider-text">or</span>
                     <div class="divider-line"></div>
                 </div>
 
-                <!-- Social Registration -->
-                <div class="social-buttons">
-                    <button mat-stroked-button class="social-btn google-btn" (click)="loginWithGoogle()" type="button">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                            class="social-icon">
-                        <span>Google</span>
-                    </button>
-                </div>
+                <!-- Social Signup -->
+                <button type="button" class="social-btn google" (click)="loginWithGoogle()">
+                    <svg viewBox="0 0 24 24" class="google-icon">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    <span>Sign up with Google</span>
+                </button>
 
                 <!-- Login Link -->
-                <div class="footer-link">
+                <div class="login-prompt">
                     <span>Already have an account?</span>
-                    <a routerLink="/auth/login" class="link">Sign In</a>
+                    <a routerLink="/auth/login" class="login-link">
+                        Sign in
+                        <mat-icon>arrow_forward</mat-icon>
+                    </a>
                 </div>
-            </mat-card-content>
-        </mat-card>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Branding -->
+    <div class="bottom-brand">
+        <span>© 2026 Car Parts Hub. All rights reserved.</span>
     </div>
 </div>

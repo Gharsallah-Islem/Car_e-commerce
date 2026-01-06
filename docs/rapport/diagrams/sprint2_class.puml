@@ -1,0 +1,118 @@
+@startuml Sprint2_Class
+' ============================================================
+' SPRINT 2 - CLASS DIAGRAM: Product, Category, Brand Entities
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "Entity" {
+    class Product {
+        - id: UUID
+        - name: String
+        - description: String
+        - price: Double
+        - stock: Integer
+        - model: String
+        - year: Integer
+        - compatibility: String
+        - imageUrl: String
+        - isActive: Boolean
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+    }
+
+    class Category {
+        - id: UUID
+        - name: String
+        - description: String
+    }
+
+    class Brand {
+        - id: UUID
+        - name: String
+        - country: String
+        - description: String
+        - logoUrl: String
+    }
+
+    class ProductImage {
+        - id: UUID
+        - imageUrl: String
+        - isPrimary: Boolean
+        - sortOrder: Integer
+    }
+
+    class Vehicle {
+        - id: UUID
+        - brand: String
+        - model: String
+        - year: Integer
+        - engineType: String
+    }
+}
+
+package "Controller" {
+    class ProductController {
+        + getAllProducts(page, size, filters): Page<Product>
+        + getProductById(id: UUID): Product
+        + createProduct(dto: ProductDTO): Product
+        + updateProduct(id: UUID, dto: ProductDTO): Product
+        + deleteProduct(id: UUID): void
+        + searchProducts(query: String): List<Product>
+    }
+
+    class CategoryController {
+        + getAllCategories(): List<Category>
+        + createCategory(dto: CategoryDTO): Category
+        + updateCategory(id: UUID, dto: CategoryDTO): Category
+        + deleteCategory(id: UUID): void
+    }
+
+    class BrandController {
+        + getAllBrands(): List<Brand>
+        + createBrand(dto: BrandDTO): Brand
+        + updateBrand(id: UUID, dto: BrandDTO): Brand
+        + deleteBrand(id: UUID): void
+    }
+}
+
+package "Service" {
+    class ProductService {
+        + findAll(pageable: Pageable): Page<Product>
+        + findById(id: UUID): Product
+        + findByFilters(spec: Specification): Page<Product>
+        + save(product: Product): Product
+        + delete(id: UUID): void
+        + search(query: String): List<Product>
+    }
+}
+
+package "Repository" {
+    interface ProductRepository {
+        + findByCategory(category: Category): List<Product>
+        + findByBrand(brand: Brand): List<Product>
+        + findByPriceBetween(min: Double, max: Double): List<Product>
+        + searchByName(name: String): List<Product>
+    }
+
+    interface CategoryRepository {
+        + findByName(name: String): Optional<Category>
+    }
+
+    interface BrandRepository {
+        + findByName(name: String): Optional<Brand>
+    }
+}
+
+Product "n" -- "1" Category : belongs to >
+Product "n" -- "1" Brand : manufactured by >
+Product "1" -- "n" ProductImage : has >
+Product "n" -- "n" Vehicle : compatible with >
+
+ProductController --> ProductService
+ProductService --> ProductRepository
+CategoryController --> CategoryRepository
+BrandController --> BrandRepository
+
+@enduml

@@ -1,134 +1,229 @@
-<div class="login-container">
-    <!-- Animated Background -->
-    <div class="background-animation">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-orb orb-3"></div>
+<div class="login-page">
+    <!-- Premium Animated Background -->
+    <div class="premium-bg">
+        <div class="mesh-gradient"></div>
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="particles">
+            <span *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]" class="particle"></span>
+        </div>
+        <div class="noise-overlay"></div>
     </div>
 
-    <!-- Floating Shapes -->
-    <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-    </div>
+    <!-- Glass Container -->
+    <div class="glass-container">
+        <!-- Left Panel - Brand Experience -->
+        <div class="brand-experience">
+            <div class="brand-inner">
+                <!-- Floating Badge -->
+                <div class="floating-badge">
+                    <mat-icon>auto_awesome</mat-icon>
+                    <span>AI-Powered Platform</span>
+                </div>
 
-    <!-- Left Panel - Branding -->
-    <div class="brand-panel fade-in">
-        <div class="brand-content">
-            <div class="brand-icon-wrapper">
-                <mat-icon class="brand-icon">directions_car</mat-icon>
-                <div class="icon-glow"></div>
-            </div>
-            <h1 class="brand-title">Car Parts Hub</h1>
-            <p class="brand-subtitle">Your Premium Auto Parts Marketplace</p>
-
-            <div class="features-list">
-                <div class="feature-item" *ngFor="let feature of features">
-                    <div class="feature-icon">
-                        <mat-icon>{{ feature.icon }}</mat-icon>
+                <!-- Brand Identity -->
+                <div class="brand-identity">
+                    <div class="logo-mark">
+                        <div class="logo-icon-container">
+                            <mat-icon>directions_car</mat-icon>
+                            <div class="logo-glow"></div>
+                            <div class="logo-ring ring-1"></div>
+                            <div class="logo-ring ring-2"></div>
+                        </div>
                     </div>
-                    <div class="feature-text">
-                        <h3>{{ feature.title }}</h3>
-                        <p>{{ feature.description }}</p>
+                    <h1 class="brand-name">
+                        Car Parts<span class="accent">Hub</span>
+                    </h1>
+                </div>
+
+                <!-- Value Proposition -->
+                <div class="value-prop">
+                    <h2 class="headline">
+                        Premium Auto Parts<br>
+                        <span class="gradient-text">Delivered Fast</span>
+                    </h2>
+                    <p class="subheadline">
+                        Join thousands of car enthusiasts who trust our
+                        AI-powered platform for quality auto parts.
+                    </p>
+                </div>
+
+                <!-- Feature Pills -->
+                <div class="feature-pills">
+                    <div class="pill">
+                        <div class="pill-icon">
+                            <mat-icon>psychology</mat-icon>
+                        </div>
+                        <div class="pill-content">
+                            <strong>AI Recognition</strong>
+                            <span>Identify parts instantly</span>
+                        </div>
+                    </div>
+                    <div class="pill">
+                        <div class="pill-icon">
+                            <mat-icon>verified</mat-icon>
+                        </div>
+                        <div class="pill-content">
+                            <strong>100% Authentic</strong>
+                            <span>Genuine parts only</span>
+                        </div>
+                    </div>
+                    <div class="pill">
+                        <div class="pill-icon">
+                            <mat-icon>rocket_launch</mat-icon>
+                        </div>
+                        <div class="pill-content">
+                            <strong>Express Delivery</strong>
+                            <span>24-48h shipping</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Proof -->
+                <div class="social-proof">
+                    <div class="avatars">
+                        <div class="avatar" style="--i: 1">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="avatar" style="--i: 2">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="avatar" style="--i: 3">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="avatar" style="--i: 4">
+                            <mat-icon>person</mat-icon>
+                        </div>
+                        <span class="avatar-count">+10K</span>
+                    </div>
+                    <div class="proof-text">
+                        <div class="stars">
+                            <mat-icon *ngFor="let s of [1,2,3,4,5]">star</mat-icon>
+                        </div>
+                        <span>Trusted by 10,000+ customers</span>
                     </div>
                 </div>
             </div>
 
-            <div class="trust-badges">
-                <div class="badge">
-                    <mat-icon>verified</mat-icon>
-                    <span>Verified Parts</span>
-                </div>
-                <div class="badge">
-                    <mat-icon>local_shipping</mat-icon>
-                    <span>Fast Delivery</span>
-                </div>
-                <div class="badge">
-                    <mat-icon>support_agent</mat-icon>
-                    <span>24/7 Support</span>
-                </div>
+            <!-- Decorative Elements -->
+            <div class="deco-circles">
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+                <div class="circle circle-3"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Right Panel - Login Form -->
-    <div class="form-panel slide-in">
-        <mat-card class="login-card">
-            <div class="card-header">
-                <h2 class="welcome-title">Welcome Back</h2>
-                <p class="welcome-subtitle">Sign in to continue your journey</p>
-            </div>
+        <!-- Right Panel - Login Form -->
+        <div class="form-experience">
+            <div class="form-inner">
+                <!-- Form Header -->
+                <div class="form-header">
+                    <span class="welcome-badge">👋 Welcome back</span>
+                    <h2 class="form-title">Sign in to your account</h2>
+                    <p class="form-subtitle">Enter your credentials to access your dashboard</p>
+                </div>
 
-            <mat-card-content>
-                <!-- Email/Password Login Form -->
-                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Email Address</mat-label>
-                            <input matInput type="email" formControlName="email" placeholder="your.email@example.com"
-                                autocomplete="email">
-                            <mat-icon matPrefix class="input-icon">email</mat-icon>
-                            <mat-error *ngIf="emailControl?.invalid">
-                                {{ getEmailErrorMessage() }}
-                            </mat-error>
-                        </mat-form-field>
+                <!-- Login Form -->
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="premium-form">
+                    <!-- Email Field -->
+                    <div class="form-field" [class.focused]="emailFocused"
+                        [class.has-value]="loginForm.get('email')?.value">
+                        <label class="field-label">
+                            <mat-icon>mail_outline</mat-icon>
+                            <span>Email Address</span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input type="email" formControlName="email" placeholder="name@company.com"
+                                (focus)="emailFocused = true" (blur)="emailFocused = false" autocomplete="email">
+                            <div class="field-border"></div>
+                        </div>
+                        <span class="field-error" *ngIf="emailControl?.invalid && emailControl?.touched">
+                            {{ getEmailErrorMessage() }}
+                        </span>
                     </div>
 
-                    <div class="input-group">
-                        <mat-form-field appearance="outline" class="full-width modern-input">
-                            <mat-label>Password</mat-label>
-                            <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-                                placeholder="Enter your password" autocomplete="current-password">
-                            <mat-icon matPrefix class="input-icon">lock</mat-icon>
-                            <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()"
-                                [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()"
-                                class="toggle-password">
+                    <!-- Password Field -->
+                    <div class="form-field" [class.focused]="passwordFocused"
+                        [class.has-value]="loginForm.get('password')?.value">
+                        <label class="field-label">
+                            <mat-icon>lock_outline</mat-icon>
+                            <span>Password</span>
+                        </label>
+                        <div class="field-input-wrapper">
+                            <input [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                                placeholder="••••••••" (focus)="passwordFocused = true" (blur)="passwordFocused = false"
+                                autocomplete="current-password">
+                            <button type="button" class="visibility-toggle" (click)="togglePasswordVisibility()">
                                 <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
                             </button>
-                            <mat-error *ngIf="passwordControl?.invalid">
-                                {{ getPasswordErrorMessage() }}
-                            </mat-error>
-                        </mat-form-field>
+                            <div class="field-border"></div>
+                        </div>
+                        <span class="field-error" *ngIf="passwordControl?.invalid && passwordControl?.touched">
+                            {{ getPasswordErrorMessage() }}
+                        </span>
                     </div>
 
-                    <div class="form-actions">
-                        <mat-checkbox class="remember-me" color="primary">Remember me</mat-checkbox>
+                    <!-- Options Row -->
+                    <div class="options-row">
+                        <label class="custom-checkbox">
+                            <input type="checkbox">
+                            <span class="checkbox-box">
+                                <mat-icon>check</mat-icon>
+                            </span>
+                            <span class="checkbox-text">Keep me signed in</span>
+                        </label>
                         <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
                     </div>
 
-                    <button mat-raised-button type="submit" class="full-width submit-btn gradient-btn"
-                        [disabled]="isLoading()">
-                        <mat-spinner *ngIf="isLoading()" diameter="20" class="spinner"></mat-spinner>
-                        <span *ngIf="!isLoading()">
-                            <mat-icon class="btn-icon">login</mat-icon>
-                            Sign In
+                    <!-- Submit Button -->
+                    <button type="submit" class="premium-submit" [disabled]="isLoading()" [class.loading]="isLoading()">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <ng-container *ngIf="!isLoading()">
+                                <span class="btn-text">Sign In</span>
+                                <mat-icon class="btn-arrow">east</mat-icon>
+                            </ng-container>
+                            <mat-spinner *ngIf="isLoading()" diameter="22"></mat-spinner>
                         </span>
                     </button>
                 </form>
 
                 <!-- Divider -->
-                <div class="divider-container">
+                <div class="elegant-divider">
                     <div class="divider-line"></div>
-                    <span class="divider-text">OR CONTINUE WITH</span>
+                    <span class="divider-text">or</span>
                     <div class="divider-line"></div>
                 </div>
 
                 <!-- Social Login -->
-                <div class="social-buttons">
-                    <button mat-stroked-button class="social-btn google-btn" (click)="loginWithGoogle()" type="button">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                            class="social-icon">
-                        <span>Google</span>
-                    </button>
-                </div>
+                <button type="button" class="social-btn google" (click)="loginWithGoogle()">
+                    <svg viewBox="0 0 24 24" class="google-icon">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
 
                 <!-- Register Link -->
-                <div class="footer-link">
-                    <span>Don't have an account?</span>
-                    <a routerLink="/auth/register" class="link">Create Account</a>
+                <div class="register-prompt">
+                    <span>New to Car Parts Hub?</span>
+                    <a routerLink="/auth/register" class="register-link">
+                        Create an account
+                        <mat-icon>arrow_forward</mat-icon>
+                    </a>
                 </div>
-            </mat-card-content>
-        </mat-card>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Branding -->
+    <div class="bottom-brand">
+        <span>© 2026 Car Parts Hub. All rights reserved.</span>
     </div>
 </div>

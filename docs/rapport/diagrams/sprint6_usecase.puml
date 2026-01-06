@@ -1,0 +1,76 @@
+@startuml Sprint6_UseCase
+' ============================================================
+' SPRINT 6 - USE CASE DIAGRAM: Chat Support, Delivery Tracking
+' ============================================================
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Utilisateur" as User
+actor "Support" as Support
+actor "Administrateur" as Admin
+actor "Livreur" as Driver
+actor "OpenRouteService" as ORS
+
+rectangle "Chat et Livraison" {
+    package "Chat Support" {
+        usecase "Ouvrir conversation" as UC1
+        usecase "Envoyer message" as UC2
+        usecase "Recevoir message temps reel" as UC3
+        usecase "Voir historique" as UC4
+        usecase "Repondre client" as UC5
+        usecase "Clore conversation" as UC6
+    }
+    
+    package "Suivi Livraison" {
+        usecase "Suivre livraison sur carte" as UC10
+        usecase "Voir position livreur" as UC11
+        usecase "Recevoir mise a jour" as UC12
+        usecase "Assigner livreur" as UC13
+        usecase "Mettre a jour statut" as UC14
+        usecase "Simuler mouvement" as UC15
+        usecase "Calculer itineraire" as UC16
+    }
+    
+    package "Reclamations" {
+        usecase "Soumettre reclamation" as UC20
+        usecase "Joindre pieces" as UC21
+        usecase "Traiter reclamation" as UC22
+        usecase "Repondre reclamation" as UC23
+    }
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC10
+User --> UC11
+User --> UC12
+User --> UC20
+
+Support --> UC5
+Support --> UC6
+Support --> UC22
+Support --> UC23
+
+Admin --> UC13
+Admin --> UC22
+
+Driver --> UC14
+
+UC1 ..> UC3 : <<include>>
+UC2 ..> UC3 : <<include>>
+UC5 ..> UC3 : <<include>>
+
+UC10 ..> UC11 : <<include>>
+UC11 ..> UC12 : <<include>>
+UC13 ..> UC15 : <<include>>
+UC15 ..> UC16 : <<include>>
+
+UC20 ..> UC21 : <<extend>>
+
+UC16 --> ORS : API Directions
+
+@enduml

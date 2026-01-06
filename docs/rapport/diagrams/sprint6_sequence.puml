@@ -1,0 +1,71 @@
+@startuml Sprint6_Sequence
+' ============================================================
+' SPRINT 6 - SEQUENCE DIAGRAM: Real-time Delivery Tracking
+' ============================================================
+
+skinparam sequenceArrowThickness 2
+
+actor "Utilisateur" as User
+participant "Angular\nFrontend" as Frontend
+participant "DeliveryController" as DelCtrl
+participant "DeliveryService" as DelSvc
+participant "SimulationService" as SimSvc
+participant "WebSocket\nSTOMP" as WS
+participant "OpenRouteService" as ORS
+database "PostgreSQL" as DB
+
+== Ouverture du Suivi ==
+
+User -> Frontend : Ouvrir page suivi commande
+Frontend -> DelCtrl : GET /api/deliveries/order/{orderId}
+DelCtrl -> DelSvc : findByOrderId(orderId)
+DelSvc -> DB : SELECT delivery
+DB --> DelSvc : Delivery
+DelSvc --> DelCtrl : Delivery
+DelCtrl --> Frontend : Delivery {status, driver, position}
+
+Frontend -> WS : CONNECT /ws
+WS --> Frontend : Connected
+Frontend -> WS : SUBSCRIBE /topic/delivery/{deliveryId}
+WS --> Frontend : Subscribed
+
+== Demarrage Simulation (cote Admin) ==
+
+note over SimSvc : Quand livreur assigne
+SimSvc -> SimSvc : startSimulation(delivery)
+
+SimSvc -> SimSvc : getDepotCoordinates()
+SimSvc -> SimSvc : geocodeAddress(delivery.address)
+note right of SimSvc
+  Utilise base locale de
+  coordonnees tunisiennes
+  ou fallback ORS
+end note
+
+SimSvc -> ORS : GET /v2/directions/driving-car\n?start=depot&end=destination
+ORS --> SimSvc : GeoJSON route {geometry, distance, duration}
+
+SimSvc -> SimSvc : extractRoutePoints(geometry)
+SimSvc -> SimSvc : calculateSteps(points, interval=3s)
+
+loop Pour chaque point du trajet
+    SimSvc -> SimSvc : getNextPosition()
+    SimSvc -> DB : UPDATE delivery SET\ncurrent_lat=?, current_lng=?
+    
+    SimSvc -> WS : SEND /topic/delivery/{id}\n{lat, lng, progress, eta}
+    WS -> Frontend : MESSAGE position update
+    
+    Frontend -> Frontend : Update Leaflet marker
+    Frontend --> User : Marqueur livreur mis a jour
+    
+    SimSvc -> SimSvc : Thread.sleep(3000)
+end
+
+SimSvc -> DelSvc : markAsDelivered(deliveryId)
+DelSvc -> DB : UPDATE delivery SET status=DELIVERED
+
+SimSvc -> WS : SEND /topic/delivery/{id}\n{status: DELIVERED}
+WS -> Frontend : MESSAGE delivery complete
+Frontend --> User : Notification: "Livraison effectuee!"
+
+@enduml
