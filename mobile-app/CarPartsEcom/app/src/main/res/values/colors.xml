@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Blue Theme -->
+    <color name="primary">#1976D2</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#42A5F5</color>
+    <color name="primary_variant">#0D47A1</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary">#F72585</color>
+    <color name="secondary_dark">#E55A2B</color>
+    <color name="secondary_light">#FF5DA2</color>
+
+    <!-- Accent Color -->
+    <color name="accent">#4361EE</color>
+    <color name="accent_dark">#3A56D4</color>
+    <color name="accent_light">#7B93FF</color>
+
+    <!-- Tertiary -->
+    <color name="tertiary">#4CC9F0</color>
+    <color name="tertiary_dark">#3BA8CC</color>
+
+    <!-- Background Colors -->
+    <color name="background">#F8F9FA</color>
+    <color name="background_dark">#E8E8ED</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F8F9FC</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_elevated">#FAFBFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_tertiary">#9CA3AF</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <!-- Status Colors -->
+    <color name="success">#4CAF50</color>
+    <color name="success_light">#D1FAE5</color>
+    <color name="success_dark">#059669</color>
+    <color name="error">#F44336</color>
+    <color name="error_light">#FFEBEE</color>
+    <color name="error_dark">#DC2626</color>
+    <color name="warning">#FF9800</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="info">#3B82F6</color>
+    <color name="info_light">#DBEAFE</color>
+
+    <!-- Order Status Colors -->
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_completed">#10B981</color>
+    <color name="status_cancelled">#EF4444</color>
+    <color name="status_processing">#3B82F6</color>
+
+    <!-- Stock Colors -->
+    <color name="stock_available">#10B981</color>
+    <color name="stock_low">#F59E0B</color>
+    <color name="stock_out">#EF4444</color>
+
+    <!-- Chat Colors -->
+    <color name="chat_assistant_text">#1A1A2E</color>
+
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#4361EE</color>
+    <color name="gradient_end">#7C3AED</color>
+    <color name="gradient_accent_start">#F72585</color>
+    <color name="gradient_accent_end">#7209B7</color>
+
+    <!-- UI Elements -->
+    <color name="divider">#E5E7EB</color>
+    <color name="divider_light">#F3F4F6</color>
+    <color name="ripple">#1A4361EE</color>
+    <color name="shimmer">#E5E7EB</color>
+    <color name="overlay">#801A1A2E</color>
+
+    <!-- Input Fields -->
+    <color name="input_background">#F9FAFB</color>
+    <color name="input_stroke">#D1D5DB</color>
+    <color name="input_stroke_focused">#4361EE</color>
+
+    <!-- Bottom Navigation -->
+    <color name="nav_background">#FFFFFF</color>
+    <color name="nav_indicator">#EEF2FF</color>
+    <color name="nav_selected">#4361EE</color>
+    <color name="nav_unselected">#9CA3AF</color>
+
+    <!-- Rating -->
+    <color name="rating_star">#FBBF24</color>
+
+    <!-- Defaults -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
+
