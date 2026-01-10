@@ -1,124 +1,279 @@
-# 🚗 AutoParts Store - Advanced Car E-Commerce Platform
+# 🚗 AutoParts Store
 
-A production-grade e-commerce platform for auto parts featuring AI-powered tools, comprehensive delivery management, and advanced inventory control.
+> **A production-grade e-commerce platform for automotive spare parts**
 
-## 🌟 Key Features
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen?logo=spring)](https://spring.io/projects/spring-boot)
+[![Angular](https://img.shields.io/badge/Angular-18-red?logo=angular)](https://angular.io/)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?logo=postgresql)](https://www.postgresql.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange?logo=tensorflow)](https://www.tensorflow.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### 🛒 E-Commerce Core
-- **Product Catalog**: Advanced search and filtering for car parts.
-- **Shopping Cart & Checkout**: Secure tracking with Stripe payment integration.
-- **User Accounts**: OAuth2 (Google) authentication and profile management.
+---
 
-### 🧠 AI Module (Python/FastAPI)
-- **Image Recognition**: Instantly identify car parts using a trained **EfficientNet** model. Upload a photo to find the exact part.
-- **Recommendation System**: AI-driven product suggestions based on user behavior and product similarity.
-- **Chatbot Assistant**: Intelligent assistant for customer queries.
+## ✨ Overview
 
-### 🚚 Delivery Management System
-- **Driver Management**: Track and manage delivery drivers.
-- **Delivery Tracking**: Real-time status updates for orders (Pending, In Transit, Delivered).
-- **Route Optimization**: Efficient delivery planning.
+AutoParts Store is a comprehensive e-commerce solution designed for automotive spare parts retailers. It features AI-powered tools for part recognition, real-time delivery tracking, intelligent product recommendations, and a complete inventory management system.
 
-### 📦 Advanced Inventory Management
-- **Dashboard**: Real-time stock alerts (Low Stock, Out of Stock).
-- **Supplier Management**: Manage supplier relationships and contacts.
-- **Purchase Orders**: automated reordering and PDF order generation.
-- **Stock Movements**: Track every item entering or leaving the warehouse.
+### Key Highlights
 
-## 🛠️ Tech Stack
+- 🔍 **AI Visual Search** - Identify car parts from photos using deep learning
+- 🚚 **Real-Time Tracking** - Live delivery monitoring with GPS and maps
+- 🤖 **AI Chat Support** - Intelligent assistant for customer queries
+- 📊 **Advanced Analytics** - Real-time dashboards and insights
+- 📱 **Mobile Ready** - Native Android app for customers
+
+---
+
+## 🎯 Features by Role
+
+### 👤 **Customer**
+| Feature | Description |
+|---------|-------------|
+| Product Catalog | Browse, search, and filter car parts |
+| AI Mechanic | Upload photo to identify parts instantly |
+| Shopping Cart | Add items, adjust quantities, checkout |
+| Payment | Credit card (Stripe) or cash on delivery |
+| Order Tracking | Real-time GPS tracking on map |
+| AI Chat | Get product recommendations and support |
+| Profile | Manage account, view order history |
+
+### 🛡️ **Admin**
+| Feature | Description |
+|---------|-------------|
+| Dashboard | Real-time charts, analytics, alerts |
+| Product Management | CRUD operations, image upload |
+| Order Management | Process orders, assign deliveries |
+| Inventory | Stock levels, movements, auto-reorder |
+| Suppliers | Manage vendors and purchase orders |
+| Delivery | Assign drivers, monitor routes |
+| User Management | View and manage all users |
+
+### 👑 **Super Admin**
+All Admin features, plus:
+- Role management (assign/revoke admin privileges)
+- System configuration
+
+### 🎧 **Support**
+| Feature | Description |
+|---------|-------------|
+| Ticket System | Handle customer reclamations |
+| Chat Review | Monitor AI conversations |
+| Intervention | Take over from AI when needed |
+| Performance | Track response times and metrics |
+
+### 🚗 **Driver**
+| Feature | Description |
+|---------|-------------|
+| Assignments | View assigned deliveries |
+| Navigation | Route guidance to destination |
+| Status Updates | Mark delivery progress |
+| Location Sharing | Real-time GPS broadcast |
+
+---
+
+## 🛠️ Technology Stack
 
 ### Backend
-- **Framework**: Spring Boot 3.5.6 (Java 21)
-- **Database**: PostgreSQL
-- **Security**: Spring Security, JWT, OAuth2
-- **Build Tool**: Maven
+| Technology | Purpose |
+|------------|---------|
+| Java 21 | Runtime |
+| Spring Boot 3.5.6 | REST API framework |
+| Spring Security + JWT | Authentication |
+| Spring Data JPA | ORM |
+| PostgreSQL 15 | Database |
+| WebSocket (STOMP) | Real-time |
+| Stripe API | Payments |
+| OAuth2 (Google) | Social login |
 
 ### Frontend
-- **Framework**: Angular 18 (TypeScript)
-- **Styling**: SCSS, Angular Material
-- **State Management**: Angular Signals
-- **Charts**: ECharts
+| Technology | Purpose |
+|------------|---------|
+| Angular 18 | SPA framework |
+| TypeScript | Language |
+| Angular Material | UI components |
+| SCSS | Styling |
+| ECharts | Data visualization |
+| Leaflet | Maps |
+| SockJS/STOMP | WebSocket client |
 
-### AI & Data Science
-- **Framework**: FastAPI (Python 3.10+)
-- **ML Libraries**: TensorFlow/Keras, Scikit-learn, NumPy, Pandas
-- **Models**: EfficientNetB0/B2 (Car Part Classification)
-- **Server**: Uvicorn
+### AI Module
+| Technology | Purpose |
+|------------|---------|
+| Python 3.10+ | Runtime |
+| FastAPI | API framework |
+| TensorFlow/Keras | ML framework |
+| EfficientNetB0 | CNN model (~97% accuracy) |
 
 ### Mobile
-- **Platform**: Android (Native/Java)
+| Technology | Purpose |
+|------------|---------|
+| Kotlin | Language |
+| Android SDK 34 | Platform |
+| Retrofit | HTTP client |
+| Room | Local database |
 
-## 🚀 Getting Started
+### Infrastructure
+| Technology | Purpose |
+|------------|---------|
+| Docker Compose | Container orchestration |
+| Redis | Caching |
+| Nginx | Reverse proxy (production) |
 
-Follow these steps to run the complete system locally.
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 - Java 21 JDK
-- Node.js 18+ & npm
+- Node.js 18+
 - Python 3.10+
 - PostgreSQL 15+
-- Maven
+- Maven 3.9+
 
-### 1. Database Setup
-Ensure PostgreSQL is running and create a database (e.g., `autoparts_db`). Update `application.properties` in the Backend if needed.
+### 1. Database
+```bash
+psql -U postgres
+CREATE DATABASE ecommercespareparts;
+\q
+```
 
-### 2. Backend (Spring Boot)
+### 2. Backend
 ```bash
 cd Backend
-mvn clean install
 mvn spring-boot:run
 ```
-*Server runs on: `http://localhost:8080`*
+> Server: http://localhost:8080
 
-### 3. AI Module (Python)
+### 3. AI Module
 ```bash
 cd ai-module
-# Create virtual environment (optional but recommended)
 python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# Install dependencies
+.\venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-
-# Run the API server
 python -m uvicorn src.api.main:app --port 5000 --reload
 ```
-*API runs on: `http://localhost:5000`*
+> API: http://localhost:5000
 
-### 4. Frontend (Angular)
+### 4. Frontend
 ```bash
 cd frontend-web
 npm install
 ng serve
 ```
-*Application runs on: `http://localhost:4200`*
+> App: http://localhost:4200
+
+### Docker (Alternative)
+```bash
+docker-compose up -d
+```
+
+---
 
 ## 📂 Project Structure
 
 ```
 Car_e-commerce/
-├── Backend/                # Spring Boot REST API
-├── frontend-web/           # Angular Admin & Storefront
-├── ai-module/              # Python AI Services
-│   ├── src/                # FastAPI Source Code
-│   ├── models/             # Trained .h5 Models
-│   └── dataset/            # Training Data & Notebooks
-├── mobile-app/             # Android Application
-└── docs/                   # Documentation
+├── Backend/                 # Spring Boot REST API
+│   ├── src/main/java/      # Java source code
+│   └── src/main/resources/ # Configuration
+├── frontend-web/           # Angular 18 application
+│   ├── src/app/features/   # Feature modules
+│   └── src/app/core/       # Shared services
+├── ai-module/              # Python AI services
+│   ├── src/api/            # FastAPI routes
+│   ├── src/services/       # ML services
+│   └── models/             # Trained models
+├── mobile-app/             # Android Kotlin app
+│   └── CarPartsEcom/       # Android project
+├── docs/                   # Documentation
+└── docker-compose.yml      # Container setup
 ```
 
-## 🧠 AI Models
+---
 
-The project includes pre-trained models for car part recognition.
-- **Location**: `ai-module/models/` and `ai-module/dataset/car parts/`
-- **Architecture**: EfficientNetB0 / EfficientNetB2
-- **Performance**: ~97% Accuracy on test set
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/ARCHITECTURE.md) | System design and data flows |
+| [Backend](docs/BACKEND.md) | API structure, entities, services |
+| [API Reference](docs/API_REFERENCE.md) | Complete endpoint documentation |
+| [Database](docs/DATABASE.md) | Schema, relationships, lifecycle |
+| [Frontend](docs/FRONTEND.md) | Angular modules and services |
+| [AI Module](docs/AI_MODULE.md) | Visual search and recommendations |
+| [Mobile](docs/MOBILE.md) | Android app architecture |
+| [Deployment](docs/DEPLOYMENT.md) | Setup and production guide |
+| [User Guide](docs/USER_GUIDE.md) | Feature documentation by role |
+
+---
+
+## 🧠 AI Capabilities
+
+### Visual Search
+Upload a photo of a car part and our AI will:
+1. ✅ Identify the part type (50 categories, ~97% accuracy)
+2. ✅ Show confidence scores
+3. ✅ Match with products in our store
+4. ✅ Allow direct add-to-cart
+
+**Supported Parts:** Brake pads, filters, spark plugs, alternators, radiators, and 45+ more categories.
+
+### Recommendation Engine
+Hybrid recommendation system combining:
+- **Personalized** - Based on browsing/purchase history
+- **Similar Products** - Content-based filtering
+- **Also Bought** - Collaborative filtering
+- **Trending** - Popular products
+
+---
+
+## 🔐 Security
+
+- **JWT Authentication** with configurable expiration
+- **OAuth2** Google social login
+- **Role-Based Access Control** (CLIENT, ADMIN, SUPER_ADMIN, SUPPORT, DRIVER)
+- **BCrypt** password hashing
+- **CORS** configuration for cross-origin requests
+- **HTTPS** ready for production
+
+---
+
+## 📊 Real-Time Features
+
+- **Delivery Tracking** - Live driver location on Leaflet maps
+- **Admin Dashboard** - Real-time order notifications
+- **WebSocket** - STOMP over SockJS for bi-directional communication
+- **Driver Updates** - GPS location broadcasting
+
+---
+
+## 🤝 Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+- Code style and standards
+- Branch naming conventions
+- Pull request process
+- Issue reporting
+
+---
 
 ## 👥 Contributors
-- **Islem Gharsallah** - *Full Stack Developer*
+
+- **Islem Gharsallah** - *Full Stack Developer* - [@Gharsallah-Islem](https://github.com/Gharsallah-Islem)
+
+---
 
 ## 📄 License
-MIT License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [EfficientNet](https://github.com/qubvel/efficientnet) - CNN architecture
+- [Spring Boot](https://spring.io/projects/spring-boot) - Backend framework
+- [Angular](https://angular.io/) - Frontend framework
+- [Stripe](https://stripe.com/) - Payment processing
+- [Leaflet](https://leafletjs.com/) - Interactive maps
