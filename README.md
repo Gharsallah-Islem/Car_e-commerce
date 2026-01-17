@@ -261,6 +261,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 ## 👥 Contributors
 
 - **Islem Gharsallah** - *Full Stack Developer* - [@Gharsallah-Islem](https://github.com/Gharsallah-Islem)
+- **Youssef Hammi** - *Full Stack Developer* -[@Youssef](https://github.com/WhatIsThePoint)
+- **Mouhamed Melek Ben Jemaa** - *Full Stack Developer* -[@Mohamed Malek Ben Jemaa](https://github.com/SiMalek)
 
 ---
 
