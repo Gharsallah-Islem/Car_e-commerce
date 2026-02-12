@@ -779,7 +779,7 @@ If you have questions about the product backlog:
 
 ---
 
-**Remember**: A good product backlog is living document. It should evolve with your product, team, and understanding. Start simple, and refine as you go!
+**Remember**: A good product backlog is a living document. It should evolve with your product, team, and understanding. Start simple, and refine as you go!
 
 ---
 
