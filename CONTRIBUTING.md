@@ -10,6 +10,7 @@ Thank you for considering contributing to our project! 🎉
 - [Commit Guidelines](#commit-guidelines)
 - [Pull Request Process](#pull-request-process)
 - [Testing Guidelines](#testing-guidelines)
+- [Product Backlog](#product-backlog)
 
 ## 🤝 Code of Conduct
 
@@ -254,6 +255,17 @@ Use the [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md)
 
 - Open a [Discussion](https://github.com/Gharsallah-Islem/Car_e-commerce/discussions)
 - Contact project maintainers
+
+## 📋 Product Backlog
+
+For information on how to create and manage the product backlog, user stories, and sprint planning, see our comprehensive [Product Backlog Guide](docs/PRODUCT_BACKLOG_GUIDE.md).
+
+This guide covers:
+- Creating user stories
+- Prioritization techniques
+- Estimation methods
+- Backlog refinement
+- Templates and examples
 
 ## 🙏 Thank You!
 

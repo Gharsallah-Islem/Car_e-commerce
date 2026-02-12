@@ -205,6 +205,7 @@ Car_e-commerce/
 | [Mobile](docs/MOBILE.md) | Android app architecture |
 | [Deployment](docs/DEPLOYMENT.md) | Setup and production guide |
 | [User Guide](docs/USER_GUIDE.md) | Feature documentation by role |
+| [Product Backlog Guide](docs/PRODUCT_BACKLOG_GUIDE.md) | How to create and manage product backlogs |
 
 ---
 

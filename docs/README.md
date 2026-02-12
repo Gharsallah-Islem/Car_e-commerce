@@ -44,7 +44,13 @@ Welcome to the comprehensive documentation for the Car E-Commerce Platform.
 - Testing Strategy
 - Code Review Process
 
-### 8. [API Reference](./api/README.md)
+### 8. [Project Management](PRODUCT_BACKLOG_GUIDE.md)
+- Product Backlog Guide
+- User Story Templates
+- Sprint Planning
+- Agile Best Practices
+
+### 9. [API Reference](./api/README.md)
 - REST API Endpoints
 - WebSocket Events
 - Request/Response Formats
